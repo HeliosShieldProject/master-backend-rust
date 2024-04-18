@@ -47,7 +47,6 @@ pub async fn sign_in(
     if payload.email != "test" || payload.password != "test" {
         return Err(AuthError::WrongCredentials);
     }
-    let user = 
 
     let now = Local::now();
     let iat = now.timestamp();
