@@ -1,19 +1,26 @@
 CREATE TYPE "Country" AS ENUM ('UK', 'USA', 'Germany');
 
-CREATE TYPE "SessionStatus" AS ENUM ('ACTIVE', 'CLOSED');
+CREATE TYPE "SessionStatus" AS ENUM ('Active', 'Closed');
 
-CREATE TYPE "ConfigStatus" AS ENUM ('IN_USE', 'NOT_IN_USE');
+CREATE TYPE "ConfigStatus" AS ENUM ('InUse', 'NotInUse');
 
-CREATE TYPE "OS" AS ENUM ('ios', 'linux', 'windows', 'macos', 'android');
-
-CREATE TYPE "DeviceStatus" AS ENUM (
-    'ACTIVE',
-    'REVOKED',
-    'BANNED',
-    'PERMANENTLY_BANNED'
+CREATE TYPE "OS" AS ENUM (
+    'Windows',
+    'Linux',
+    'MacOS',
+    'IOS',
+    'Android',
+    'Unknown'
 );
 
-CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'BANNED', 'PERMANENTLY_BANNED');
+CREATE TYPE "DeviceStatus" AS ENUM ('LoggedIn', 'LoggedOut', 'Revoked');
+
+CREATE TYPE "UserStatus" AS ENUM (
+    'Active',
+    'Banned',
+    'PermanentlyBanned',
+    'Deleted'
+);
 
 CREATE TABLE
     "Server" (
@@ -33,7 +40,7 @@ CREATE TABLE
         "privateKey" TEXT NOT NULL,
         "userIp" TEXT NOT NULL,
         "serverId" TEXT NOT NULL,
-        "status" "ConfigStatus" NOT NULL DEFAULT 'NOT_IN_USE',
+        "status" "ConfigStatus" NOT NULL DEFAULT 'NotInUse',
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP(3) NOT NULL,
         CONSTRAINT "Config_pkey" PRIMARY KEY ("id")
@@ -46,7 +53,7 @@ CREATE TABLE
         "password" TEXT NOT NULL,
         "bannedAt" TIMESTAMP(3),
         "bannedTill" TIMESTAMP(3),
-        "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
+        "status" "UserStatus" NOT NULL DEFAULT 'Active',
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP(3) NOT NULL,
         CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -61,7 +68,7 @@ CREATE TABLE
         "bannedAt" TIMESTAMP(3),
         "bannedTill" TIMESTAMP(3),
         "revokedAt" TIMESTAMP(3),
-        "status" "DeviceStatus" NOT NULL DEFAULT 'ACTIVE',
+        "status" "DeviceStatus" NOT NULL DEFAULT 'LoggedIn',
         "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updatedAt" TIMESTAMP(3) NOT NULL,
         CONSTRAINT "Device_pkey" PRIMARY KEY ("id")
@@ -70,7 +77,7 @@ CREATE TABLE
 CREATE TABLE
     "Session" (
         "id" TEXT NOT NULL,
-        "status" "SessionStatus" NOT NULL DEFAULT 'ACTIVE',
+        "status" "SessionStatus" NOT NULL DEFAULT 'Active',
         "openedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "closedAt" TIMESTAMP(3),
         "deviceId" TEXT NOT NULL,
