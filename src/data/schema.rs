@@ -31,13 +31,13 @@ diesel::table! {
     use super::sql_types::ConfigStatus;
 
     Config (id) {
-        id -> Text,
-        privateKey -> Text,
-        userIp -> Text,
-        serverId -> Text,
+        id -> Uuid,
+        private_key -> Text,
+        user_ip -> Text,
+        server_id -> Uuid,
         status -> ConfigStatus,
-        createdAt -> Timestamp,
-        updatedAt -> Timestamp,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -47,16 +47,16 @@ diesel::table! {
     use super::sql_types::DeviceStatus;
 
     Device (id) {
-        id -> Text,
+        id -> Uuid,
         name -> Text,
         os -> Os,
-        userId -> Text,
-        bannedAt -> Nullable<Timestamp>,
-        bannedTill -> Nullable<Timestamp>,
-        revokedAt -> Nullable<Timestamp>,
+        user_id -> Uuid,
+        banned_at -> Nullable<Timestamp>,
+        banned_till -> Nullable<Timestamp>,
+        revoked_at -> Nullable<Timestamp>,
         status -> DeviceStatus,
-        createdAt -> Timestamp,
-        updatedAt -> Timestamp,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -65,13 +65,13 @@ diesel::table! {
     use super::sql_types::Country;
 
     Server (id) {
-        id -> Text,
-        publicKey -> Text,
-        backendUri -> Text,
-        wireguardUri -> Text,
+        id -> Uuid,
+        public_key -> Text,
+        backend_uri -> Text,
+        wireguard_uri -> Text,
         country -> Country,
-        createdAt -> Timestamp,
-        updatedAt -> Timestamp,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -80,12 +80,12 @@ diesel::table! {
     use super::sql_types::SessionStatus;
 
     Session (id) {
-        id -> Text,
+        id -> Uuid,
         status -> SessionStatus,
-        openedAt -> Timestamp,
-        closedAt -> Nullable<Timestamp>,
-        deviceId -> Text,
-        configId -> Text,
+        opened_at -> Timestamp,
+        closed_at -> Nullable<Timestamp>,
+        device_id -> Uuid,
+        config_id -> Uuid,
     }
 }
 
@@ -94,21 +94,21 @@ diesel::table! {
     use super::sql_types::UserStatus;
 
     User (id) {
-        id -> Text,
+        id -> Uuid,
         email -> Text,
         password -> Text,
-        bannedAt -> Nullable<Timestamp>,
-        bannedTill -> Nullable<Timestamp>,
+        banned_at -> Nullable<Timestamp>,
+        banned_till -> Nullable<Timestamp>,
         status -> UserStatus,
-        createdAt -> Timestamp,
-        updatedAt -> Timestamp,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
-diesel::joinable!(Config -> Server (serverId));
-diesel::joinable!(Device -> User (userId));
-diesel::joinable!(Session -> Config (configId));
-diesel::joinable!(Session -> Device (deviceId));
+diesel::joinable!(Config -> Server (server_id));
+diesel::joinable!(Device -> User (user_id));
+diesel::joinable!(Session -> Config (config_id));
+diesel::joinable!(Session -> Device (device_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     Config,

@@ -3,8 +3,9 @@ use chrono::{Duration, Local};
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use uuid::uuid;
 
-use crate::AppState;
+use crate::{data::repositories::user_repository, AppState};
 
 #[derive(Debug, Deserialize)]
 pub struct Device {
@@ -44,16 +45,19 @@ pub async fn sign_in(
     if payload.device.os.is_empty() || payload.device.name.is_empty() {
         return Err(AuthError::MissingDevice);
     }
-    if payload.email != "test" || payload.password != "test" {
+    let user_id = uuid!("4179ac9e-1fb1-4ab6-8aee-005a8670462a");
+    let user = user_repository::get_by_id(&state.pool, user_id).await;
+    if user.is_err() {
         return Err(AuthError::WrongCredentials);
     }
+    let user = user.unwrap();
 
     let now = Local::now();
     let iat = now.timestamp();
     let exp = (now + Duration::hours(1)).timestamp();
     let claims = Claims {
         device_id: "someId".to_string(),
-        user_id: "someId".to_string(),
+        user_id: user.id.to_string(),
         exp,
         iat,
     };
