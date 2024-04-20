@@ -7,7 +7,7 @@ use diesel::{
     serialize::{self, IsNull, Output, ToSql},
 };
 
-#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq)]
+#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy)]
 #[diesel(sql_type = crate::data::schema::sql_types::Os)]
 pub enum OS {
     Windows,
@@ -16,6 +16,19 @@ pub enum OS {
     Android,
     IOS,
     Unknown,
+}
+
+impl OS {
+    pub fn from_str(s: &str) -> Self {
+        match s {
+            "Windows" => OS::Windows,
+            "Linux" => OS::Linux,
+            "MacOS" => OS::MacOS,
+            "Android" => OS::Android,
+            "IOS" => OS::IOS,
+            _ => OS::Unknown,
+        }
+    }
 }
 
 impl ToSql<crate::data::schema::sql_types::Os, Pg> for OS {
