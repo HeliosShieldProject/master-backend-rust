@@ -5,11 +5,11 @@ use routers::app_router;
 use tokio::net::TcpListener;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
-
 mod config;
-mod controllers;
-mod routers;
+mod handlers;
 mod data;
+mod routers;
+mod utils;
 
 #[derive(Clone)]
 pub struct AppState {

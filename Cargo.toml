@@ -25,3 +25,5 @@ validator = { version = "0.18", features = ["derive"] }
 log = { version = "0.4", features = ["max_level_debug"] }
 listenfd = "1.0.1"
 chrono = "0.4.38"
+argon2 = "0.5.3"
+rand_core = { version = "0.6.3", features = ["std"] }
