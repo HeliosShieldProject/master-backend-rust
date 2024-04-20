@@ -32,7 +32,7 @@ CREATE TABLE
         "wireguard_uri" TEXT NOT NULL,
         "country" "Country" NOT NULL,
         "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updated_at" TIMESTAMP(3) NOT NULL
+        "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
 CREATE TABLE
@@ -43,7 +43,7 @@ CREATE TABLE
         "server_id" uuid NOT NULL,
         "status" "ConfigStatus" NOT NULL DEFAULT 'NotInUse',
         "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updated_at" TIMESTAMP(3) NOT NULL
+        "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
 CREATE TABLE
@@ -55,7 +55,7 @@ CREATE TABLE
         "banned_till" TIMESTAMP(3),
         "status" "UserStatus" NOT NULL DEFAULT 'Active',
         "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updated_at" TIMESTAMP(3) NOT NULL
+        "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
 CREATE TABLE
@@ -69,7 +69,7 @@ CREATE TABLE
         "revoked_at" TIMESTAMP(3),
         "status" "DeviceStatus" NOT NULL DEFAULT 'LoggedIn',
         "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        "updated_at" TIMESTAMP(3) NOT NULL
+        "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
 CREATE TABLE
@@ -103,3 +103,34 @@ ALTER TABLE "Device" ADD CONSTRAINT "Device_user_id_fkey" FOREIGN KEY ("user_id"
 ALTER TABLE "Session" ADD CONSTRAINT "Session_device_id_fkey" FOREIGN KEY ("device_id") REFERENCES "Device" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 ALTER TABLE "Session" ADD CONSTRAINT "Session_config_id_fkey" FOREIGN KEY ("config_id") REFERENCES "Config" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER table_updated_at_trigger
+BEFORE UPDATE ON "Server"
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+
+CREATE TRIGGER table_updated_at_trigger
+BEFORE UPDATE ON "Config"
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+
+CREATE TRIGGER table_updated_at_trigger
+BEFORE UPDATE ON "User"
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+
+CREATE TRIGGER table_updated_at_trigger
+BEFORE UPDATE ON "Device"
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
