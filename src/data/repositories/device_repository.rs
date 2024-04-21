@@ -75,3 +75,20 @@ pub async fn add_device(
 
     Ok(result)
 }
+
+pub async fn logout_device(
+    pool: &deadpool_diesel::postgres::Pool,
+    device_id: Uuid,
+) -> Result<(), InfraError> {
+    let conn = pool.get().await.map_err(adapt_infra_error)?;
+    let _ = conn.interact(move |conn| {
+        diesel::update(schema::Device::table)
+            .filter(schema::Device::id.eq(device_id))
+            .set(schema::Device::status.eq(DeviceStatus::LoggedOut))
+            .execute(conn)
+    })
+    .await
+    .map_err(adapt_infra_error);
+
+    Ok(())
+}
