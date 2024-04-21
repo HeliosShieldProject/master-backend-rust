@@ -1,6 +1,5 @@
 use config::ENV;
 use deadpool_diesel::postgres::{Manager, Pool};
-use listenfd::ListenFd;
 use routers::app_router;
 use tokio::net::TcpListener;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -31,14 +30,9 @@ async fn main() {
     let state = AppState { pool };
     let app = app_router(state.clone()).with_state(state);
 
-    let mut listenfd = ListenFd::from_env();
-    let listener = match listenfd.take_tcp_listener(0).unwrap() {
-        Some(listener) => {
-            listener.set_nonblocking(true).unwrap();
-            TcpListener::from_std(listener).unwrap()
-        }
-        None => TcpListener::bind("127.0.0.1:3000").await.unwrap(),
-    };
+    let listener = TcpListener::bind(format!("localhost:{}", ENV.master_backend_port))
+        .await
+        .unwrap();
 
     axum::serve(listener, app.into_make_service())
         .await
