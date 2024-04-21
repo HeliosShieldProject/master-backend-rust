@@ -1,4 +1,5 @@
 use crate::{
+    config::ENV,
     data::{
         enums,
         repositories::{device_repository, user_repository},
@@ -101,13 +102,13 @@ pub async fn sign_up(
     let access_token = encode(
         &Header::default(),
         &access_claims,
-        &EncodingKey::from_secret(state.env.jwt_access_secret().as_ref()),
+        &EncodingKey::from_secret(ENV.jwt_access_secret.as_ref()),
     )
     .map_err(|_| AuthError::TokenCreation)?;
     let refresh_token = encode(
         &Header::default(),
         &refresh_claims,
-        &EncodingKey::from_secret(state.env.jwt_refresh_secret().as_ref()),
+        &EncodingKey::from_secret(ENV.jwt_refresh_secret.as_ref()),
     )
     .map_err(|_| AuthError::TokenCreation)?;
 

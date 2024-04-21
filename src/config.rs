@@ -1,41 +1,24 @@
 use dotenvy::dotenv;
+use once_cell::sync::Lazy;
 use std::env;
-use tokio::sync::OnceCell;
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    master_backend_port: u16,
-    database_url: String,
-    jwt_access_secret: String,
-    jwt_refresh_secret: String,
-    salt: String,
+    /// The port the master backend listens on.
+    pub master_backend_port: u16,
+    /// The URL of the database.
+    pub database_url: String,
+    /// The secret used to sign access tokens.
+    pub jwt_access_secret: String,
+    /// The secret used to sign refresh tokens.
+    pub jwt_refresh_secret: String,
+    /// The salt used to hash passwords.
+    pub salt: String,
 }
 
-impl Config {
-    pub fn master_backend_port(&self) -> u16 {
-        self.master_backend_port
-    }
-
-    pub fn database_url(&self) -> &str {
-        &self.database_url
-    }
-
-    pub fn jwt_access_secret(&self) -> &str {
-        &self.jwt_access_secret
-    }
-
-    pub fn jwt_refresh_secret(&self) -> &str {
-        &self.jwt_refresh_secret
-    }
-
-    pub fn salt(&self) -> &str {
-        &self.salt
-    }
-}
-
-async fn init_config() -> Config {
+pub static ENV: Lazy<Config> = Lazy::new(|| {
     dotenv().ok();
-    let config = Config {
+    Config {
         master_backend_port: env::var("MASTER_BACKEND_PORT")
             .expect("MASTER_BACKEND_PORT must be set")
             .parse()
@@ -44,12 +27,5 @@ async fn init_config() -> Config {
         jwt_access_secret: env::var("JWT_ACCESS_SECRET").expect("JWT_ACCESS_SECRET must be set"),
         jwt_refresh_secret: env::var("JWT_REFRESH_SECRET").expect("JWT_REFRESH_SECRET must be set"),
         salt: env::var("SALT").expect("SALT must be set"),
-    };
-    config
-}
-
-pub static CONFIG: OnceCell<Config> = OnceCell::const_new();
-
-pub async fn config() -> &'static Config {
-    CONFIG.get_or_init(init_config).await
-}
+    }
+});
