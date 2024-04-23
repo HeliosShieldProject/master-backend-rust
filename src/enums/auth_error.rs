@@ -13,6 +13,8 @@ pub enum AuthError {
     MissingCredentials,
     MissingDevice,
     TokenCreation,
+    UserNotFound,
+    UserAlreadyExists,
 }
 
 impl IntoResponse for AuthError {
@@ -24,6 +26,8 @@ impl IntoResponse for AuthError {
             AuthError::MissingCredentials => (StatusCode::BAD_REQUEST, "Missing credentials"),
             AuthError::MissingDevice => (StatusCode::BAD_REQUEST, "Missing device"),
             AuthError::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, "Token creation error"),
+            AuthError::UserNotFound => (StatusCode::NOT_FOUND, "User not found"),
+            AuthError::UserAlreadyExists => (StatusCode::BAD_REQUEST, "User already exists"),
         };
         let body = Json(json!({
             "error": error_message,
