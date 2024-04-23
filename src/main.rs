@@ -6,6 +6,9 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod config;
 mod data;
+mod dto;
+mod enums;
+mod guards;
 mod handlers;
 mod routers;
 mod utils;
