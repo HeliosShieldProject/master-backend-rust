@@ -3,11 +3,6 @@ use argon2::{
     Argon2,
 };
 
-#[derive(Debug)]
-pub enum HashError {
-    HashError,
-}
-
 pub fn verify_password(password: &str, hash: &str) -> bool {
     let argon2 = Argon2::default();
     let hash = PasswordHash::new(hash).unwrap();

@@ -3,10 +3,7 @@ use argon2::{
     Argon2,
 };
 
-#[derive(Debug)]
-pub enum HashError {
-    HashError,
-}
+use crate::enums::HashError;
 
 pub fn hash_password(password: &str) -> Result<String, HashError> {
     let argon2 = Argon2::default();
