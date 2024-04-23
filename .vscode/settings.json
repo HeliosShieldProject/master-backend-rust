@@ -1,0 +1,7 @@
+{
+  "discord.lowerDetailsEditing": "Helios | Rust master backend",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "always",
+    "source.organizeImports": "always"
+  }
+}
