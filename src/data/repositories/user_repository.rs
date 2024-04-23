@@ -31,9 +31,10 @@ pub struct NewUser {
 
 pub async fn get_by_id(
     pool: &deadpool_diesel::postgres::Pool,
-    id: Uuid,
+    id: &Uuid,
 ) -> Result<User, InfraError> {
     let conn = pool.get().await.map_err(adapt_infra_error)?;
+    let id = id.clone();
     let result = conn
         .interact(move |conn| {
             schema::User::table
@@ -70,13 +71,14 @@ pub async fn get_by_email(
 
 pub async fn add_user(
     pool: &deadpool_diesel::postgres::Pool,
-    new_user: NewUser,
+    new_user: &NewUser,
 ) -> Result<User, InfraError> {
     if get_by_email(&pool, &new_user.email).await.is_ok() {
         return Err(InfraError::NotFound);
     }
     
     let conn = pool.get().await.map_err(adapt_infra_error)?;
+    let new_user = new_user.clone();
     let result = conn
         .interact(move |conn| {
             diesel::insert_into(schema::User::table)

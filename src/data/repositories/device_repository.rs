@@ -34,9 +34,10 @@ pub struct NewDevice {
 
 pub async fn get_device(
     pool: &deadpool_diesel::postgres::Pool,
-    device: NewDevice,
+    device: &NewDevice,
 ) -> Result<Device, InfraError> {
     let conn = pool.get().await.map_err(adapt_infra_error)?;
+    let device = device.clone();
     let result = conn
         .interact(move |conn| {
             schema::Device::table
@@ -55,18 +56,19 @@ pub async fn get_device(
 
 pub async fn add_device(
     pool: &deadpool_diesel::postgres::Pool,
-    new_device: NewDevice,
+    new_device: &NewDevice,
 ) -> Result<Device, InfraError> {
-    let device = get_device(&pool, new_device.clone()).await;
+    let device = get_device(&pool, &new_device).await;
     if device.is_ok() {
         return Ok(device.unwrap());
     }
 
     let conn = pool.get().await.map_err(adapt_infra_error)?;
+    let new_device = new_device.clone();
     let result = conn
         .interact(move |conn| {
             diesel::insert_into(schema::Device::table)
-                .values(&new_device)
+                .values(new_device)
                 .get_result(conn)
         })
         .await
@@ -78,17 +80,19 @@ pub async fn add_device(
 
 pub async fn logout_device(
     pool: &deadpool_diesel::postgres::Pool,
-    device_id: Uuid,
+    device_id: &Uuid,
 ) -> Result<(), InfraError> {
     let conn = pool.get().await.map_err(adapt_infra_error)?;
-    let _ = conn.interact(move |conn| {
-        diesel::update(schema::Device::table)
-            .filter(schema::Device::id.eq(device_id))
-            .set(schema::Device::status.eq(DeviceStatus::LoggedOut))
-            .execute(conn)
-    })
-    .await
-    .map_err(adapt_infra_error);
+    let device_id = device_id.clone();
+    let _ = conn
+        .interact(move |conn| {
+            diesel::update(schema::Device::table)
+                .filter(schema::Device::id.eq(device_id))
+                .set(schema::Device::status.eq(DeviceStatus::LoggedOut))
+                .execute(conn)
+        })
+        .await
+        .map_err(adapt_infra_error);
 
     Ok(())
 }
