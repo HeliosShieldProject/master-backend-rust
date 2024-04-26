@@ -3,16 +3,15 @@ use argon2::{
     Argon2,
 };
 
-use crate::enums::HashError;
+use crate::enums::errors::internal::{HashError, InternalError};
 
-pub fn hash_password(password: &str) -> Result<String, HashError> {
+pub fn hash_password(password: &str) -> Result<String, InternalError> {
     let argon2 = Argon2::default();
     let salt = SaltString::generate(&mut OsRng);
 
-    let hash = match argon2.hash_password(password.as_bytes(), &salt) {
-        Ok(hash) => hash,
-        Err(_) => return Err(HashError::HashError),
-    };
+    let hash = argon2
+        .hash_password(password.as_bytes(), &salt)
+        .map_err(|_| InternalError::HashError(HashError::Hash))?;
 
     Ok(hash.to_string())
 }

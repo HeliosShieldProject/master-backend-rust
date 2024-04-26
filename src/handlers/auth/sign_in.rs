@@ -4,7 +4,7 @@ use crate::{
         repositories::{device_repository, user_repository},
     },
     dto::auth::Response,
-    enums::AuthError,
+    enums::errors::response::{to_response, ResponseError},
     utils::{hash::verify_password, token::generate_tokens},
     AppState,
 };
@@ -27,14 +27,12 @@ pub struct Request {
 pub async fn sign_in(
     State(state): State<AppState>,
     Json(payload): Json<Request>,
-) -> Result<Json<Response>, AuthError> {
+) -> Result<Json<Response>, ResponseError> {
     let user = user_repository::get_by_email(&state.pool, &payload.email)
         .await
-        .map_err(|_| AuthError::WrongEmail)?;
+        .map_err(to_response)?;
 
-    if !verify_password(&payload.password, &user.password) {
-        return Err(AuthError::WrongPassword);
-    }
+    verify_password(&payload.password, &user.password).map_err(to_response)?;
 
     let device = device_repository::NewDevice {
         name: payload.device.name.clone(),
@@ -44,12 +42,12 @@ pub async fn sign_in(
 
     let device = device_repository::add_device(&state.pool, &device)
         .await
-        .map_err(|_| AuthError::MissingDevice)?;
+        .map_err(to_response)?;
 
     let (access_token, refresh_token) =
         generate_tokens(&user.id.to_string(), &device.id.to_string())
             .await
-            .map_err(|_| AuthError::TokenCreation)?;
+            .map_err(to_response)?;
 
     Ok(Json(Response::new(access_token, refresh_token)))
 }

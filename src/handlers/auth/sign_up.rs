@@ -4,7 +4,7 @@ use crate::{
         repositories::{device_repository, user_repository},
     },
     dto::auth::Response,
-    enums::AuthError,
+    enums::errors::response::{to_response, AuthError, ResponseError},
     utils::{hash, token::generate_tokens},
     AppState,
 };
@@ -27,14 +27,15 @@ pub struct Request {
 pub async fn sign_up(
     State(state): State<AppState>,
     Json(payload): Json<Request>,
-) -> Result<Json<Response>, AuthError> {
-    let existing_user = user_repository::get_by_email(&state.pool, &payload.email).await;
-    if existing_user.is_ok() {
-        return Err(AuthError::UserAlreadyExists);
+) -> Result<Json<Response>, ResponseError> {
+    if user_repository::get_by_email(&state.pool, &payload.email)
+        .await
+        .is_ok()
+    {
+        return Err(ResponseError::AuthError(AuthError::UserAlreadyExists));
     }
 
-    let hashed_password =
-        hash::hash_password(&payload.password).map_err(|_| AuthError::TokenCreation)?;
+    let hashed_password = hash::hash_password(&payload.password).map_err(to_response)?;
 
     let new_user = user_repository::NewUser {
         email: payload.email.clone(),
@@ -43,7 +44,7 @@ pub async fn sign_up(
 
     let user = user_repository::add_user(&state.pool, &new_user)
         .await
-        .map_err(|_| AuthError::UserNotFound)?;
+        .map_err(to_response)?;
 
     let device = device_repository::NewDevice {
         name: payload.device.name.clone(),
@@ -53,12 +54,12 @@ pub async fn sign_up(
 
     let device = device_repository::add_device(&state.pool, &device)
         .await
-        .map_err(|_| AuthError::MissingDevice)?;
+        .map_err(to_response)?;
 
     let (access_token, refresh_token) =
         generate_tokens(&user.id.to_string(), &device.id.to_string())
             .await
-            .map_err(|_| AuthError::TokenCreation)?;
+            .map_err(to_response)?;
 
     Ok(Json(Response::new(access_token, refresh_token)))
 }

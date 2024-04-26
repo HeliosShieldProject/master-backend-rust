@@ -1,7 +1,9 @@
-use crate::data::{
-    enums::{DeviceStatus, OS},
-    errors::{adapt_infra_error, InfraError},
-    schema,
+use crate::{
+    data::{
+        enums::{DeviceStatus, OS},
+        schema,
+    },
+    enums::errors::internal::{to_internal, DeviceError, InternalError},
 };
 use diesel::prelude::*;
 use diesel::{QueryDsl, Queryable, Selectable};
@@ -35,8 +37,8 @@ pub struct NewDevice {
 pub async fn get_device(
     pool: &deadpool_diesel::postgres::Pool,
     device: &NewDevice,
-) -> Result<Device, InfraError> {
-    let conn = pool.get().await.map_err(adapt_infra_error)?;
+) -> Result<Device, InternalError> {
+    let conn = pool.get().await.map_err(to_internal)?;
     let device = device.clone();
     let result = conn
         .interact(move |conn| {
@@ -48,8 +50,13 @@ pub async fn get_device(
                 .first(conn)
         })
         .await
-        .map_err(adapt_infra_error)?
-        .map_err(adapt_infra_error)?;
+        .map_err(to_internal)?
+        .map_err(|e| match e {
+            diesel::result::Error::NotFound => {
+                InternalError::DeviceError(DeviceError::DeviceNotFound)
+            }
+            _ => InternalError::Internal,
+        })?;
 
     Ok(result)
 }
@@ -57,14 +64,31 @@ pub async fn get_device(
 pub async fn add_device(
     pool: &deadpool_diesel::postgres::Pool,
     new_device: &NewDevice,
-) -> Result<Device, InfraError> {
-    let device = get_device(&pool, &new_device).await;
-    if device.is_ok() {
-        return Ok(device.unwrap());
+) -> Result<Device, InternalError> {
+    let conn = pool.get().await.map_err(to_internal)?;
+    let new_device = new_device.clone();
+
+    if let Ok(device) = get_device(&pool, &new_device).await {
+        let _ = conn
+            .interact(move |conn| {
+                diesel::update(schema::Device::table)
+                    .filter(schema::Device::name.eq(new_device.name))
+                    .filter(schema::Device::os.eq(new_device.os))
+                    .filter(schema::Device::user_id.eq(new_device.user_id))
+                    .set(schema::Device::status.eq(DeviceStatus::LoggedIn))
+                    .execute(conn)
+            })
+            .await
+            .map_err(to_internal)?
+            .map_err(|e| match e {
+                diesel::result::Error::NotFound => {
+                    InternalError::DeviceError(DeviceError::DeviceNotFound)
+                }
+                _ => InternalError::Internal,
+            })?;
+        return Ok(device);
     }
 
-    let conn = pool.get().await.map_err(adapt_infra_error)?;
-    let new_device = new_device.clone();
     let result = conn
         .interact(move |conn| {
             diesel::insert_into(schema::Device::table)
@@ -72,8 +96,14 @@ pub async fn add_device(
                 .get_result(conn)
         })
         .await
-        .map_err(adapt_infra_error)?
-        .map_err(adapt_infra_error)?;
+        .map_err(to_internal)?
+        .map_err(|e| match e {
+            diesel::result::Error::DatabaseError(
+                diesel::result::DatabaseErrorKind::UniqueViolation,
+                _,
+            ) => InternalError::DeviceError(DeviceError::DeviceAlreadyExists),
+            _ => InternalError::Internal,
+        })?;
 
     Ok(result)
 }
@@ -81,8 +111,8 @@ pub async fn add_device(
 pub async fn logout_device(
     pool: &deadpool_diesel::postgres::Pool,
     device_id: &Uuid,
-) -> Result<(), InfraError> {
-    let conn = pool.get().await.map_err(adapt_infra_error)?;
+) -> Result<(), InternalError> {
+    let conn = pool.get().await.map_err(to_internal)?;
     let device_id = device_id.clone();
     let _ = conn
         .interact(move |conn| {
@@ -92,7 +122,7 @@ pub async fn logout_device(
                 .execute(conn)
         })
         .await
-        .map_err(adapt_infra_error);
+        .map_err(to_internal);
 
     Ok(())
 }
