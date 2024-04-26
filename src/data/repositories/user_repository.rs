@@ -103,13 +103,7 @@ pub async fn change_password(
     pool: &deadpool_diesel::postgres::Pool,
     id: &Uuid,
     new_password: &str,
-) -> Result<User, InternalError> {
-    let user = get_by_id(&pool, &id).await?;
-    if user.password == new_password {
-        return Err(InternalError::AuthError(AuthError::PasswordIsSame));
-    }
-
-    let conn = pool.get().await.map_err(to_internal)?;
+) -> Result<User, InternalError> {let conn = pool.get().await.map_err(to_internal)?;
     let id = id.clone();
     let new_password = new_password.to_owned();
     let result = conn

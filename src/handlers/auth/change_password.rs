@@ -1,11 +1,8 @@
 use crate::{
-    data::{
-        enums,
-        repositories::{device_repository, user_repository},
-    },
-    dto::auth::Response,
-    enums::errors::response::ResponseError,
-    utils::{hash::verify_password, token::generate_tokens},
+    data::repositories::user_repository,
+    dto::auth::AccessToken,
+    enums::errors::response::{to_response, AuthError, ResponseError},
+    utils::hash,
     AppState,
 };
 use axum::{extract::State, Json};
@@ -16,7 +13,22 @@ pub struct Request {
     password: String,
 }
 
-// pub async fn change_password(
-//     State(state): State<AppState>,
-//     Json(payload): Json<Request>,
-// ) -> Result<Json<Response>, ResponseError> 
+pub async fn change_password(
+    claims: AccessToken,
+    State(state): State<AppState>,
+    Json(payload): Json<Request>,
+) -> Result<String, ResponseError> {
+    let user = user_repository::get_by_id(&state.pool, &claims.user_id)
+        .await
+        .map_err(to_response)?;
+
+    if hash::verify_password(&payload.password, &user.password).is_ok() {
+        return Err(ResponseError::AuthError(AuthError::PasswordIsSame));
+    }
+    let hashed_password = hash::hash_password(&payload.password).map_err(to_response)?;
+
+    user_repository::change_password(&state.pool, &claims.user_id, &hashed_password)
+        .await
+        .map_err(to_response)?;
+    Ok("Password changed".to_string())
+}

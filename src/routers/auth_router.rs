@@ -1,7 +1,10 @@
-use axum::{routing::{post, put}, Router};
+use axum::{
+    routing::{post, put},
+    Router,
+};
 
 use crate::{
-    handlers::auth::{logout, refresh, sign_in, sign_up},
+    handlers::auth::{change_password, logout, refresh, sign_in, sign_up},
     AppState,
 };
 
@@ -11,6 +14,6 @@ pub fn auth_router(state: AppState) -> Router<AppState> {
         .route("/sign-up", post(sign_up))
         .route("/refresh", post(refresh))
         .route("/logout", post(logout))
-        .route("/change-password", put(|| async { "Change password" }))
+        .route("/change-password", put(change_password))
         .with_state(state)
 }
