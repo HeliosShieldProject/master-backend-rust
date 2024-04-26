@@ -1,16 +1,15 @@
+use super::{auth_router::auth_router, session_router::session_router};
+use crate::AppState;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use axum::routing::get;
 use axum::Router;
 
-use crate::AppState;
-
-use super::auth_router::auth_router;
-
 pub fn app_router(state: AppState) -> Router<AppState> {
     Router::new()
         .route("/", get(|| async { "Hello, World!" }))
         .nest("/auth", auth_router(state.clone()))
+        .nest("/session", session_router(state.clone()))
         .fallback(handler_404)
 }
 

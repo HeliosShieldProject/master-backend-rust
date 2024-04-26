@@ -7,7 +7,7 @@ use diesel::{
     serialize::{self, IsNull, Output, ToSql},
 };
 
-#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq)]
+#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy)]
 #[diesel(sql_type = crate::data::schema::sql_types::ConfigStatus)]
 pub enum ConfigStatus {
     InUse,

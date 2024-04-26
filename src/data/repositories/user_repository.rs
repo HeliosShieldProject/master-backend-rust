@@ -7,7 +7,7 @@ use diesel::{QueryDsl, Queryable, Selectable};
 use std::time::SystemTime;
 use uuid::Uuid;
 
-#[derive(Queryable, Selectable)]
+#[derive(Queryable, Selectable, Debug, Clone)]
 #[diesel(table_name = schema::User)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct User {

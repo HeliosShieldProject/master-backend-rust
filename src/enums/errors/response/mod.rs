@@ -4,6 +4,12 @@ pub use auth_error::AuthError;
 mod device_error;
 pub use device_error::DeviceError;
 
+mod country_error;
+pub use country_error::CountryError;
+
+mod session_error;
+pub use session_error::SessionError;
+
 use super::internal;
 use axum::{
     http::StatusCode,
@@ -15,6 +21,8 @@ use serde_json::json;
 pub enum ResponseError {
     AuthError(AuthError),
     DeviceError(DeviceError),
+    CountryError(CountryError),
+    SessionError(SessionError),
     Internal,
 }
 
@@ -69,6 +77,19 @@ impl Error for internal::InternalError {
             internal::InternalError::TokenError(e) => match e {
                 internal::TokenError::Encode => ResponseError::AuthError(AuthError::TokenCreation),
             },
+            internal::InternalError::CountryError(e) => match e {
+                internal::CountryError::CountryNotFound => {
+                    ResponseError::CountryError(CountryError::CountryNotFound)
+                }
+            },
+            internal::InternalError::SessionError(e) => match e {
+                internal::SessionError::SessionNotFound => {
+                    ResponseError::SessionError(SessionError::SessionNotFound)
+                }
+                internal::SessionError::SessionAlreadyExists => {
+                    ResponseError::SessionError(SessionError::SessionAlreadyExists)
+                }
+            },
             &internal::InternalError::UuidParse => ResponseError::Internal,
             &internal::InternalError::Internal => ResponseError::Internal,
         }
@@ -94,6 +115,15 @@ impl IntoResponse for ResponseError {
                     (StatusCode::BAD_REQUEST, "Device already exists")
                 }
                 DeviceError::DeviceNotFound => (StatusCode::NOT_FOUND, "Device not found"),
+            },
+            ResponseError::CountryError(e) => match e {
+                CountryError::CountryNotFound => (StatusCode::NOT_FOUND, "Country not found"),
+            },
+            ResponseError::SessionError(e) => match e {
+                SessionError::SessionNotFound => (StatusCode::NOT_FOUND, "Session not found"),
+                SessionError::SessionAlreadyExists => {
+                    (StatusCode::BAD_REQUEST, "Session already exists")
+                }
             },
             ResponseError::Internal => (StatusCode::INTERNAL_SERVER_ERROR, "Internal error"),
         };

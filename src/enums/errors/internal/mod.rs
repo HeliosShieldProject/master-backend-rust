@@ -10,11 +10,19 @@ pub use auth_error::AuthError;
 pub mod device_error;
 pub use device_error::DeviceError;
 
+pub mod country_error;
+pub use country_error::CountryError;
+
+pub mod session_error;
+pub use session_error::SessionError;
+
 pub enum InternalError {
     HashError(HashError),
     TokenError(TokenError),
     AuthError(AuthError),
     DeviceError(DeviceError),
+    CountryError(CountryError),
+    SessionError(SessionError),
     UuidParse,
     Internal,
 }

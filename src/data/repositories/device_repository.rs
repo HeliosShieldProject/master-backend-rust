@@ -10,8 +10,9 @@ use diesel::{QueryDsl, Queryable, Selectable};
 use std::time::SystemTime;
 use uuid::Uuid;
 
-#[derive(Queryable, Selectable, Debug)]
+#[derive(Queryable, Selectable, Debug, Clone)]
 #[diesel(table_name = schema::Device)]
+#[diesel(belongs_to(super::user_repository::User))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Device {
     pub id: Uuid,
@@ -32,6 +33,31 @@ pub struct NewDevice {
     pub name: String,
     pub os: OS,
     pub user_id: Uuid,
+}
+
+pub async fn get_device_by_id(
+    pool: &deadpool_diesel::postgres::Pool,
+    device_id: &Uuid,
+) -> Result<Device, InternalError> {
+    let conn = pool.get().await.map_err(to_internal)?;
+    let device_id = device_id.clone();
+    let result = conn
+        .interact(move |conn| {
+            schema::Device::table
+                .find(device_id)
+                .select(Device::as_select())
+                .first(conn)
+        })
+        .await
+        .map_err(to_internal)?
+        .map_err(|e| match e {
+            diesel::result::Error::NotFound => {
+                InternalError::DeviceError(DeviceError::DeviceNotFound)
+            }
+            _ => InternalError::Internal,
+        })?;
+
+    Ok(result)
 }
 
 pub async fn get_device(
