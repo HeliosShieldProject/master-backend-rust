@@ -1,8 +1,8 @@
 use super::{
-    config_repository::get_config_by_country, config_repository::Config, device_repository::Device,
-    server_repository::Server,
+    config_repository::get_config_by_country, config_repository::Config, server_repository::Server,
 };
 use crate::data::enums::ConfigStatus;
+use crate::dto::device::Device;
 use crate::handlers::session::create_session::Response;
 use crate::{
     data::{
@@ -11,9 +11,9 @@ use crate::{
     },
     enums::errors::internal::{to_internal, InternalError, SessionError},
 };
+use chrono::{Local, NaiveDateTime};
 use diesel::prelude::*;
 use diesel::{QueryDsl, Queryable, Selectable};
-use chrono::{Local, NaiveDateTime};
 use uuid::Uuid;
 
 #[derive(Queryable, Selectable, Debug, Clone)]

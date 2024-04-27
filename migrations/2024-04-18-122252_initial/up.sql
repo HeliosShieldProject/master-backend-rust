@@ -15,7 +15,7 @@ CREATE TYPE "OS" AS ENUM (
     'Unknown'
 );
 
-CREATE TYPE "DeviceStatus" AS ENUM ('LoggedIn', 'LoggedOut', 'Revoked');
+CREATE TYPE "DeviceStatus" AS ENUM ('LoggedIn', 'LoggedOut');
 
 CREATE TYPE "UserStatus" AS ENUM (
     'Active',

@@ -3,7 +3,7 @@ use crate::{
         enums,
         repositories::{device_repository, user_repository},
     },
-    dto::auth::Response,
+    dto::{auth::Response, device},
     enums::errors::response::{to_response, ResponseError},
     utils::{hash::verify_password, token::generate_tokens},
     AppState,
@@ -34,7 +34,7 @@ pub async fn sign_in(
 
     verify_password(&payload.password, &user.password).map_err(to_response)?;
 
-    let device = device_repository::NewDevice {
+    let device = device::internal::NewDevice {
         name: payload.device.name.clone(),
         os: enums::OS::from_str(&payload.device.os),
         user_id: user.id.clone(),
