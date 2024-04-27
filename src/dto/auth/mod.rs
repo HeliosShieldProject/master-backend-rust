@@ -1,8 +1,8 @@
-mod access_token;
-pub use access_token::AccessToken;
 
-mod refresh_token;
-pub use refresh_token::RefreshToken;
 
-mod response;
-pub use response::Response;
+pub mod model;
+pub use model::User;
+
+pub mod request;
+pub mod response;
+pub mod internal;

@@ -3,7 +3,7 @@ use crate::{
         enums,
         repositories::{device_repository, user_repository},
     },
-    dto::{auth::Response, device},
+    dto::{auth::response::Tokens, device},
     enums::errors::response::{to_response, ResponseError},
     utils::{hash::verify_password, token::generate_tokens},
     AppState,
@@ -27,7 +27,7 @@ pub struct Request {
 pub async fn sign_in(
     State(state): State<AppState>,
     Json(payload): Json<Request>,
-) -> Result<Json<Response>, ResponseError> {
+) -> Result<Json<Tokens>, ResponseError> {
     let user = user_repository::get_by_email(&state.pool, &payload.email)
         .await
         .map_err(to_response)?;
@@ -49,5 +49,5 @@ pub async fn sign_in(
             .await
             .map_err(to_response)?;
 
-    Ok(Json(Response {access_token, refresh_token }))
+    Ok(Json(Tokens {access_token, refresh_token }))
 }

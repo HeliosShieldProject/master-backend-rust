@@ -1,6 +1,6 @@
 use crate::{
     data::repositories::user_repository,
-    dto::auth::AccessToken,
+    dto::auth::internal::AccessToken,
     enums::errors::response::{to_response, AuthError, ResponseError},
     utils::hash,
     AppState,

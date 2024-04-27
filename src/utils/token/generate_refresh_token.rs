@@ -1,5 +1,5 @@
 use crate::config::ENV;
-use crate::dto::auth::RefreshToken;
+use crate::dto::auth::internal::RefreshToken;
 use crate::enums::errors::internal::{to_internal, InternalError};
 use chrono::{Duration, Local};
 use jsonwebtoken::{encode, EncodingKey, Header};

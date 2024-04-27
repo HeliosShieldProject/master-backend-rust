@@ -1,6 +1,6 @@
 use crate::{
     data::repositories::device_repository,
-    dto::{auth::AccessToken, device},
+    dto::{auth::internal::AccessToken, device},
     enums::errors::response::{to_response, ResponseError},
     AppState,
 };

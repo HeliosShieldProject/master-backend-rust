@@ -1,4 +1,8 @@
-use crate::{config::ENV, dto::auth::AccessToken, enums::errors::response::{AuthError, ResponseError}};
+use crate::{
+    config::ENV,
+    dto::auth::internal::AccessToken,
+    enums::errors::response::{AuthError, ResponseError},
+};
 use axum::{async_trait, extract::FromRequestParts, http::request::Parts, RequestPartsExt};
 use axum_extra::{
     headers::{authorization::Bearer, Authorization},

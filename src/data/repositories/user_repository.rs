@@ -1,32 +1,11 @@
 use crate::{
-    data::{enums::UserStatus, schema},
+    data::schema,
+    dto::auth::{internal::NewUser, User},
     enums::errors::internal::{to_internal, AuthError, InternalError},
 };
-use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use diesel::{QueryDsl, Queryable, Selectable};
+use diesel::QueryDsl;
 use uuid::Uuid;
-
-#[derive(Queryable, Selectable, Debug, Clone)]
-#[diesel(table_name = schema::User)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct User {
-    pub id: Uuid,
-    pub email: String,
-    pub password: String,
-    pub banned_at: Option<NaiveDateTime>,
-    pub banned_till: Option<NaiveDateTime>,
-    pub status: UserStatus,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
-
-#[derive(Insertable, Clone)]
-#[diesel(table_name = schema::User)]
-pub struct NewUser {
-    pub email: String,
-    pub password: String,
-}
 
 pub async fn get_by_id(
     pool: &deadpool_diesel::postgres::Pool,

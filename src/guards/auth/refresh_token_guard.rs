@@ -1,6 +1,6 @@
 use crate::{
     config::ENV,
-    dto::auth::RefreshToken,
+    dto::auth::internal::RefreshToken,
     enums::errors::response::{AuthError, ResponseError},
 };
 use axum::{async_trait, extract::FromRequestParts, http::request::Parts, RequestPartsExt};
