@@ -48,12 +48,12 @@ pub async fn create_session(
     };
     let session = conn
         .interact(move |conn| {
-            let session = diesel::insert_into(schema::Session::table)
+            let session = diesel::insert_into(schema::session::table)
                 .values(&new_session)
                 .get_result::<Session>(conn);
-            let _ = diesel::update(schema::Config::table)
-                .filter(schema::Config::id.eq(config.id))
-                .set(schema::Config::status.eq(ConfigStatus::InUse))
+            let _ = diesel::update(schema::config::table)
+                .filter(schema::config::id.eq(config.id))
+                .set(schema::config::status.eq(ConfigStatus::InUse))
                 .execute(conn);
 
             session
@@ -73,11 +73,11 @@ pub async fn close_session_by_id(
     let session_id = session_id.clone();
     let _ = conn
         .interact(move |conn| {
-            let session = match diesel::update(schema::Session::table)
-                .filter(schema::Session::id.eq(session_id))
+            let session = match diesel::update(schema::session::table)
+                .filter(schema::session::id.eq(session_id))
                 .set((
-                    schema::Session::status.eq(SessionStatus::Closed),
-                    schema::Session::closed_at.eq(Local::now().naive_local()),
+                    schema::session::status.eq(SessionStatus::Closed),
+                    schema::session::closed_at.eq(Local::now().naive_local()),
                 ))
                 .get_result::<Session>(conn)
                 .map_err(|_| InternalError::SessionError(SessionError::SessionNotFound))
@@ -85,9 +85,9 @@ pub async fn close_session_by_id(
                 Ok(session) => session,
                 Err(_) => return Err(InternalError::SessionError(SessionError::SessionNotFound)),
             };
-            let _ = diesel::update(schema::Config::table)
-                .filter(schema::Config::id.eq(session.config_id))
-                .set(schema::Config::status.eq(ConfigStatus::NotInUse))
+            let _ = diesel::update(schema::config::table)
+                .filter(schema::config::id.eq(session.config_id))
+                .set(schema::config::status.eq(ConfigStatus::NotInUse))
                 .execute(conn);
             Ok(())
         })

@@ -15,10 +15,10 @@ pub async fn get_device(
     let device = device.clone();
     let result = conn
         .interact(move |conn| {
-            schema::Device::table
-                .filter(schema::Device::name.eq(device.name))
-                .filter(schema::Device::os.eq(device.os))
-                .filter(schema::Device::user_id.eq(device.user_id))
+            schema::device::table
+                .filter(schema::device::name.eq(device.name))
+                .filter(schema::device::os.eq(device.os))
+                .filter(schema::device::user_id.eq(device.user_id))
                 .select(Device::as_select())
                 .first(conn)
         })
@@ -44,11 +44,11 @@ pub async fn add_device(
     if let Ok(device) = get_device(&pool, &new_device).await {
         let _ = conn
             .interact(move |conn| {
-                diesel::update(schema::Device::table)
-                    .filter(schema::Device::name.eq(new_device.name))
-                    .filter(schema::Device::os.eq(new_device.os))
-                    .filter(schema::Device::user_id.eq(new_device.user_id))
-                    .set(schema::Device::status.eq(DeviceStatus::LoggedIn))
+                diesel::update(schema::device::table)
+                    .filter(schema::device::name.eq(new_device.name))
+                    .filter(schema::device::os.eq(new_device.os))
+                    .filter(schema::device::user_id.eq(new_device.user_id))
+                    .set(schema::device::status.eq(DeviceStatus::LoggedIn))
                     .execute(conn)
             })
             .await
@@ -64,7 +64,7 @@ pub async fn add_device(
 
     let result = conn
         .interact(move |conn| {
-            diesel::insert_into(schema::Device::table)
+            diesel::insert_into(schema::device::table)
                 .values(new_device)
                 .get_result(conn)
         })
@@ -89,9 +89,9 @@ pub async fn logout_device(
     let device_id = device_id.clone();
     let _ = conn
         .interact(move |conn| {
-            diesel::update(schema::Device::table)
-                .filter(schema::Device::id.eq(device_id))
-                .set(schema::Device::status.eq(DeviceStatus::LoggedOut))
+            diesel::update(schema::device::table)
+                .filter(schema::device::id.eq(device_id))
+                .set(schema::device::status.eq(DeviceStatus::LoggedOut))
                 .execute(conn)
         })
         .await
@@ -108,8 +108,8 @@ pub async fn get_devices(
     let user_id = user_id.clone();
     let result = conn
         .interact(move |conn| {
-            schema::Device::table
-                .filter(schema::Device::user_id.eq(user_id))
+            schema::device::table
+                .filter(schema::device::user_id.eq(user_id))
                 .select(Device::as_select())
                 .load(conn)
         })

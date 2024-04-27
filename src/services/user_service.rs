@@ -15,7 +15,7 @@ pub async fn get_by_id(
     let id = id.clone();
     let result = conn
         .interact(move |conn| {
-            schema::User::table
+            schema::user::table
                 .find(id)
                 .select(User::as_select())
                 .first(conn)
@@ -38,8 +38,8 @@ pub async fn get_by_email(
     let email = email.to_owned();
     let result = conn
         .interact(move |conn| {
-            schema::User::table
-                .filter(schema::User::email.eq(email))
+            schema::user::table
+                .filter(schema::user::email.eq(email))
                 .select(User::as_select())
                 .first(conn)
         })
@@ -61,7 +61,7 @@ pub async fn add_user(
     let new_user = new_user.clone();
     let result = conn
         .interact(move |conn| {
-            diesel::insert_into(schema::User::table)
+            diesel::insert_into(schema::user::table)
                 .values(&new_user)
                 .get_result(conn)
         })
@@ -88,8 +88,8 @@ pub async fn change_password(
     let new_password = new_password.to_owned();
     let result = conn
         .interact(move |conn| {
-            diesel::update(schema::User::table.find(id))
-                .set(schema::User::password.eq(new_password))
+            diesel::update(schema::user::table.find(id))
+                .set(schema::user::password.eq(new_password))
                 .get_result(conn)
         })
         .await

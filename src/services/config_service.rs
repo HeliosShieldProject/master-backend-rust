@@ -19,8 +19,8 @@ pub async fn create_config(
 
     let server = conn
         .interact(move |conn| {
-            schema::Server::table
-                .filter(schema::Server::country.eq(country))
+            schema::server::table
+                .filter(schema::server::country.eq(country))
                 .select(Server::as_select())
                 .first(conn)
         })
@@ -39,7 +39,7 @@ pub async fn create_config(
 
     let config = conn
         .interact(move |conn| {
-            diesel::insert_into(schema::Config::table)
+            diesel::insert_into(schema::config::table)
                 .values(&config)
                 .get_result::<Config>(conn)
         })
@@ -59,10 +59,10 @@ pub async fn get_config_by_country(
 
     let result: Vec<(Config, Server)> = conn
         .interact(move |conn| {
-            schema::Config::table
-                .inner_join(schema::Server::table)
-                .filter(schema::Server::country.eq(country))
-                .filter(schema::Config::status.eq(ConfigStatus::NotInUse))
+            schema::config::table
+                .inner_join(schema::server::table)
+                .filter(schema::server::country.eq(country))
+                .filter(schema::config::status.eq(ConfigStatus::NotInUse))
                 .select((Config::as_select(), Server::as_select()))
                 .load::<(Config, Server)>(conn)
         })

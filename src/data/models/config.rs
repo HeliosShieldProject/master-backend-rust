@@ -5,7 +5,7 @@ use serde::Serialize;
 use uuid::Uuid;
 
 #[derive(Queryable, Selectable, Debug, Clone, Serialize)]
-#[diesel(table_name = schema::Config)]
+#[diesel(table_name = schema::config)]
 #[diesel(belongs_to(crate::dto::server::Server,))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Config {

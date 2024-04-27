@@ -3,7 +3,7 @@ use diesel::prelude::*;
 use uuid::Uuid;
 
 #[derive(Insertable, Clone)]
-#[diesel(table_name = schema::Session)]
+#[diesel(table_name = schema::session)]
 pub struct NewSession {
     pub status: SessionStatus,
     pub device_id: Uuid,

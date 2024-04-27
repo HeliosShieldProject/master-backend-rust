@@ -4,7 +4,7 @@ use diesel::{Queryable, Selectable};
 use uuid::Uuid;
 
 #[derive(Queryable, Selectable, Debug, Clone)]
-#[diesel(table_name = schema::Session)]
+#[diesel(table_name = schema::session)]
 #[diesel(belongs_to(crate::dto::device::Device))]
 #[diesel(belongs_to(crate::dto::config::Config))]
 #[diesel(check_for_backend(diesel::pg::Pg))]

@@ -25,12 +25,12 @@ impl SessionBy for ActiveSessionAndDeviceAndCountry {
         let (device_id, country) = (self.device_id.clone(), self.country.clone());
         let result: Vec<(Session, Device, Config, Server)> = conn
             .interact(move |conn| {
-                schema::Session::table
-                    .inner_join(schema::Device::table)
-                    .inner_join(schema::Config::table.inner_join(schema::Server::table))
-                    .filter(schema::Session::device_id.eq(device_id))
-                    .filter(schema::Session::status.eq(SessionStatus::Active))
-                    .filter(schema::Server::country.eq(country))
+                schema::session::table
+                    .inner_join(schema::device::table)
+                    .inner_join(schema::config::table.inner_join(schema::server::table))
+                    .filter(schema::session::device_id.eq(device_id))
+                    .filter(schema::session::status.eq(SessionStatus::Active))
+                    .filter(schema::server::country.eq(country))
                     .select((
                         Session::as_select(),
                         Device::as_select(),

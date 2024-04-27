@@ -25,7 +25,7 @@ CREATE TYPE "UserStatus" AS ENUM (
 );
 
 CREATE TABLE
-    "Server" (
+    "server" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
         "public_key" TEXT NOT NULL,
         "backend_uri" TEXT NOT NULL,
@@ -36,7 +36,7 @@ CREATE TABLE
     );
 
 CREATE TABLE
-    "Config" (
+    "config" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
         "private_key" TEXT NOT NULL,
         "user_ip" TEXT NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE
     );
 
 CREATE TABLE
-    "User" (
+    "user" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
         "email" TEXT NOT NULL,
         "password" TEXT NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE
     );
 
 CREATE TABLE
-    "Device" (
+    "device" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
         "name" TEXT NOT NULL,
         "os" "OS" NOT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE
     );
 
 CREATE TABLE
-    "Session" (
+    "session" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
         "status" "SessionStatus" NOT NULL DEFAULT 'Active',
         "opened_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -82,27 +82,27 @@ CREATE TABLE
         "config_id" uuid NOT NULL
     );
 
-CREATE UNIQUE INDEX "Server_publicKey_key" ON "Server" ("public_key");
+CREATE UNIQUE INDEX "server_publicKey_key" ON "server" ("public_key");
 
-CREATE UNIQUE INDEX "Server_backendUri_key" ON "Server" ("backend_uri");
+CREATE UNIQUE INDEX "server_backendUri_key" ON "server" ("backend_uri");
 
-CREATE UNIQUE INDEX "Server_wireguardUri_key" ON "Server" ("wireguard_uri");
+CREATE UNIQUE INDEX "server_wireguardUri_key" ON "server" ("wireguard_uri");
 
-CREATE INDEX "Config_privateKey_key" ON "Config" ("private_key");
+CREATE INDEX "config_privateKey_key" ON "config" ("private_key");
 
-CREATE UNIQUE INDEX "User_email_key" ON "User" ("email");
+CREATE UNIQUE INDEX "user_email_key" ON "user" ("email");
 
-CREATE INDEX "Session_deviceId_key" ON "Session" ("device_id");
+CREATE INDEX "session_deviceId_key" ON "session" ("device_id");
 
-CREATE INDEX "Session_configId_key" ON "Session" ("config_id");
+CREATE INDEX "session_configId_key" ON "session" ("config_id");
 
-ALTER TABLE "Config" ADD CONSTRAINT "Config_server_id_fkey" FOREIGN KEY ("server_id") REFERENCES "Server" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "config" ADD CONSTRAINT "config_server_id_fkey" FOREIGN KEY ("server_id") REFERENCES "server" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
-ALTER TABLE "Device" ADD CONSTRAINT "Device_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "device" ADD CONSTRAINT "device_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
-ALTER TABLE "Session" ADD CONSTRAINT "Session_device_id_fkey" FOREIGN KEY ("device_id") REFERENCES "Device" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "session" ADD CONSTRAINT "session_device_id_fkey" FOREIGN KEY ("device_id") REFERENCES "device" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
-ALTER TABLE "Session" ADD CONSTRAINT "Session_config_id_fkey" FOREIGN KEY ("config_id") REFERENCES "Config" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "session" ADD CONSTRAINT "session_config_id_fkey" FOREIGN KEY ("config_id") REFERENCES "config" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
@@ -113,24 +113,24 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER table_updated_at_trigger
-BEFORE UPDATE ON "Server"
+BEFORE UPDATE ON "server"
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();
 
 
 CREATE TRIGGER table_updated_at_trigger
-BEFORE UPDATE ON "Config"
+BEFORE UPDATE ON "config"
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();
 
 
 CREATE TRIGGER table_updated_at_trigger
-BEFORE UPDATE ON "User"
+BEFORE UPDATE ON "user"
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();
 
 
 CREATE TRIGGER table_updated_at_trigger
-BEFORE UPDATE ON "Device"
+BEFORE UPDATE ON "device"
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();

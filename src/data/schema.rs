@@ -30,7 +30,7 @@ diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::ConfigStatus;
 
-    Config (id) {
+    config (id) {
         id -> Uuid,
         private_key -> Text,
         user_ip -> Text,
@@ -46,7 +46,7 @@ diesel::table! {
     use super::sql_types::Os;
     use super::sql_types::DeviceStatus;
 
-    Device (id) {
+    device (id) {
         id -> Uuid,
         name -> Text,
         os -> Os,
@@ -64,7 +64,7 @@ diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Country;
 
-    Server (id) {
+    server (id) {
         id -> Uuid,
         public_key -> Text,
         backend_uri -> Text,
@@ -79,7 +79,7 @@ diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::SessionStatus;
 
-    Session (id) {
+    session (id) {
         id -> Uuid,
         status -> SessionStatus,
         opened_at -> Timestamp,
@@ -93,7 +93,7 @@ diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::UserStatus;
 
-    User (id) {
+    user (id) {
         id -> Uuid,
         email -> Text,
         password -> Text,
@@ -105,15 +105,9 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(Config -> Server (server_id));
-diesel::joinable!(Device -> User (user_id));
-diesel::joinable!(Session -> Config (config_id));
-diesel::joinable!(Session -> Device (device_id));
+diesel::joinable!(config -> server (server_id));
+diesel::joinable!(device -> user (user_id));
+diesel::joinable!(session -> config (config_id));
+diesel::joinable!(session -> device (device_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    Config,
-    Device,
-    Server,
-    Session,
-    User,
-);
+diesel::allow_tables_to_appear_in_same_query!(config, device, server, session, user,);

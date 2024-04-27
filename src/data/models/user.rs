@@ -5,7 +5,7 @@ use serde::Serialize;
 use uuid::Uuid;
 
 #[derive(Queryable, Selectable, Debug, Clone, Serialize)]
-#[diesel(table_name = schema::User)]
+#[diesel(table_name = schema::user)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct User {
     pub id: Uuid,

@@ -1,49 +1,66 @@
-ALTER TABLE "Session"
-DROP CONSTRAINT IF EXISTS "Session_deviceId_fkey";
+-- Drop triggers
+DROP TRIGGER table_updated_at_trigger ON "server";
 
-ALTER TABLE "Session"
-DROP CONSTRAINT IF EXISTS "Session_configId_fkey";
+DROP TRIGGER table_updated_at_trigger ON "config";
 
-ALTER TABLE "Device"
-DROP CONSTRAINT IF EXISTS "Device_userId_fkey";
+DROP TRIGGER table_updated_at_trigger ON "user";
 
-ALTER TABLE "Config"
-DROP CONSTRAINT IF EXISTS "Config_serverId_fkey";
+DROP TRIGGER table_updated_at_trigger ON "device";
 
-DROP INDEX IF EXISTS "Session_configId_key";
+-- Drop function
+DROP FUNCTION update_updated_at ();
 
-DROP INDEX IF EXISTS "Session_deviceId_key";
+-- Drop foreign key constraints
+ALTER TABLE "session"
+DROP CONSTRAINT "session_config_id_fkey";
 
-DROP INDEX IF EXISTS "User_email_key";
+ALTER TABLE "session"
+DROP CONSTRAINT "session_device_id_fkey";
 
-DROP INDEX IF EXISTS "Device_pkey";
+ALTER TABLE "device"
+DROP CONSTRAINT "device_user_id_fkey";
 
-DROP INDEX IF EXISTS "Config_privateKey_key";
+ALTER TABLE "config"
+DROP CONSTRAINT "config_server_id_fkey";
 
-DROP INDEX IF EXISTS "Server_wireguardUri_key";
+-- Drop indexes
+DROP INDEX "session_configId_key";
 
-DROP INDEX IF EXISTS "Server_backendUri_key";
+DROP INDEX "session_deviceId_key";
 
-DROP INDEX IF EXISTS "Server_publicKey_key";
+DROP INDEX "user_email_key";
 
-DROP TABLE IF EXISTS "Session";
+DROP INDEX "config_privateKey_key";
 
-DROP TABLE IF EXISTS "Device";
+DROP INDEX "server_wireguardUri_key";
 
-DROP TABLE IF EXISTS "User";
+DROP INDEX "server_backendUri_key";
 
-DROP TABLE IF EXISTS "Config";
+DROP INDEX "server_publicKey_key";
 
-DROP TABLE IF EXISTS "Server";
+-- Drop tables
+DROP TABLE "session";
 
-DROP TYPE IF EXISTS "DeviceStatus";
+DROP TABLE "device";
 
-DROP TYPE IF EXISTS "OS";
+DROP TABLE "user";
 
-DROP TYPE IF EXISTS "UserStatus";
+DROP TABLE "config";
 
-DROP TYPE IF EXISTS "ConfigStatus";
+DROP TABLE "server";
 
-DROP TYPE IF EXISTS "SessionStatus";
+-- Drop types
+DROP TYPE "UserStatus";
 
-DROP TYPE IF EXISTS "Country";
+DROP TYPE "DeviceStatus";
+
+DROP TYPE "OS";
+
+DROP TYPE "ConfigStatus";
+
+DROP TYPE "SessionStatus";
+
+DROP TYPE "Country";
+
+-- Drop extension
+DROP EXTENSION "uuid-ossp";

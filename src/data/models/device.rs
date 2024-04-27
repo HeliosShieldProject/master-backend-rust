@@ -8,7 +8,7 @@ use serde::Serialize;
 use uuid::Uuid;
 
 #[derive(Queryable, Selectable, Debug, Clone, Serialize)]
-#[diesel(table_name = schema::Device)]
+#[diesel(table_name = schema::device)]
 #[diesel(belongs_to(crate::dto::user::User))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Device {
