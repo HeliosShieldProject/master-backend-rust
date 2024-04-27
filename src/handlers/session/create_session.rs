@@ -1,11 +1,7 @@
 use crate::{
-    data::{
-        enums::Country,
-        repositories::{session_repository, user_repository},
-    },
+    data::{enums::Country, repositories::session_repository},
     dto::auth::AccessToken,
-    enums::errors::response::{to_response, AuthError, ResponseError},
-    utils::hash,
+    enums::errors::response::{to_response, ResponseError},
     AppState,
 };
 use axum::{extract::State, Json};
@@ -24,24 +20,6 @@ pub struct Response {
     pub wireguard_uri: String,
     pub user_ip: String,
     pub user_private_key: String,
-}
-
-impl Response {
-    pub fn new(
-        session_id: Uuid,
-        server_public_key: String,
-        wireguard_uri: String,
-        user_ip: String,
-        user_private_key: String,
-    ) -> Self {
-        Self {
-            session_id,
-            server_public_key,
-            wireguard_uri,
-            user_ip,
-            user_private_key,
-        }
-    }
 }
 
 pub async fn create_session(
