@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 #[derive(Queryable, Selectable, Debug, Clone, Serialize)]
 #[diesel(table_name = schema::Config)]
-#[diesel(belongs_to(Server))]
+#[diesel(belongs_to(crate::dto::server::Server,))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct Config {
     pub id: Uuid,

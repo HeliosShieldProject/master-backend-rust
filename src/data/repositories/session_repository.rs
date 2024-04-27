@@ -4,131 +4,23 @@ use crate::{
         repositories::config_repository::get_config_by_country,
         schema,
     },
-    dto::{config::Config, device::Device, server::Server},
+    dto::session::{
+        internal::NewSession,
+        model::get_session,
+        query::{ActiveSessionAndDevice, ActiveSessionAndDeviceAndCountry},
+        response, Session,
+    },
     enums::errors::internal::{to_internal, InternalError, SessionError},
-    handlers::session::create_session::Response,
 };
-use chrono::{Local, NaiveDateTime};
+use chrono::Local;
 use diesel::prelude::*;
-use diesel::{QueryDsl, Queryable, Selectable};
 use uuid::Uuid;
-
-#[derive(Queryable, Selectable, Debug, Clone)]
-#[diesel(table_name = schema::Session)]
-#[diesel(belongs_to(super::device_repository::Device))]
-#[diesel(belongs_to(super::config_repository::Config))]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct Session {
-    pub id: Uuid,
-    pub status: SessionStatus,
-    pub opened_at: NaiveDateTime,
-    pub closed_at: Option<NaiveDateTime>,
-    pub device_id: Uuid,
-    pub config_id: Uuid,
-}
-
-#[derive(Insertable, Clone)]
-#[diesel(table_name = schema::Session)]
-pub struct NewSession {
-    pub status: SessionStatus,
-    pub device_id: Uuid,
-    pub config_id: Uuid,
-}
-
-struct ActiveSessionAndDeviceAndCountry {
-    device_id: Uuid,
-    country: Country,
-}
-
-struct ActiveSessionAndDevice {
-    device_id: Uuid,
-}
-
-trait SessionRepository {
-    async fn get_session<'a>(
-        &self,
-        pool: &'a deadpool_diesel::postgres::Pool,
-    ) -> Result<(Session, Device, Config, Server), InternalError>;
-}
-
-impl SessionRepository for ActiveSessionAndDeviceAndCountry {
-    async fn get_session<'a>(
-        &self,
-        pool: &'a deadpool_diesel::postgres::Pool,
-    ) -> Result<(Session, Device, Config, Server), InternalError> {
-        let conn = pool.get().await.map_err(to_internal)?;
-        let (device_id, country) = (self.device_id.clone(), self.country.clone());
-        let result: Vec<(Session, Device, Config, Server)> = conn
-            .interact(move |conn| {
-                schema::Session::table
-                    .inner_join(schema::Device::table)
-                    .inner_join(schema::Config::table.inner_join(schema::Server::table))
-                    .filter(schema::Session::device_id.eq(device_id))
-                    .filter(schema::Session::status.eq(SessionStatus::Active))
-                    .filter(schema::Server::country.eq(country))
-                    .select((
-                        Session::as_select(),
-                        Device::as_select(),
-                        Config::as_select(),
-                        Server::as_select(),
-                    ))
-                    .load::<(Session, Device, Config, Server)>(conn)
-            })
-            .await
-            .map_err(to_internal)?
-            .map_err(|_| InternalError::Internal)?;
-        if result.len() != 1 {
-            return Err(InternalError::SessionError(SessionError::SessionNotFound));
-        }
-        Ok(result.first().unwrap().clone())
-    }
-}
-
-impl SessionRepository for ActiveSessionAndDevice {
-    async fn get_session<'a>(
-        &self,
-        pool: &'a deadpool_diesel::postgres::Pool,
-    ) -> Result<(Session, Device, Config, Server), InternalError> {
-        let conn = pool.get().await.map_err(to_internal)?;
-        let device_id = self.device_id.clone();
-        let result: Vec<(Session, Device, Config, Server)> = conn
-            .interact(move |conn| {
-                schema::Session::table
-                    .inner_join(schema::Device::table)
-                    .inner_join(schema::Config::table.inner_join(schema::Server::table))
-                    .filter(schema::Session::device_id.eq(device_id))
-                    .filter(schema::Session::status.eq(SessionStatus::Active))
-                    .select((
-                        Session::as_select(),
-                        Device::as_select(),
-                        Config::as_select(),
-                        Server::as_select(),
-                    ))
-                    .load::<(Session, Device, Config, Server)>(conn)
-            })
-            .await
-            .map_err(to_internal)?
-            .map_err(|_| InternalError::Internal)?;
-        if result.len() != 1 {
-            return Err(InternalError::SessionError(SessionError::SessionNotFound));
-        }
-        Ok(result.first().unwrap().clone())
-    }
-}
-
-async fn get_session<T: SessionRepository>(
-    pool: &deadpool_diesel::postgres::Pool,
-    by: T,
-) -> Result<(Session, Device, Config, Server), InternalError> {
-    let result = by.get_session(pool).await?;
-    Ok(result)
-}
 
 pub async fn create_session(
     pool: &deadpool_diesel::postgres::Pool,
     device_id: &Uuid,
     country: &Country,
-) -> Result<Response, InternalError> {
+) -> Result<response::Session, InternalError> {
     let conn = pool.get().await.map_err(to_internal)?;
     let (device_id, country) = (device_id.clone(), country.clone());
 
@@ -139,13 +31,7 @@ pub async fn create_session(
     .await
     {
         let (session, _device, config, server) = current_session;
-        let response = Response {
-            session_id: session.id,
-            server_public_key: server.public_key,
-            wireguard_uri: server.wireguard_uri,
-            user_ip: config.user_ip,
-            user_private_key: config.private_key,
-        };
+        let response = response::Session::new(session, server, config);
         return Ok(response);
     }
 
@@ -175,13 +61,7 @@ pub async fn create_session(
         .map_err(to_internal)?
         .map_err(|_| InternalError::Internal)?;
 
-    Ok(Response {
-        session_id: session.id,
-        server_public_key: server.public_key,
-        wireguard_uri: server.wireguard_uri,
-        user_ip: config.user_ip,
-        user_private_key: config.private_key,
-    })
+    Ok(response::Session::new(session, server, config))
 }
 
 pub async fn close_session_by_id(
