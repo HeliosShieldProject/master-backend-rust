@@ -7,31 +7,6 @@ use diesel::prelude::*;
 use diesel::QueryDsl;
 use uuid::Uuid;
 
-pub async fn get_device_by_id(
-    pool: &deadpool_diesel::postgres::Pool,
-    device_id: &Uuid,
-) -> Result<Device, InternalError> {
-    let conn = pool.get().await.map_err(to_internal)?;
-    let device_id = device_id.clone();
-    let result = conn
-        .interact(move |conn| {
-            schema::Device::table
-                .find(device_id)
-                .select(Device::as_select())
-                .first(conn)
-        })
-        .await
-        .map_err(to_internal)?
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => {
-                InternalError::DeviceError(DeviceError::DeviceNotFound)
-            }
-            _ => InternalError::Internal,
-        })?;
-
-    Ok(result)
-}
-
 pub async fn get_device(
     pool: &deadpool_diesel::postgres::Pool,
     device: &NewDevice,
