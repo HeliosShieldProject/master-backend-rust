@@ -61,5 +61,8 @@ pub async fn sign_up(
             .await
             .map_err(to_response)?;
 
-    Ok(Json(Response::new(access_token, refresh_token)))
+    Ok(Json(Response {
+        access_token,
+        refresh_token,
+    }))
 }

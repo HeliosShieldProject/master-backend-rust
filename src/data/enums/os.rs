@@ -6,8 +6,9 @@ use diesel::{
     pg::{Pg, PgValue},
     serialize::{self, IsNull, Output, ToSql},
 };
+use serde::Serialize;
 
-#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy, Serialize)]
 #[diesel(sql_type = crate::data::schema::sql_types::Os)]
 pub enum OS {
     Windows,

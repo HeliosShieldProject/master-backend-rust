@@ -11,5 +11,8 @@ pub async fn refresh(claims: RefreshToken) -> Result<Json<Response>, ResponseErr
             .await
             .map_err(to_response)?;
 
-    Ok(Json(Response::new(access_token, refresh_token)))
+    Ok(Json(Response {
+        access_token,
+        refresh_token,
+    }))
 }
