@@ -1,10 +1,12 @@
-use super::server_repository::Server;
 use crate::{
     data::{
         enums::{ConfigStatus, Country},
         schema,
     },
-    dto::config::{internal::NewConfig, Config},
+    dto::{
+        config::{internal::NewConfig, Config},
+        server::Server,
+    },
     enums::errors::internal::{to_internal, InternalError},
 };
 use diesel::prelude::*;

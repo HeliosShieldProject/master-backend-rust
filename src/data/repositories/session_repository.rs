@@ -1,14 +1,12 @@
-use super::{config_repository::get_config_by_country, server_repository::Server};
-use crate::data::enums::ConfigStatus;
-use crate::dto::config::Config;
-use crate::dto::device::Device;
-use crate::handlers::session::create_session::Response;
 use crate::{
     data::{
-        enums::{Country, SessionStatus},
+        enums::{ConfigStatus, Country, SessionStatus},
+        repositories::config_repository::get_config_by_country,
         schema,
     },
+    dto::{config::Config, device::Device, server::Server},
     enums::errors::internal::{to_internal, InternalError, SessionError},
+    handlers::session::create_session::Response,
 };
 use chrono::{Local, NaiveDateTime};
 use diesel::prelude::*;
