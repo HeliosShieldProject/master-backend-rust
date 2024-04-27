@@ -88,13 +88,13 @@ CREATE UNIQUE INDEX "Server_backendUri_key" ON "Server" ("backend_uri");
 
 CREATE UNIQUE INDEX "Server_wireguardUri_key" ON "Server" ("wireguard_uri");
 
-CREATE UNIQUE INDEX "Config_privateKey_key" ON "Config" ("private_key");
+CREATE INDEX "Config_privateKey_key" ON "Config" ("private_key");
 
 CREATE UNIQUE INDEX "User_email_key" ON "User" ("email");
 
-CREATE UNIQUE INDEX "Session_deviceId_key" ON "Session" ("device_id");
+CREATE INDEX "Session_deviceId_key" ON "Session" ("device_id");
 
-CREATE UNIQUE INDEX "Session_configId_key" ON "Session" ("config_id");
+CREATE INDEX "Session_configId_key" ON "Session" ("config_id");
 
 ALTER TABLE "Config" ADD CONSTRAINT "Config_server_id_fkey" FOREIGN KEY ("server_id") REFERENCES "Server" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
