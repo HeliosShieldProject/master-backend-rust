@@ -4,34 +4,11 @@ use crate::{
         enums::{ConfigStatus, Country},
         schema,
     },
+    dto::config::{internal::NewConfig, Config},
     enums::errors::internal::{to_internal, InternalError},
 };
 use diesel::prelude::*;
-use diesel::{QueryDsl, Queryable, Selectable};
-use chrono::NaiveDateTime;
-use uuid::Uuid;
-
-#[derive(Queryable, Selectable, Debug, Clone)]
-#[diesel(table_name = schema::Config)]
-#[diesel(belongs_to(Server))]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct Config {
-    pub id: Uuid,
-    pub private_key: String,
-    pub user_ip: String,
-    pub server_id: Uuid,
-    pub status: ConfigStatus,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
-}
-
-#[derive(Insertable, Clone)]
-#[diesel(table_name = schema::Config)]
-pub struct NewConfig {
-    pub private_key: String,
-    pub user_ip: String,
-    pub server_id: Uuid,
-}
+use diesel::QueryDsl;
 
 pub async fn create_config(
     pool: &deadpool_diesel::postgres::Pool,

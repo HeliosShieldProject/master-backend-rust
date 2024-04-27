@@ -1,13 +1,13 @@
 use std::io::Write;
-
 use diesel::{
     deserialize::{self, FromSql, FromSqlRow},
     expression::AsExpression,
     pg::{Pg, PgValue},
     serialize::{self, IsNull, Output, ToSql},
 };
+use serde::Serialize;
 
-#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy, Serialize)]
 #[diesel(sql_type = crate::data::schema::sql_types::ConfigStatus)]
 pub enum ConfigStatus {
     InUse,

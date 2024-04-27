@@ -1,7 +1,6 @@
-use super::{
-    config_repository::get_config_by_country, config_repository::Config, server_repository::Server,
-};
+use super::{config_repository::get_config_by_country, server_repository::Server};
 use crate::data::enums::ConfigStatus;
+use crate::dto::config::Config;
 use crate::dto::device::Device;
 use crate::handlers::session::create_session::Response;
 use crate::{
