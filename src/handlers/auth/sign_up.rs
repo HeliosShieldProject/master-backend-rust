@@ -3,30 +3,19 @@ use crate::{
         enums,
         repositories::{device_repository, user_repository},
     },
-    dto::{auth, auth::response::Tokens, device},
+    dto::{
+        auth::{self, request::SignUpRequest, response::Tokens},
+        device,
+    },
     enums::errors::response::{to_response, AuthError, ResponseError},
     utils::{hash, token::generate_tokens},
     AppState,
 };
 use axum::{extract::State, Json};
-use serde::Deserialize;
-
-#[derive(Debug, Deserialize)]
-pub struct Device {
-    os: String,
-    name: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct Request {
-    email: String,
-    password: String,
-    device: Device,
-}
 
 pub async fn sign_up(
     State(state): State<AppState>,
-    Json(payload): Json<Request>,
+    Json(payload): Json<SignUpRequest>,
 ) -> Result<Json<Tokens>, ResponseError> {
     if user_repository::get_by_email(&state.pool, &payload.email)
         .await

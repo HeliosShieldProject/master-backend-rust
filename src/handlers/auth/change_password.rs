@@ -1,22 +1,16 @@
 use crate::{
     data::repositories::user_repository,
-    dto::auth::internal::AccessToken,
+    dto::auth::{internal::AccessToken, request::ChangePasswordRequest},
     enums::errors::response::{to_response, AuthError, ResponseError},
     utils::hash,
     AppState,
 };
 use axum::{extract::State, Json};
-use serde::Deserialize;
-
-#[derive(Debug, Deserialize)]
-pub struct Request {
-    password: String,
-}
 
 pub async fn change_password(
     claims: AccessToken,
     State(state): State<AppState>,
-    Json(payload): Json<Request>,
+    Json(payload): Json<ChangePasswordRequest>,
 ) -> Result<String, ResponseError> {
     let user = user_repository::get_by_id(&state.pool, &claims.user_id)
         .await
