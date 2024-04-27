@@ -1,10 +1,11 @@
 use crate::{
-    data::{
-        enums,
-        repositories::{device_repository, user_repository},
+    data::enums,
+    dto::{
+        auth::{request::SignInRequest, response::Tokens},
+        device,
     },
-    dto::{auth::{request::SignInRequest, response::Tokens}, device},
     enums::errors::response::{to_response, ResponseError},
+    services::{device_service, user_service},
     utils::{hash::verify_password, token::generate_tokens},
     AppState,
 };
@@ -14,7 +15,7 @@ pub async fn sign_in(
     State(state): State<AppState>,
     Json(payload): Json<SignInRequest>,
 ) -> Result<Json<Tokens>, ResponseError> {
-    let user = user_repository::get_by_email(&state.pool, &payload.email)
+    let user = user_service::get_by_email(&state.pool, &payload.email)
         .await
         .map_err(to_response)?;
 
@@ -26,7 +27,7 @@ pub async fn sign_in(
         user_id: user.id.clone(),
     };
 
-    let device = device_repository::add_device(&state.pool, &device)
+    let device = device_service::add_device(&state.pool, &device)
         .await
         .map_err(to_response)?;
 
@@ -35,5 +36,8 @@ pub async fn sign_in(
             .await
             .map_err(to_response)?;
 
-    Ok(Json(Tokens {access_token, refresh_token }))
+    Ok(Json(Tokens {
+        access_token,
+        refresh_token,
+    }))
 }

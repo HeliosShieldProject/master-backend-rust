@@ -1,4 +1,4 @@
-use crate::dto::{config, server, session};
+use crate::data::models;
 use serde::Serialize;
 use uuid::Uuid;
 
@@ -12,7 +12,7 @@ pub struct Session {
 }
 
 impl Session {
-    pub fn new(session: session::Session, server: server::Server, config: config::Config) -> Self {
+    pub fn new(session: models::Session, server: models::Server, config: models::Config) -> Self {
         Self {
             session_id: session.id,
             server_public_key: server.public_key,

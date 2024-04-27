@@ -1,12 +1,10 @@
 use crate::{
     data::{
         enums::{ConfigStatus, Country},
+        models::{Config, Server},
         schema,
     },
-    dto::{
-        config::{internal::NewConfig, Config},
-        server::Server,
-    },
+    dto::config::internal::NewConfig,
     enums::errors::internal::{to_internal, InternalError},
 };
 use diesel::prelude::*;

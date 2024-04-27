@@ -1,11 +1,10 @@
 use crate::{
-    data::{enums::SessionStatus, schema},
-    dto::{
-        config::Config,
-        device::Device,
-        server::Server,
-        session::{Session, SessionBy},
+    data::{
+        enums::SessionStatus,
+        models::{Config, Device, Server, Session},
+        schema,
     },
+    dto::session::SessionBy,
     enums::errors::internal::{to_internal, InternalError, SessionError},
 };
 use diesel::prelude::*;

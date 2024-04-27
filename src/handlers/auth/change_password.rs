@@ -1,7 +1,7 @@
 use crate::{
-    data::repositories::user_repository,
     dto::auth::{internal::AccessToken, request::ChangePasswordRequest},
     enums::errors::response::{to_response, AuthError, ResponseError},
+    services::user_service,
     utils::hash,
     AppState,
 };
@@ -12,7 +12,7 @@ pub async fn change_password(
     State(state): State<AppState>,
     Json(payload): Json<ChangePasswordRequest>,
 ) -> Result<String, ResponseError> {
-    let user = user_repository::get_by_id(&state.pool, &claims.user_id)
+    let user = user_service::get_by_id(&state.pool, &claims.user_id)
         .await
         .map_err(to_response)?;
 
@@ -21,7 +21,7 @@ pub async fn change_password(
     }
     let hashed_password = hash::hash_password(&payload.password).map_err(to_response)?;
 
-    user_repository::change_password(&state.pool, &claims.user_id, &hashed_password)
+    user_service::change_password(&state.pool, &claims.user_id, &hashed_password)
         .await
         .map_err(to_response)?;
     Ok("Password changed".to_string())

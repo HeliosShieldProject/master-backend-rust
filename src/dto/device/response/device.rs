@@ -1,4 +1,7 @@
-use crate::{data::enums::{DeviceStatus, OS}, dto::device};
+use crate::data::{
+    enums::{DeviceStatus, OS},
+    models,
+};
 use serde::Serialize;
 use uuid::Uuid;
 
@@ -10,8 +13,8 @@ pub struct Device {
     pub status: DeviceStatus,
 }
 
-impl From<device::Device> for Device {
-    fn from(device: device::Device) -> Self {
+impl From<models::Device> for Device {
+    fn from(device: models::Device) -> Self {
         Self {
             id: device.id,
             name: device.name,

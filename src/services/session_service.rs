@@ -1,16 +1,17 @@
 use crate::{
     data::{
         enums::{ConfigStatus, Country, SessionStatus},
-        repositories::config_repository::get_config_by_country,
+        models::Session,
         schema,
     },
     dto::session::{
+        interface::get_session,
         internal::NewSession,
-        model::get_session,
         query::{ActiveSessionAndDevice, ActiveSessionAndDeviceAndCountry},
-        response, Session,
+        response,
     },
     enums::errors::internal::{to_internal, InternalError, SessionError},
+    services::config_service::get_config_by_country,
 };
 use chrono::Local;
 use diesel::prelude::*;

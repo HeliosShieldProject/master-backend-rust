@@ -1,13 +1,11 @@
 use crate::{
-    data::{
-        enums,
-        repositories::{device_repository, user_repository},
-    },
+    data::enums,
     dto::{
         auth::{self, request::SignUpRequest, response::Tokens},
         device,
     },
     enums::errors::response::{to_response, AuthError, ResponseError},
+    services::{device_service, user_service},
     utils::{hash, token::generate_tokens},
     AppState,
 };
@@ -17,7 +15,7 @@ pub async fn sign_up(
     State(state): State<AppState>,
     Json(payload): Json<SignUpRequest>,
 ) -> Result<Json<Tokens>, ResponseError> {
-    if user_repository::get_by_email(&state.pool, &payload.email)
+    if user_service::get_by_email(&state.pool, &payload.email)
         .await
         .is_ok()
     {
@@ -31,7 +29,7 @@ pub async fn sign_up(
         password: hashed_password.clone(),
     };
 
-    let user = user_repository::add_user(&state.pool, &new_user)
+    let user = user_service::add_user(&state.pool, &new_user)
         .await
         .map_err(to_response)?;
 
@@ -41,7 +39,7 @@ pub async fn sign_up(
         user_id: user.id.clone(),
     };
 
-    let device = device_repository::add_device(&state.pool, &device)
+    let device = device_service::add_device(&state.pool, &device)
         .await
         .map_err(to_response)?;
 

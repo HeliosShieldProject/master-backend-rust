@@ -1,6 +1,6 @@
 use crate::{
-    data::schema,
-    dto::auth::{internal::NewUser, User},
+    data::{models::User, schema},
+    dto::auth::internal::NewUser,
     enums::errors::internal::{to_internal, AuthError, InternalError},
 };
 use diesel::prelude::*;

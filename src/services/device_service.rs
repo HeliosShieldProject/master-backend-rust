@@ -1,6 +1,6 @@
 use crate::{
-    data::{enums::DeviceStatus, schema},
-    dto::device::{internal::NewDevice, Device},
+    data::{enums::DeviceStatus, models::Device, schema},
+    dto::device::internal::NewDevice,
     enums::errors::internal::{to_internal, DeviceError, InternalError},
 };
 use diesel::prelude::*;

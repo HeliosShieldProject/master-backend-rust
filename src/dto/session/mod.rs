@@ -1,5 +1,5 @@
-pub mod model;
-pub use model::{Session, SessionBy};
+pub mod interface;
+pub use interface::SessionBy;
 
 pub mod internal;
 pub mod query;
