@@ -8,7 +8,7 @@ use crate::{
 };
 use diesel::prelude::*;
 use diesel::{QueryDsl, Queryable, Selectable};
-use std::time::SystemTime;
+use chrono::NaiveDateTime;
 use uuid::Uuid;
 
 #[derive(Queryable, Selectable, Debug, Clone)]
@@ -21,8 +21,8 @@ pub struct Config {
     pub user_ip: String,
     pub server_id: Uuid,
     pub status: ConfigStatus,
-    pub created_at: SystemTime,
-    pub updated_at: SystemTime,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Insertable, Clone)]

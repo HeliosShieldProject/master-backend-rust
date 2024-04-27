@@ -6,13 +6,13 @@ use diesel::{
     pg::{Pg, PgValue},
     serialize::{self, IsNull, Output, ToSql},
 };
+use serde::Serialize;
 
-#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy, Serialize)]
 #[diesel(sql_type = crate::data::schema::sql_types::DeviceStatus)]
 pub enum DeviceStatus {
     LoggedIn,
     LoggedOut,
-    Revoked,
 }
 
 impl ToSql<crate::data::schema::sql_types::DeviceStatus, Pg> for DeviceStatus {
@@ -20,7 +20,6 @@ impl ToSql<crate::data::schema::sql_types::DeviceStatus, Pg> for DeviceStatus {
         match *self {
             DeviceStatus::LoggedIn => out.write_all(b"LoggedIn")?,
             DeviceStatus::LoggedOut => out.write_all(b"LoggedOut")?,
-            DeviceStatus::Revoked => out.write_all(b"Revoked")?,
         }
         Ok(IsNull::No)
     }
@@ -31,7 +30,6 @@ impl FromSql<crate::data::schema::sql_types::DeviceStatus, Pg> for DeviceStatus 
         match bytes.as_bytes() {
             b"LoggedIn" => Ok(DeviceStatus::LoggedIn),
             b"LoggedOut" => Ok(DeviceStatus::LoggedOut),
-            b"Revoked" => Ok(DeviceStatus::Revoked),
             _ => Err("Unrecognized enum variant".into()),
         }
     }

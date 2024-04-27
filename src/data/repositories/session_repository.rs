@@ -13,7 +13,7 @@ use crate::{
 };
 use diesel::prelude::*;
 use diesel::{QueryDsl, Queryable, Selectable};
-use std::time::SystemTime;
+use chrono::{Local, NaiveDateTime};
 use uuid::Uuid;
 
 #[derive(Queryable, Selectable, Debug, Clone)]
@@ -24,8 +24,8 @@ use uuid::Uuid;
 pub struct Session {
     pub id: Uuid,
     pub status: SessionStatus,
-    pub opened_at: SystemTime,
-    pub closed_at: Option<SystemTime>,
+    pub opened_at: NaiveDateTime,
+    pub closed_at: Option<NaiveDateTime>,
     pub device_id: Uuid,
     pub config_id: Uuid,
 }
@@ -199,7 +199,7 @@ pub async fn close_session_by_id(
                 .filter(schema::Session::id.eq(session_id))
                 .set((
                     schema::Session::status.eq(SessionStatus::Closed),
-                    schema::Session::closed_at.eq(SystemTime::now()),
+                    schema::Session::closed_at.eq(Local::now().naive_local()),
                 ))
                 .get_result::<Session>(conn)
                 .map_err(|_| InternalError::SessionError(SessionError::SessionNotFound))

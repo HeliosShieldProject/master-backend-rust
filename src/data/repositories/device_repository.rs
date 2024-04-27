@@ -5,12 +5,13 @@ use crate::{
     },
     enums::errors::internal::{to_internal, DeviceError, InternalError},
 };
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel::{QueryDsl, Queryable, Selectable};
-use std::time::SystemTime;
+use serde::Serialize;
 use uuid::Uuid;
 
-#[derive(Queryable, Selectable, Debug, Clone)]
+#[derive(Queryable, Selectable, Debug, Clone, Serialize)]
 #[diesel(table_name = schema::Device)]
 #[diesel(belongs_to(super::user_repository::User))]
 #[diesel(check_for_backend(diesel::pg::Pg))]
@@ -19,12 +20,12 @@ pub struct Device {
     pub name: String,
     pub os: OS,
     pub user_id: Uuid,
-    pub banned_at: Option<SystemTime>,
-    pub banned_till: Option<SystemTime>,
-    pub revoked_at: Option<SystemTime>,
+    pub banned_at: Option<NaiveDateTime>,
+    pub banned_till: Option<NaiveDateTime>,
+    pub revoked_at: Option<NaiveDateTime>,
     pub status: DeviceStatus,
-    pub created_at: SystemTime,
-    pub updated_at: SystemTime,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Insertable, Clone)]

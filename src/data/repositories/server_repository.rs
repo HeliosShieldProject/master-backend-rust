@@ -1,4 +1,4 @@
-use std::time::SystemTime;
+use chrono::NaiveDateTime;
 
 use crate::data::{enums::Country, schema};
 use diesel::{Queryable, Selectable};
@@ -13,6 +13,6 @@ pub struct Server {
     pub backend_uri: String,
     pub wireguard_uri: String,
     pub country: Country,
-    pub created_at: SystemTime,
-    pub updated_at: SystemTime,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }

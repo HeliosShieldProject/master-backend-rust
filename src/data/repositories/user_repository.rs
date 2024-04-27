@@ -2,9 +2,9 @@ use crate::{
     data::{enums::UserStatus, schema},
     enums::errors::internal::{to_internal, AuthError, InternalError},
 };
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use diesel::{QueryDsl, Queryable, Selectable};
-use std::time::SystemTime;
 use uuid::Uuid;
 
 #[derive(Queryable, Selectable, Debug, Clone)]
@@ -14,11 +14,11 @@ pub struct User {
     pub id: Uuid,
     pub email: String,
     pub password: String,
-    pub banned_at: Option<SystemTime>,
-    pub banned_till: Option<SystemTime>,
+    pub banned_at: Option<NaiveDateTime>,
+    pub banned_till: Option<NaiveDateTime>,
     pub status: UserStatus,
-    pub created_at: SystemTime,
-    pub updated_at: SystemTime,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 #[derive(Insertable, Clone)]
@@ -103,7 +103,8 @@ pub async fn change_password(
     pool: &deadpool_diesel::postgres::Pool,
     id: &Uuid,
     new_password: &str,
-) -> Result<User, InternalError> {let conn = pool.get().await.map_err(to_internal)?;
+) -> Result<User, InternalError> {
+    let conn = pool.get().await.map_err(to_internal)?;
     let id = id.clone();
     let new_password = new_password.to_owned();
     let result = conn

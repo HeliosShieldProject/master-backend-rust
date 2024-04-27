@@ -9,9 +9,9 @@ use axum::{extract::State, Json};
 pub async fn get_devices(
     claims: AccessToken,
     State(state): State<AppState>,
-) -> Result<Json<Device>, ResponseError> {
+) -> Result<Json<Vec<Device>>, ResponseError> {
     let devices = device_repository::get_devices(&state.pool, &claims.user_id)
         .await
         .map_err(to_response)?;
-    Ok(Json(devices.first().unwrap().clone()))
+    Ok(Json(devices))
 }
