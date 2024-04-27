@@ -152,3 +152,23 @@ pub async fn logout_device(
 
     Ok(())
 }
+
+pub async fn get_devices(
+    pool: &deadpool_diesel::postgres::Pool,
+    user_id: &Uuid,
+) -> Result<Vec<Device>, InternalError> {
+    let conn = pool.get().await.map_err(to_internal)?;
+    let user_id = user_id.clone();
+    let result = conn
+        .interact(move |conn| {
+            schema::Device::table
+                .filter(schema::Device::user_id.eq(user_id))
+                .select(Device::as_select())
+                .load(conn)
+        })
+        .await
+        .map_err(to_internal)?
+        .map_err(|_| InternalError::Internal)?;
+
+    Ok(result)
+}
