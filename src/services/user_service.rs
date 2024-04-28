@@ -131,3 +131,36 @@ pub async fn sign_in(
         refresh_token,
     })
 }
+
+pub async fn sign_up(
+    pool: &deadpool_diesel::postgres::Pool,
+    user: &NewUser,
+    device: &DeviceInfo,
+) -> Result<Tokens, InternalError> {
+    if get_by_email(&pool, &user.email).await.is_ok() {
+        return Err(InternalError::AuthError(AuthError::UserAlreadyExists));
+    }
+
+    let hashed_password = hash::hash_password(&user.password)?;
+
+    let new_user = NewUser {
+        email: user.email.clone(),
+        password: hashed_password.clone(),
+    };
+    let user = add_user(&pool, &new_user).await?;
+
+    let device = NewDevice {
+        name: device.name.clone(),
+        os: OS::from_str(&device.os),
+        user_id: user.id.clone(),
+    };
+    let device = device_service::add_device(&pool, &device).await?;
+
+    let (access_token, refresh_token) =
+        generate_tokens(&user.id.to_string(), &device.id.to_string()).await?;
+
+    Ok(Tokens {
+        access_token,
+        refresh_token,
+    })
+}

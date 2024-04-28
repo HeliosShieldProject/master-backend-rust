@@ -1,12 +1,10 @@
 use crate::{
-    data::enums,
     dto::{
-        auth::{self, request::SignUpRequest, response::Tokens},
-        device,
+        auth::{internal::NewUser, request::SignUpRequest, response::Tokens},
+        device::internal::DeviceInfo,
     },
-    enums::errors::response::{to_response, AuthError, ResponseError},
-    services::{device_service, user_service},
-    utils::{hash, token::generate_tokens},
+    enums::errors::response::{to_response, ResponseError},
+    services::user_service,
     AppState,
 };
 use axum::{extract::State, Json};
@@ -15,41 +13,19 @@ pub async fn sign_up(
     State(state): State<AppState>,
     Json(payload): Json<SignUpRequest>,
 ) -> Result<Json<Tokens>, ResponseError> {
-    if user_service::get_by_email(&state.pool, &payload.email)
-        .await
-        .is_ok()
-    {
-        return Err(ResponseError::AuthError(AuthError::UserAlreadyExists));
-    }
+    let tokens = user_service::sign_up(
+        &state.pool,
+        &NewUser {
+            email: payload.email,
+            password: payload.password,
+        },
+        &DeviceInfo {
+            os: payload.device.os,
+            name: payload.device.name,
+        },
+    )
+    .await
+    .map_err(to_response)?;
 
-    let hashed_password = hash::hash_password(&payload.password).map_err(to_response)?;
-
-    let new_user = auth::internal::NewUser {
-        email: payload.email.clone(),
-        password: hashed_password.clone(),
-    };
-
-    let user = user_service::add_user(&state.pool, &new_user)
-        .await
-        .map_err(to_response)?;
-
-    let device = device::internal::NewDevice {
-        name: payload.device.name.clone(),
-        os: enums::OS::from_str(&payload.device.os),
-        user_id: user.id.clone(),
-    };
-
-    let device = device_service::add_device(&state.pool, &device)
-        .await
-        .map_err(to_response)?;
-
-    let (access_token, refresh_token) =
-        generate_tokens(&user.id.to_string(), &device.id.to_string())
-            .await
-            .map_err(to_response)?;
-
-    Ok(Json(Tokens {
-        access_token,
-        refresh_token,
-    }))
+    Ok(Json(tokens))
 }
