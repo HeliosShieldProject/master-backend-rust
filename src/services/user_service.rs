@@ -125,13 +125,9 @@ pub async fn sign_in(
     };
     let device = device_service::add_device(&pool, &device).await?;
 
-    let (access_token, refresh_token) =
-        generate_tokens(&user_db.id.to_string(), &device.id.to_string()).await?;
+    let tokens = generate_tokens(&user_db.id.to_string(), &device.id.to_string()).await?;
 
-    Ok(Tokens {
-        access_token,
-        refresh_token,
-    })
+    Ok(tokens)
 }
 
 pub async fn sign_up(
@@ -158,11 +154,7 @@ pub async fn sign_up(
     };
     let device = device_service::add_device(&pool, &device).await?;
 
-    let (access_token, refresh_token) =
-        generate_tokens(&user.id.to_string(), &device.id.to_string()).await?;
+    let tokens = generate_tokens(&user.id.to_string(), &device.id.to_string()).await?;
 
-    Ok(Tokens {
-        access_token,
-        refresh_token,
-    })
+    Ok(tokens)
 }

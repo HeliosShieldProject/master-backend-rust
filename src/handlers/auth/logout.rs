@@ -1,17 +1,21 @@
 use crate::{
-    dto::auth::internal::AccessToken,
+    dto::{auth::internal::AccessToken, response::success::SuccessResponse},
     enums::errors::response::{to_response, ResponseError},
     services::device_service,
     AppState,
 };
-use axum::extract::State;
+use axum::{extract::State, http::StatusCode};
 
 pub async fn logout(
     State(state): State<AppState>,
     access_token: AccessToken,
-) -> Result<String, ResponseError> {
+) -> Result<SuccessResponse<String>, ResponseError> {
     let _ = device_service::logout_device(&state.pool, &access_token.device_id)
         .await
         .map_err(to_response);
-    Ok("Logged out".to_string())
+
+    Ok(SuccessResponse::new(
+        StatusCode::OK,
+        "Logged out successfully",
+    ))
 }
