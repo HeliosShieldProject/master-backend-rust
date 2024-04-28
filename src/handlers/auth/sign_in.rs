@@ -1,12 +1,10 @@
 use crate::{
-    data::enums,
     dto::{
-        auth::{request::SignInRequest, response::Tokens},
-        device,
+        auth::{internal::NewUser, request::SignInRequest, response::Tokens},
+        device::internal::DeviceInfo,
     },
     enums::errors::response::{to_response, ResponseError},
-    services::{device_service, user_service},
-    utils::{hash::verify_password, token::generate_tokens},
+    services::user_service,
     AppState,
 };
 use axum::{extract::State, Json};
@@ -15,29 +13,19 @@ pub async fn sign_in(
     State(state): State<AppState>,
     Json(payload): Json<SignInRequest>,
 ) -> Result<Json<Tokens>, ResponseError> {
-    let user = user_service::get_by_email(&state.pool, &payload.email)
-        .await
-        .map_err(to_response)?;
+    let tokens = user_service::sign_in(
+        &state.pool,
+        &NewUser {
+            email: payload.email,
+            password: payload.password,
+        },
+        &DeviceInfo {
+            os: payload.device.os,
+            name: payload.device.name,
+        },
+    )
+    .await
+    .map_err(to_response)?;
 
-    verify_password(&payload.password, &user.password).map_err(to_response)?;
-
-    let device = device::internal::NewDevice {
-        name: payload.device.name.clone(),
-        os: enums::OS::from_str(&payload.device.os),
-        user_id: user.id.clone(),
-    };
-
-    let device = device_service::add_device(&state.pool, &device)
-        .await
-        .map_err(to_response)?;
-
-    let (access_token, refresh_token) =
-        generate_tokens(&user.id.to_string(), &device.id.to_string())
-            .await
-            .map_err(to_response)?;
-
-    Ok(Json(Tokens {
-        access_token,
-        refresh_token,
-    }))
+    Ok(Json(tokens))
 }

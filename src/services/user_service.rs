@@ -1,7 +1,12 @@
 use crate::{
-    data::{models::User, schema},
-    dto::auth::internal::NewUser,
+    data::{enums::OS, models::User, schema},
+    dto::{
+        auth::{internal::NewUser, response::Tokens},
+        device::internal::{DeviceInfo, NewDevice},
+    },
     enums::errors::internal::{to_internal, AuthError, InternalError},
+    services::device_service,
+    utils::{hash, token::generate_tokens},
 };
 use diesel::prelude::*;
 use diesel::QueryDsl;
@@ -100,4 +105,29 @@ pub async fn change_password(
         })?;
 
     Ok(result)
+}
+
+pub async fn sign_in(
+    pool: &deadpool_diesel::postgres::Pool,
+    user: &NewUser,
+    device: &DeviceInfo,
+) -> Result<Tokens, InternalError> {
+    let user_db = get_by_email(&pool, &user.email).await?;
+
+    hash::verify_password(&user.password, &user_db.password)?;
+
+    let device = NewDevice {
+        name: device.name.clone(),
+        os: OS::from_str(&device.os),
+        user_id: user_db.id.clone(),
+    };
+    let device = device_service::add_device(&pool, &device).await?;
+
+    let (access_token, refresh_token) =
+        generate_tokens(&user_db.id.to_string(), &device.id.to_string()).await?;
+
+    Ok(Tokens {
+        access_token,
+        refresh_token,
+    })
 }
