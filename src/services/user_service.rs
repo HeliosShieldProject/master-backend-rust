@@ -85,24 +85,26 @@ pub async fn add_user(
 
 pub async fn change_password(
     pool: &deadpool_diesel::postgres::Pool,
-    id: &Uuid,
+    user_id: &Uuid,
     new_password: &str,
 ) -> Result<User, InternalError> {
     let conn = pool.get().await.map_err(to_internal)?;
-    let id = id.clone();
-    let new_password = new_password.to_owned();
+    let user = get_by_id(&pool, &user_id).await?;
+
+    if hash::verify_password(&new_password, &user.password).is_ok() {
+        return Err(InternalError::AuthError(AuthError::PasswordIsSame));
+    }
+    let hashed_password = hash::hash_password(&new_password)?;
+    let id = user_id.clone();
     let result = conn
         .interact(move |conn| {
             diesel::update(schema::user::table.find(id))
-                .set(schema::user::password.eq(new_password))
+                .set(schema::user::password.eq(hashed_password))
                 .get_result(conn)
         })
         .await
         .map_err(to_internal)?
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => InternalError::AuthError(AuthError::UserNotFound),
-            _ => InternalError::Internal,
-        })?;
+        .map_err(|_| InternalError::Internal)?;
 
     Ok(result)
 }
