@@ -10,6 +10,44 @@ use crate::{
 };
 use axum::{extract::State, http::StatusCode, Json};
 
+
+#[utoipa::path(
+    tag = "Auth",
+    post,
+    path = "/auth/sign-up",
+    responses(
+        (
+            status = 201, 
+            description = "Signed up successfully", 
+            body = Tokens,        
+            example = json!({
+                "message": "Signed up successfully",
+                "data": {
+                    "access_token": "access",
+                    "refresh_token": "refresh"
+                }
+            })
+        ),
+        (
+            status = 409,
+            description = "User already exists or password is the same",
+            body = (),
+            example = json!({
+                "message": "User already exists | Password is the same",
+                "error": "UserExists | PasswordIsSame"
+            })
+        ),
+        (
+            status = 400,
+            description = "Missing credentials or device",
+            body = (),
+            example = json!({
+                "message": "Missing credentials | Missing device",
+                "error": "MissingCredentials | MissingDevice"
+            })
+        ),
+    )
+)]
 pub async fn sign_up(
     State(state): State<AppState>,
     Json(payload): Json<SignUpRequest>,

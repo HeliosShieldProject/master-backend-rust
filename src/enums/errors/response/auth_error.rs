@@ -28,8 +28,8 @@ impl IntoResponse for AuthError {
             AuthError::MissingDevice => (StatusCode::BAD_REQUEST, "Missing device"),
             AuthError::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, "Token creation error"),
             AuthError::UserNotFound => (StatusCode::NOT_FOUND, "User not found"),
-            AuthError::UserAlreadyExists => (StatusCode::BAD_REQUEST, "User already exists"),
-            AuthError::PasswordIsSame => (StatusCode::BAD_REQUEST, "Password is the same"),
+            AuthError::UserAlreadyExists => (StatusCode::CONFLICT, "User already exists"),
+            AuthError::PasswordIsSame => (StatusCode::CONFLICT, "Password is the same"),
         };
 
         ErrorResponse {
