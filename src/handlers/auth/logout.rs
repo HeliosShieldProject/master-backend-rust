@@ -6,6 +6,14 @@ use crate::{
 };
 use axum::{extract::State, http::StatusCode};
 
+#[utoipa::path(
+    tag = "Auth",
+    post,
+    path = "/auth/logout",
+    security(
+        ("access_token" = ["Bearer"])
+    ),
+)]
 pub async fn logout(
     State(state): State<AppState>,
     access_token: AccessToken,
