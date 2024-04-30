@@ -39,7 +39,7 @@ use axum::{extract::State, http::StatusCode};
                 "message": "Session not found",
                 "error": "SessionNotFound"
             })
-        )    
+        )
     )
 )]
 pub async fn close_session(

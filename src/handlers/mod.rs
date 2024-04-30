@@ -1,3 +1,3 @@
 pub mod auth;
-pub mod session;
 pub mod device;
+pub mod session;

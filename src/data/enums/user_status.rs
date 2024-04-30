@@ -1,4 +1,3 @@
-use std::io::Write;
 use diesel::{
     deserialize::{self, FromSql, FromSqlRow},
     expression::AsExpression,
@@ -6,6 +5,7 @@ use diesel::{
     serialize::{self, IsNull, Output, ToSql},
 };
 use serde::Serialize;
+use std::io::Write;
 
 #[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy, Serialize)]
 #[diesel(sql_type = crate::data::schema::sql_types::UserStatus)]

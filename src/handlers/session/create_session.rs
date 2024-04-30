@@ -51,7 +51,7 @@ use axum::{extract::State, http::StatusCode, Json};
                 "message": "Wrong token",
                 "error": "WrongToken"
             })
-        )        
+        )
     )
 )]
 pub async fn create_session(

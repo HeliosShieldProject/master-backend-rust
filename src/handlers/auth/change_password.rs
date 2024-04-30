@@ -42,8 +42,8 @@ use axum::{extract::State, http::StatusCode, Json};
                 "message": "Missing credentials",
                 "error": "MissingCredentials"
             })
-        ),    
-    )    
+        ),
+    )
 )]
 pub async fn change_password(
     claims: AccessToken,

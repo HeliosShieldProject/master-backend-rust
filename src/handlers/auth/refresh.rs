@@ -8,7 +8,6 @@ use crate::{
 };
 use axum::http::StatusCode;
 
-
 #[utoipa::path(
     tag = "Auth",
     post,
@@ -38,8 +37,7 @@ use axum::http::StatusCode;
                 "error": "WrongToken"
             })
         ),
-    
-    )    
+    )
 )]
 pub async fn refresh(claims: RefreshToken) -> Result<SuccessResponse<Tokens>, ResponseError> {
     let tokens = generate_tokens(&claims.user_id.to_string(), &claims.device_id.to_string())

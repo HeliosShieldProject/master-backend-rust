@@ -35,7 +35,6 @@ pub fn to_internal<T: Error>(error: T) -> InternalError {
     error.as_internal()
 }
 
-
 impl Error for deadpool_diesel::PoolError {
     fn as_internal(&self) -> InternalError {
         InternalError::Internal

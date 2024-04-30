@@ -16,9 +16,9 @@ use axum::{extract::State, http::StatusCode, Json};
     path = "/auth/sign-in",
     responses(
         (
-            status = 200, 
+            status = 200,
             description = "Signed in successfully", 
-            body = Tokens,        
+            body = Tokens,
             example = json!({
                 "message": "Signed in successfully",
                 "data": {

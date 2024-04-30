@@ -10,16 +10,15 @@ use crate::{
 };
 use axum::{extract::State, http::StatusCode, Json};
 
-
 #[utoipa::path(
     tag = "Auth",
     post,
     path = "/auth/sign-up",
     responses(
         (
-            status = 201, 
+            status = 201,
             description = "Signed up successfully", 
-            body = Tokens,        
+            body = Tokens,
             example = json!({
                 "message": "Signed up successfully",
                 "data": {

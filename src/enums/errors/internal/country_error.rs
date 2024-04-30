@@ -1,7 +1,7 @@
 use crate::enums::errors::response::{self, Error, ResponseError};
 
 pub enum CountryError {
-    CountryNotFound
+    CountryNotFound,
 }
 
 impl Error for CountryError {

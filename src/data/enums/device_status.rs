@@ -9,7 +9,9 @@ use diesel::{
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy, Serialize, Deserialize, ToSchema)]
+#[derive(
+    Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy, Serialize, Deserialize, ToSchema,
+)]
 #[diesel(sql_type = crate::data::schema::sql_types::DeviceStatus)]
 pub enum DeviceStatus {
     LoggedIn,

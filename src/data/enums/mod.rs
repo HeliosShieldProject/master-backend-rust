@@ -15,4 +15,3 @@ pub use session_status::SessionStatus;
 
 pub mod user_status;
 pub use user_status::UserStatus;
-
