@@ -5,8 +5,12 @@ use crate::{
             response::Tokens,
         },
         device::internal::DeviceInfo,
+        session::{request::CreateSession, response::Session},
     },
-    handlers::{auth::{change_password, logout, refresh, sign_in, sign_up}},
+    handlers::{
+        auth::{change_password, logout, refresh, sign_in, sign_up},
+        session::{close_session, create_session},
+    },
 };
 use utoipa::{
     openapi::security::SecurityScheme,
@@ -35,8 +39,26 @@ impl Modify for SecurityAddon {
 
 #[derive(OpenApi)]
 #[openapi(
-    paths(sign_in::sign_in, sign_up::sign_up, refresh::refresh, logout::logout, change_password::change_password),
-    components(schemas(SignInRequest, SignUpRequest, DeviceInfo, Tokens, ChangePasswordRequest)),
+    paths(
+        sign_in::sign_in, 
+        sign_up::sign_up, 
+        refresh::refresh, 
+        logout::logout, 
+        change_password::change_password, 
+        create_session::create_session, 
+        close_session::close_session
+    ),
+    components(
+        schemas(
+            SignInRequest, 
+            SignUpRequest, 
+            DeviceInfo, 
+            Tokens, 
+            ChangePasswordRequest, 
+            Session, 
+            CreateSession
+        )
+    ),
     modifiers(&SecurityAddon),
 )]
 pub struct ApiDoc;

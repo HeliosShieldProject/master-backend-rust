@@ -554,6 +554,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "helios-master-backend"
+version = "0.2.0"
+dependencies = [
+ "argon2",
+ "axum",
+ "axum-extra",
+ "chrono",
+ "deadpool-diesel",
+ "diesel",
+ "dotenvy",
+ "jsonwebtoken",
+ "listenfd",
+ "log",
+ "once_cell",
+ "rand_core",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing-subscriber",
+ "utoipa",
+ "utoipa-swagger-ui",
+ "uuid",
+ "validator",
+]
+
+[[package]]
 name = "hermit-abi"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1131,32 +1157,6 @@ checksum = "86f69089032567ffff4eada41c573fc43ff466c7db7c5688b2e7969584345581"
 dependencies = [
  "sha2",
  "walkdir",
-]
-
-[[package]]
-name = "rust-master-backend"
-version = "0.2.0"
-dependencies = [
- "argon2",
- "axum",
- "axum-extra",
- "chrono",
- "deadpool-diesel",
- "diesel",
- "dotenvy",
- "jsonwebtoken",
- "listenfd",
- "log",
- "once_cell",
- "rand_core",
- "serde",
- "serde_json",
- "tokio",
- "tracing-subscriber",
- "utoipa",
- "utoipa-swagger-ui",
- "uuid",
- "validator",
 ]
 
 [[package]]

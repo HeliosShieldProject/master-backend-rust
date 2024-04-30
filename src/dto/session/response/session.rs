@@ -1,8 +1,9 @@
 use crate::data::models;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
 pub struct Session {
     pub session_id: Uuid,
     pub server_public_key: String,

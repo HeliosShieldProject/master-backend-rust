@@ -6,6 +6,42 @@ use crate::{
 };
 use axum::{extract::State, http::StatusCode};
 
+#[utoipa::path(
+    tag = "Session",
+    put,
+    path = "/session",
+    security(
+        ("access_token" = ["Bearer"])
+    ),
+    responses(
+        (
+            status = 200,
+            description = "Closed session successfully",
+            body = (),
+            example = json!({
+                "message": "Closed session successfully"
+            })
+        ),
+        (
+            status = 401,
+            description = "Wrong token",
+            body = (),
+            example = json!({
+                "message": "Wrong token",
+                "error": "WrongToken"
+            })
+        ),
+        (
+            status = 404,
+            description = "Session not found",
+            body = (),
+            example = json!({
+                "message": "Session not found",
+                "error": "SessionNotFound"
+            })
+        )    
+    )
+)]
 pub async fn close_session(
     claims: AccessToken,
     State(state): State<AppState>,
@@ -16,6 +52,6 @@ pub async fn close_session(
 
     Ok(SuccessResponse::new(
         StatusCode::OK,
-        "Logged out successfully",
+        "Closed session successfully",
     ))
 }
