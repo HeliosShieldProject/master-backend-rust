@@ -4,13 +4,15 @@ use crate::{
             request::{ChangePasswordRequest, SignInRequest, SignUpRequest},
             response::Tokens,
         },
-        device::internal::DeviceInfo,
+        device::{internal::DeviceInfo,response::Device},
         session::{request::CreateSession, response::Session},
     },
     handlers::{
         auth::{change_password, logout, refresh, sign_in, sign_up},
         session::{close_session, create_session},
+        device::get_devices
     },
+    data::enums::{OS, DeviceStatus}
 };
 use utoipa::{
     openapi::security::SecurityScheme,
@@ -46,17 +48,21 @@ impl Modify for SecurityAddon {
         logout::logout, 
         change_password::change_password, 
         create_session::create_session, 
-        close_session::close_session
+        close_session::close_session,
+        get_devices::get_devices
     ),
     components(
         schemas(
             SignInRequest, 
             SignUpRequest, 
             DeviceInfo, 
+            Device,
             Tokens, 
             ChangePasswordRequest, 
             Session, 
-            CreateSession
+            CreateSession,
+            OS,
+            DeviceStatus
         )
     ),
     modifiers(&SecurityAddon),

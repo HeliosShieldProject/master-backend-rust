@@ -2,10 +2,11 @@ use crate::data::{
     enums::{DeviceStatus, OS},
     models,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(Clone, Serialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
 pub struct Device {
     pub id: Uuid,
     pub name: String,
