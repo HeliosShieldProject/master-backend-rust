@@ -1,14 +1,14 @@
-mod sign_in;
+pub mod sign_in;
 pub use sign_in::sign_in;
 
-mod sign_up;
+pub mod sign_up;
 pub use sign_up::sign_up;
 
-mod refresh;
+pub mod refresh;
 pub use refresh::refresh;
 
-mod logout;
+pub mod logout;
 pub use logout::logout;
 
-mod change_password;
+pub mod change_password;
 pub use change_password::change_password;

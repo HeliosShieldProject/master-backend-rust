@@ -10,6 +10,52 @@ use crate::{
 };
 use axum::{extract::State, http::StatusCode, Json};
 
+#[utoipa::path(
+    tag = "Auth",
+    post,
+    path = "/auth/sign-in",
+    responses(
+        (
+            status = 200, 
+            description = "Signed in successfully", 
+            body = Tokens,        
+            example = json!({
+                "message": "Signed in successfully",
+                "data": {
+                    "access_token": "access",
+                    "refresh_token": "refresh"
+                }
+            })
+        ),
+        (
+            status = 404,
+            description = "User not found",
+            body = (),
+            example = json!({
+                "message": "User not found",
+                "error": "UserNotFound"
+            })
+        ),
+        (
+            status = 401,
+            description = "Wrong email or password",
+            body = (),
+            example = json!({
+                "message": "Wrong email | Wrong password",
+                "error": "WrongEmail | WrongPassword"
+            })
+        ),
+        (
+            status = 400,
+            description = "Missing credentials or device",
+            body = (),
+            example = json!({
+                "message": "Missing credentials | Missing device",
+                "error": "MissingCredentials | MissingDevice"
+            })
+        ),
+    )
+)]
 pub async fn sign_in(
     State(state): State<AppState>,
     Json(payload): Json<SignInRequest>,

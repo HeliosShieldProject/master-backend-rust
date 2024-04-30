@@ -56,7 +56,7 @@ impl IntoResponse for ResponseError {
             _ => ErrorResponse {
                 status: StatusCode::INTERNAL_SERVER_ERROR,
                 message: "Internal server error".to_string(),
-                error: "Internal server error",
+                error: "Internal",
             }
             .into_response(),
         }

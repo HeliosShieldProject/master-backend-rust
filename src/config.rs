@@ -12,6 +12,8 @@ pub struct Config {
     pub jwt_access_secret: String,
     /// The secret used to sign refresh tokens.
     pub jwt_refresh_secret: String,
+    /// Version of the rust environment.
+    pub rust_env: String,
 }
 
 pub static ENV: Lazy<Config> = Lazy::new(|| {
@@ -24,5 +26,6 @@ pub static ENV: Lazy<Config> = Lazy::new(|| {
         database_url: env::var("DATABASE_URL").expect("DATABASE_URL must be set"),
         jwt_access_secret: env::var("JWT_ACCESS_SECRET").expect("JWT_ACCESS_SECRET must be set"),
         jwt_refresh_secret: env::var("JWT_REFRESH_SECRET").expect("JWT_REFRESH_SECRET must be set"),
+        rust_env: env::var("RUST_ENV").expect("RUST_ENV must be set"),
     }
 });
