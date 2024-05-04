@@ -13,3 +13,11 @@ impl Error for CountryError {
         }
     }
 }
+
+impl CountryError {
+    pub fn to_string(&self) -> String {
+        match self {
+            CountryError::CountryNotFound => "Country not found".to_string(),
+        }
+    }
+}

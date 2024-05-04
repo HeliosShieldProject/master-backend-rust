@@ -25,3 +25,11 @@ impl IntoResponse for CountryError {
         .into_response()
     }
 }
+
+impl CountryError {
+    pub fn to_string(&self) -> String {
+        match self {
+            CountryError::CountryNotFound => "Country not found".to_string(),
+        }
+    }
+}

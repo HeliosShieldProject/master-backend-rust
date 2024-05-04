@@ -1,9 +1,9 @@
+use crate::logger::info;
 use config::ENV;
 use deadpool_diesel::postgres::{Manager, Pool};
 use routers::app_router;
 use swagger::ApiDoc;
 use tokio::net::TcpListener;
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use utoipa::OpenApi;
 use utoipa_swagger_ui::SwaggerUi;
 
@@ -13,6 +13,7 @@ mod dto;
 mod enums;
 mod guards;
 mod handlers;
+mod logger;
 mod routers;
 mod services;
 mod swagger;
@@ -25,19 +26,11 @@ pub struct AppState {
 
 #[tokio::main]
 async fn main() {
-    tracing_subscriber::registry()
-        .with(
-            tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "example_tokio_postgres=debug".into()),
-        )
-        .with(tracing_subscriber::fmt::layer())
-        .init();
-
     let manager = Manager::new(&ENV.database_url, deadpool_diesel::Runtime::Tokio1);
     let pool = Pool::builder(manager).build().unwrap();
     let state = AppState { pool };
     let app = match ENV.rust_env.as_str() {
-        "development" => app_router(state.clone())
+        "developmentA" => app_router(state.clone())
             .with_state(state)
             .merge(SwaggerUi::new("/swagger").url("/api-doc/openapi.json", ApiDoc::openapi())),
         _ => app_router(state.clone()).with_state(state),
@@ -47,6 +40,10 @@ async fn main() {
         .await
         .unwrap();
 
+    info(
+        format!("Listening on {}", listener.local_addr().unwrap()).as_str(),
+        "main".to_string(),
+    );
     axum::serve(listener, app.into_make_service())
         .await
         .unwrap();

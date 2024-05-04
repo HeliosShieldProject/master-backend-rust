@@ -26,3 +26,12 @@ impl IntoResponse for DeviceError {
         .into_response()
     }
 }
+
+impl DeviceError {
+    pub fn to_string(&self) -> String {
+        match self {
+            DeviceError::DeviceNotFound => "Device not found".to_string(),
+            DeviceError::DeviceAlreadyExists => "Device already exists".to_string(),
+        }
+    }
+}

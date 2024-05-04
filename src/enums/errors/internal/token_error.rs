@@ -20,3 +20,11 @@ impl response::Error for TokenError {
         }
     }
 }
+
+impl TokenError {
+    pub fn to_string(&self) -> String {
+        match self {
+            TokenError::Encode => "Token encode error".to_string(),
+        }
+    }
+}

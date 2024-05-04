@@ -28,3 +28,12 @@ impl IntoResponse for SessionError {
         .into_response()
     }
 }
+
+impl SessionError {
+    pub fn to_string(&self) -> String {
+        match self {
+            SessionError::SessionNotFound => "Session not found".to_string(),
+            SessionError::SessionAlreadyExists => "Session already exists".to_string(),
+        }
+    }
+}

@@ -1,3 +1,4 @@
+use super::Services;
 use crate::{
     data::{enums::OS, models::User, schema},
     dto::{
@@ -5,12 +6,15 @@ use crate::{
         device::internal::{DeviceInfo, NewDevice},
     },
     enums::errors::internal::{to_internal, AuthError, InternalError},
+    logger::ContextLogger,
     services::device_service,
     utils::{hash, token::generate_tokens},
 };
 use diesel::prelude::*;
 use diesel::QueryDsl;
 use uuid::Uuid;
+
+const LOG: ContextLogger = ContextLogger::new(Services::UserService);
 
 pub async fn get_by_id(
     pool: &deadpool_diesel::postgres::Pool,
@@ -31,7 +35,7 @@ pub async fn get_by_id(
             diesel::result::Error::NotFound => InternalError::AuthError(AuthError::UserNotFound),
             _ => InternalError::Internal,
         })?;
-
+    LOG.info(format!("Got user by id: {}", id));
     Ok(result)
 }
 
@@ -40,11 +44,11 @@ pub async fn get_by_email(
     email: &str,
 ) -> Result<User, InternalError> {
     let conn = pool.get().await.map_err(to_internal)?;
-    let email = email.to_owned();
+    let email_ = email.to_string();
     let result = conn
         .interact(move |conn| {
             schema::user::table
-                .filter(schema::user::email.eq(email))
+                .filter(schema::user::email.eq(email_))
                 .select(User::as_select())
                 .first(conn)
         })
@@ -54,7 +58,7 @@ pub async fn get_by_email(
             diesel::result::Error::NotFound => InternalError::AuthError(AuthError::UserNotFound),
             _ => InternalError::Internal,
         })?;
-
+    LOG.info(format!("Got user by email: {}", email));
     Ok(result)
 }
 
@@ -64,7 +68,7 @@ pub async fn add_user(
 ) -> Result<User, InternalError> {
     let conn = pool.get().await.map_err(to_internal)?;
     let new_user = new_user.clone();
-    let result = conn
+    let result: User = conn
         .interact(move |conn| {
             diesel::insert_into(schema::user::table)
                 .values(&new_user)
@@ -80,6 +84,7 @@ pub async fn add_user(
             _ => InternalError::Internal,
         })?;
 
+    LOG.info(format!("Added user: {}", result.id));
     Ok(result)
 }
 
@@ -106,6 +111,7 @@ pub async fn change_password(
         .map_err(to_internal)?
         .map_err(|_| InternalError::Internal)?;
 
+    LOG.info(format!("Changed password for user: {}", user_id));
     Ok(result)
 }
 
@@ -127,6 +133,7 @@ pub async fn sign_in(
 
     let tokens = generate_tokens(&user_db.id.to_string(), &device.id.to_string()).await?;
 
+    LOG.info(format!("User signed in: {}", user_db.id));
     Ok(tokens)
 }
 
@@ -156,5 +163,6 @@ pub async fn sign_up(
 
     let tokens = generate_tokens(&user.id.to_string(), &device.id.to_string()).await?;
 
+    LOG.info(format!("User signed up: {}", user.id));
     Ok(tokens)
 }

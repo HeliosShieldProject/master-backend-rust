@@ -16,6 +16,8 @@ pub use country_error::CountryError;
 pub mod session_error;
 pub use session_error::SessionError;
 
+use crate::logger;
+
 pub enum InternalError {
     HashError(HashError),
     TokenError(TokenError),
@@ -27,12 +29,29 @@ pub enum InternalError {
     Internal,
 }
 
+impl InternalError {
+    pub fn to_string(&self) -> String {
+        match self {
+            InternalError::HashError(e) => e.to_string(),
+            InternalError::TokenError(e) => e.to_string(),
+            InternalError::AuthError(e) => e.to_string(),
+            InternalError::DeviceError(e) => e.to_string(),
+            InternalError::CountryError(e) => e.to_string(),
+            InternalError::SessionError(e) => e.to_string(),
+            InternalError::UuidParse => "Uuid parse error".to_string(),
+            InternalError::Internal => "Internal error".to_string(),
+        }
+    }
+}
+
 pub trait Error {
     fn as_internal(&self) -> InternalError;
 }
 
 pub fn to_internal<T: Error>(error: T) -> InternalError {
-    error.as_internal()
+    let internal_error = error.as_internal();
+    logger::error(internal_error.to_string().as_str(), "int_error".to_string());
+    internal_error
 }
 
 impl Error for deadpool_diesel::PoolError {
