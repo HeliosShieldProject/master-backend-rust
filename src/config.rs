@@ -14,6 +14,8 @@ pub struct Config {
     pub jwt_refresh_secret: String,
     /// Version of the rust environment.
     pub rust_env: String,
+    /// The URL of the logger.
+    pub logger_url: String,
 }
 
 pub static ENV: Lazy<Config> = Lazy::new(|| {
@@ -27,5 +29,6 @@ pub static ENV: Lazy<Config> = Lazy::new(|| {
         jwt_access_secret: env::var("JWT_ACCESS_SECRET").expect("JWT_ACCESS_SECRET must be set"),
         jwt_refresh_secret: env::var("JWT_REFRESH_SECRET").expect("JWT_REFRESH_SECRET must be set"),
         rust_env: env::var("RUST_ENV").expect("RUST_ENV must be set"),
+        logger_url: env::var("LOGGER_URL").expect("LOGGER_URL must be set"),
     }
 });

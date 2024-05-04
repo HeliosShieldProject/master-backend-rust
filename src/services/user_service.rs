@@ -35,7 +35,7 @@ pub async fn get_by_id(
             diesel::result::Error::NotFound => InternalError::AuthError(AuthError::UserNotFound),
             _ => InternalError::Internal,
         })?;
-    LOG.info(format!("Got user by id: {}", id));
+    LOG.info(format!("Got user by id: {}", id)).await;
     Ok(result)
 }
 
@@ -58,7 +58,7 @@ pub async fn get_by_email(
             diesel::result::Error::NotFound => InternalError::AuthError(AuthError::UserNotFound),
             _ => InternalError::Internal,
         })?;
-    LOG.info(format!("Got user by email: {}", email));
+    LOG.info(format!("Got user by email: {}", email)).await;
     Ok(result)
 }
 
@@ -84,7 +84,7 @@ pub async fn add_user(
             _ => InternalError::Internal,
         })?;
 
-    LOG.info(format!("Added user: {}", result.id));
+    LOG.info(format!("Added user: {}", result.id)).await;
     Ok(result)
 }
 
@@ -111,7 +111,7 @@ pub async fn change_password(
         .map_err(to_internal)?
         .map_err(|_| InternalError::Internal)?;
 
-    LOG.info(format!("Changed password for user: {}", user_id));
+    LOG.info(format!("Changed password for user: {}", user_id)).await;
     Ok(result)
 }
 
@@ -133,7 +133,7 @@ pub async fn sign_in(
 
     let tokens = generate_tokens(&user_db.id.to_string(), &device.id.to_string()).await?;
 
-    LOG.info(format!("User signed in: {}", user_db.id));
+    LOG.info(format!("User signed in: {}", user_db.id)).await;
     Ok(tokens)
 }
 
@@ -163,6 +163,6 @@ pub async fn sign_up(
 
     let tokens = generate_tokens(&user.id.to_string(), &device.id.to_string()).await?;
 
-    LOG.info(format!("User signed up: {}", user.id));
+    LOG.info(format!("User signed up: {}", user.id)).await;
     Ok(tokens)
 }

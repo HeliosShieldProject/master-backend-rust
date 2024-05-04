@@ -29,9 +29,7 @@ pub trait Error {
 }
 
 pub fn to_response<T: Error>(error: T) -> ResponseError {
-    let response_error = error.as_response();
-    logger::error(response_error.to_string().as_str(), "res_error".to_string());
-    response_error
+    error.as_response()
 }
 
 impl ResponseError {

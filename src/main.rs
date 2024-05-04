@@ -14,6 +14,7 @@ mod enums;
 mod guards;
 mod handlers;
 mod logger;
+mod middleware;
 mod routers;
 mod services;
 mod swagger;
@@ -43,7 +44,8 @@ async fn main() {
     info(
         format!("Listening on {}", listener.local_addr().unwrap()).as_str(),
         "main".to_string(),
-    );
+    )
+    .await;
     axum::serve(listener, app.into_make_service())
         .await
         .unwrap();

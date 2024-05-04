@@ -1,9 +1,10 @@
 use self::{
     enums::LogLevel,
-    transports::ConsoleLogger,
+    transports::{ConsoleLogger, HttpLogger},
     types::{RequestLog, ResponseLog},
 };
 use crate::{config::ENV, services::Services};
+use axum::async_trait;
 use once_cell::sync::Lazy;
 
 pub mod enums;
@@ -11,12 +12,16 @@ mod functions;
 mod transports;
 pub mod types;
 
-pub use functions::{info, info_request, info_response, error};
+pub use functions::{error, info, info_request, info_response};
 
+#[async_trait]
 pub trait Logger {
-    fn log_raw(&self, message: Option<String>, service: String, level: LogLevel);
-    fn log_request(&self, request: RequestLog);
-    fn log_reponse(&self, response: ResponseLog);
+    fn new() -> Self
+    where
+        Self: Sized;
+    async fn log_raw(&self, message: Option<String>, service: String, level: LogLevel);
+    async fn log_request(&self, request: RequestLog);
+    async fn log_reponse(&self, response: ResponseLog);
 }
 
 pub struct LoggerConfig {
@@ -26,7 +31,7 @@ pub struct LoggerConfig {
 pub static LOGGER: Lazy<LoggerConfig> = Lazy::new(|| {
     match ENV.rust_env.as_str() {
         "development" => LoggerConfig {
-            transports: vec![Box::new(ConsoleLogger {})],
+            transports: vec![Box::new(ConsoleLogger::new()), Box::new(HttpLogger::new())],
         },
         // "production" => LoggerConfig {
         //     transports: vec![Box::new(FileLogger {}), Box::new(MongoLogger {})],
@@ -44,11 +49,11 @@ impl ContextLogger {
         Self { service }
     }
 
-    pub fn info<T: AsRef<str>>(&self, message: T) {
-        info(message.as_ref(), self.service.to_string());
+    pub async fn info<T: AsRef<str>>(&self, message: T) {
+        info(message.as_ref(), self.service.to_string()).await;
     }
 
-    pub fn error<T: AsRef<str>>(&self, message: T) {
-        error(message.as_ref(), self.service.to_string());
+    pub async fn error<T: AsRef<str>>(&self, message: T) {
+        error(message.as_ref(), self.service.to_string()).await;
     }
 }

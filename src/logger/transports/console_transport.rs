@@ -3,58 +3,50 @@ use crate::logger::{
     types::{RawLogModel, RequestLog, RequestLogModel, ResponseLog, ResponseLogModel},
     Logger,
 };
-use axum::http::StatusCode;
+use axum::{async_trait, http::StatusCode};
 use colored::Colorize;
 
 #[derive(Debug, Clone)]
 pub struct ConsoleLogger {}
 
+#[async_trait]
 impl Logger for ConsoleLogger {
-    fn log_raw(&self, message: Option<String>, service: String, level: LogLevel) {
-        let message = RawLogModel {
-            level,
-            message,
-            timestamp: chrono::Utc::now().naive_utc(),
-            service,
-        }
-        .format();
+    fn new() -> Self {
+        Self {}
+    }
+
+    async fn log_raw(&self, message: Option<String>, service: String, level: LogLevel) {
+        let message = RawLogModel::new(level, message, service).format();
         match level {
             LogLevel::ERROR => eprintln!("{}", message),
             _ => println!("{}", message),
         }
     }
 
-    fn log_request(&self, request: RequestLog) {
-        let message = RequestLogModel {
-            raw: RawLogModel {
-                level: LogLevel::INFO,
-                message: None,
-                timestamp: chrono::Utc::now().naive_utc(),
-                service: "request".to_string(),
-            },
-            method: request.method,
-            url: request.url,
-            headers: request.headers,
-        }
+    async fn log_request(&self, request: RequestLog) {
+        let message = RequestLogModel::new(
+            RawLogModel::new(LogLevel::INFO, None, "request".to_string()),
+            request.method,
+            request.url,
+            request.headers,
+        )
         .format();
         println!("{}", message);
     }
 
-    fn log_reponse(&self, response: ResponseLog) {
-        let message = ResponseLogModel {
-            raw: RawLogModel {
-                level: LogLevel::INFO,
-                message: None,
-                timestamp: chrono::Utc::now().naive_utc(),
-                service: "response".to_string(),
-            },
-            status: StatusCode::from_u16(response.status)
-                .unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
-            headers: response.headers,
-        }
+    async fn log_reponse(&self, response: ResponseLog) {
+        let message = ResponseLogModel::new(
+            RawLogModel::new(LogLevel::INFO, None, "response".to_string()),
+            StatusCode::from_u16(response.status).unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
+            response.headers,
+        )
         .format();
         println!("{}", message);
     }
+}
+
+fn format_service(service: &str) -> String {
+    format!("{: <14}", service.to_uppercase())
 }
 
 trait Format {
@@ -67,7 +59,7 @@ impl Format for RawLogModel {
             "[{}] [{}] [{}] - {}",
             self.timestamp.time(),
             self.level.to_color(),
-            self.service.to_uppercase().blue(),
+            format_service(&self.service).blue(),
             self.message.as_ref().unwrap_or(&String::new())
         )
     }
@@ -86,7 +78,7 @@ impl Format for RequestLogModel {
             "[{}] [{}] [{}] - {} {} {:?}",
             self.raw.timestamp.time(),
             self.raw.level.to_color(),
-            self.raw.service.to_uppercase().purple(),
+            format_service(&self.raw.service).purple(),
             method,
             self.url,
             self.headers
@@ -96,7 +88,14 @@ impl Format for RequestLogModel {
 
 impl Format for ResponseLogModel {
     fn format(&self) -> String {
-        let status = match self.status.as_u16() {
+        let status = match self
+            .status
+            .split_whitespace()
+            .next()
+            .unwrap()
+            .parse::<u16>()
+            .unwrap()
+        {
             200..=299 => self.status.to_string().green(),
             300..=399 => self.status.to_string().yellow(),
             400..=499 => self.status.to_string().bright_red(),
@@ -107,7 +106,7 @@ impl Format for ResponseLogModel {
             "[{}] [{}] [{}] - {} {:?}",
             self.raw.timestamp.time(),
             self.raw.level.to_color(),
-            self.raw.service.to_uppercase().purple(),
+            format_service(&self.raw.service).purple(),
             status,
             self.headers
         )
@@ -121,10 +120,10 @@ pub trait Color {
 impl Color for LogLevel {
     fn to_color(self) -> colored::ColoredString {
         match self {
-            LogLevel::INFO => "INFO".green(),
+            LogLevel::INFO => "INFO ".green(),
             LogLevel::ERROR => "ERROR".red(),
             LogLevel::DEBUG => "DEBUG".blue(),
-            LogLevel::WARN => "WARN".yellow(),
+            LogLevel::WARN => "WARN ".yellow(),
             LogLevel::TRACE => "TRACE".purple(),
         }
     }

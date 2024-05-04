@@ -1,25 +1,25 @@
 use super::{enums::LogLevel, types::{RequestLog, ResponseLog}, LOGGER};
 
-pub fn info(message: &str, service: String) {
+pub async fn info(message: &str, service: String) {
     for transport in LOGGER.transports.iter() {
-        transport.log_raw(Some(message.to_string().clone()), service.clone(), LogLevel::INFO);
+        transport.log_raw(Some(message.to_string().clone()), service.clone(), LogLevel::INFO).await;
     }
 }
 
-pub fn error(error: &str, service: String) {
+pub async fn error(error: &str, service: String) {
     for transport in LOGGER.transports.iter() {
-        transport.log_raw(Some(error.to_string().clone()), service.clone(), LogLevel::ERROR);
+        transport.log_raw(Some(error.to_string().clone()), service.clone(), LogLevel::ERROR).await;
     }
 }
 
-pub fn info_request(request: RequestLog) {
+pub async fn info_request(request: RequestLog) {
     for transport in LOGGER.transports.iter() {
-        transport.log_request(request.clone());
+        transport.log_request(request.clone()).await;
     }
 }
 
-pub fn info_response(response: ResponseLog) {
+pub async fn info_response(response: ResponseLog) {
     for transport in LOGGER.transports.iter() {
-        transport.log_reponse(response.clone());
+        transport.log_reponse(response.clone()).await;
     }
 }

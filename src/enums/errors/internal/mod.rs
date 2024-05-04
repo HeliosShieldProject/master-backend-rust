@@ -49,9 +49,7 @@ pub trait Error {
 }
 
 pub fn to_internal<T: Error>(error: T) -> InternalError {
-    let internal_error = error.as_internal();
-    logger::error(internal_error.to_string().as_str(), "int_error".to_string());
-    internal_error
+    error.as_internal()
 }
 
 impl Error for deadpool_diesel::PoolError {
