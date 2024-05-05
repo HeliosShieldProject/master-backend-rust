@@ -1,12 +1,18 @@
 use std::collections::HashMap;
 
+use crate::logger::enums::LogLevel;
+
 use super::RawLogModel;
 use axum::http::HeaderMap;
+use chrono::NaiveDateTime;
 use serde::Serialize;
 
 #[derive(Clone, Serialize)]
 pub struct RequestLogModel {
-    pub raw: RawLogModel,
+    pub level: LogLevel,
+    pub message: Option<String>,
+    pub timestamp: NaiveDateTime,
+    pub service: String,
     pub url: String,
     pub method: String,
     pub headers: HashMap<String, String>,
@@ -15,7 +21,10 @@ pub struct RequestLogModel {
 impl RequestLogModel {
     pub fn new(raw: RawLogModel, url: String, method: String, headers: HeaderMap) -> Self {
         Self {
-            raw,
+            level: raw.level,
+            message: raw.message,
+            timestamp: raw.timestamp,
+            service: raw.service,
             url,
             method,
             headers: headers
@@ -33,7 +42,10 @@ impl RequestLogModel {
 
 #[derive(Clone, Serialize)]
 pub struct RequestLogModelHttp {
-    pub raw: RawLogModel,
+    pub level: LogLevel,
+    pub message: Option<String>,
+    pub timestamp: NaiveDateTime,
+    pub service: String,
     pub url: String,
     pub method: String,
     pub headers: HashMap<String, String>,
@@ -43,7 +55,10 @@ pub struct RequestLogModelHttp {
 impl From<RequestLogModel> for RequestLogModelHttp {
     fn from(request: RequestLogModel) -> Self {
         Self {
-            raw: request.raw,
+            level: request.level,
+            message: request.message,
+            timestamp: request.timestamp,
+            service: request.service,            
             url: request.url,
             method: request.method,
             headers: request.headers,

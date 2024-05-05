@@ -76,9 +76,9 @@ impl Format for RequestLogModel {
         };
         format!(
             "[{}] [{}] [{}] - {} {} {:?}",
-            self.raw.timestamp.time(),
-            self.raw.level.to_color(),
-            format_service(&self.raw.service).purple(),
+            self.timestamp.time(),
+            self.level.to_color(),
+            format_service(&self.service).purple(),
             method,
             self.url,
             self.headers
@@ -104,9 +104,9 @@ impl Format for ResponseLogModel {
         };
         format!(
             "[{}] [{}] [{}] - {} {:?}",
-            self.raw.timestamp.time(),
-            self.raw.level.to_color(),
-            format_service(&self.raw.service).purple(),
+            self.timestamp.time(),
+            self.level.to_color(),
+            format_service(&self.service).purple(),
             status,
             self.headers
         )

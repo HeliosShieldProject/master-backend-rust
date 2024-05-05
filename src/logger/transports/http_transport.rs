@@ -37,8 +37,8 @@ impl Logger for HttpLogger {
     async fn log_request(&self, request: RequestLog) {
         let payload: RequestLogModelHttp = RequestLogModel::new(
             RawLogModel::new(LogLevel::INFO, None, "request".to_string()),
-            request.method,
             request.url,
+            request.method,
             request.headers,
         )
         .into();
