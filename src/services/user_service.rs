@@ -1,4 +1,3 @@
-use super::Services;
 use crate::{
     data::{enums::OS, models::User, schema},
     dto::{
@@ -6,7 +5,7 @@ use crate::{
         device::internal::{DeviceInfo, NewDevice},
     },
     enums::errors::internal::{to_internal, AuthError, InternalError},
-    logger::ContextLogger,
+    logger::{enums::Services::UserService, ContextLogger, ResultExt},
     services::device_service,
     utils::{hash, token::generate_tokens},
 };
@@ -14,13 +13,18 @@ use diesel::prelude::*;
 use diesel::QueryDsl;
 use uuid::Uuid;
 
-const LOG: ContextLogger = ContextLogger::new(Services::UserService);
+const LOG: ContextLogger = ContextLogger::new(UserService);
 
 pub async fn get_by_id(
     pool: &deadpool_diesel::postgres::Pool,
     id: &Uuid,
 ) -> Result<User, InternalError> {
-    let conn = pool.get().await.map_err(to_internal)?;
+    let conn = pool
+        .get()
+        .await
+        .map_err(to_internal)
+        .log_error(UserService)
+        .await?;
     let id = id.clone();
     let result = conn
         .interact(move |conn| {
@@ -30,12 +34,14 @@ pub async fn get_by_id(
                 .first(conn)
         })
         .await
-        .map_err(to_internal)?
+        .map_err(to_internal)
+        .log(format!("Got user by id: {}", id), UserService)
+        .await?
         .map_err(|e| match e {
             diesel::result::Error::NotFound => InternalError::AuthError(AuthError::UserNotFound),
             _ => InternalError::Internal,
         })?;
-    LOG.info(format!("Got user by id: {}", id)).await;
+
     Ok(result)
 }
 
@@ -43,7 +49,12 @@ pub async fn get_by_email(
     pool: &deadpool_diesel::postgres::Pool,
     email: &str,
 ) -> Result<User, InternalError> {
-    let conn = pool.get().await.map_err(to_internal)?;
+    let conn = pool
+        .get()
+        .await
+        .map_err(to_internal)
+        .log_error(UserService)
+        .await?;
     let email_ = email.to_string();
     let result = conn
         .interact(move |conn| {
@@ -53,12 +64,14 @@ pub async fn get_by_email(
                 .first(conn)
         })
         .await
-        .map_err(to_internal)?
+        .map_err(to_internal)
+        .log(format!("Got user by email: {}", email), UserService)
+        .await?
         .map_err(|e| match e {
             diesel::result::Error::NotFound => InternalError::AuthError(AuthError::UserNotFound),
             _ => InternalError::Internal,
         })?;
-    LOG.info(format!("Got user by email: {}", email)).await;
+
     Ok(result)
 }
 
@@ -66,16 +79,23 @@ pub async fn add_user(
     pool: &deadpool_diesel::postgres::Pool,
     new_user: &NewUser,
 ) -> Result<User, InternalError> {
-    let conn = pool.get().await.map_err(to_internal)?;
-    let new_user = new_user.clone();
+    let conn = pool
+        .get()
+        .await
+        .map_err(to_internal)
+        .log_error(UserService)
+        .await?;
+    let new_user_ = new_user.clone();
     let result: User = conn
         .interact(move |conn| {
             diesel::insert_into(schema::user::table)
-                .values(&new_user)
+                .values(&new_user_)
                 .get_result(conn)
         })
         .await
-        .map_err(to_internal)?
+        .map_err(to_internal)
+        .log(format!("Added user: {}", &new_user.email), UserService)
+        .await?
         .map_err(|e| match e {
             diesel::result::Error::DatabaseError(
                 diesel::result::DatabaseErrorKind::UniqueViolation,
@@ -84,7 +104,6 @@ pub async fn add_user(
             _ => InternalError::Internal,
         })?;
 
-    LOG.info(format!("Added user: {}", result.id)).await;
     Ok(result)
 }
 
@@ -93,13 +112,18 @@ pub async fn change_password(
     user_id: &Uuid,
     new_password: &str,
 ) -> Result<User, InternalError> {
-    let conn = pool.get().await.map_err(to_internal)?;
+    let conn = pool
+        .get()
+        .await
+        .map_err(to_internal)
+        .log_error(UserService)
+        .await?;
     let user = get_by_id(&pool, &user_id).await?;
 
-    if hash::verify_password(&new_password, &user.password).is_ok() {
+    if hash::verify_password(&new_password, &user.password).await.is_ok() {
         return Err(InternalError::AuthError(AuthError::PasswordIsSame));
     }
-    let hashed_password = hash::hash_password(&new_password)?;
+    let hashed_password = hash::hash_password(&new_password).await?;
     let id = user_id.clone();
     let result = conn
         .interact(move |conn| {
@@ -108,10 +132,11 @@ pub async fn change_password(
                 .get_result(conn)
         })
         .await
-        .map_err(to_internal)?
+        .map_err(to_internal)
+        .log(format!("Changed password for user: {}", id), UserService)
+        .await?
         .map_err(|_| InternalError::Internal)?;
 
-    LOG.info(format!("Changed password for user: {}", user_id)).await;
     Ok(result)
 }
 
@@ -122,7 +147,7 @@ pub async fn sign_in(
 ) -> Result<Tokens, InternalError> {
     let user_db = get_by_email(&pool, &user.email).await?;
 
-    hash::verify_password(&user.password, &user_db.password)?;
+    hash::verify_password(&user.password, &user_db.password).await?;
 
     let device = NewDevice {
         name: device.name.clone(),
@@ -146,7 +171,7 @@ pub async fn sign_up(
         return Err(InternalError::AuthError(AuthError::UserAlreadyExists));
     }
 
-    let hashed_password = hash::hash_password(&user.password)?;
+    let hashed_password = hash::hash_password(&user.password).await?;
 
     let new_user = NewUser {
         email: user.email.clone(),

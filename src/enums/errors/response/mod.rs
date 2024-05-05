@@ -10,7 +10,7 @@ pub use country_error::CountryError;
 mod session_error;
 pub use session_error::SessionError;
 
-use crate::{dto::response::error::ErrorResponse, enums::errors::internal, logger};
+use crate::{dto::response::error::ErrorResponse, enums::errors::internal};
 use axum::{
     http::StatusCode,
     response::{IntoResponse, Response},

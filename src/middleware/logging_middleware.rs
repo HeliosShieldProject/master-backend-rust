@@ -13,15 +13,10 @@ pub async fn logging_middleware(
     request: Request,
     next: Next,
 ) -> Result<impl IntoResponse, Response> {
-    // todo: Remove senstive headers
     let method = request.method().clone();
     let uri = request.uri().clone();
-    let req_headers = request.headers().clone();
-
-    let response = next.run(request).await;
-    
-    let status = response.status();
-    let res_headers = response.headers();
+    let mut req_headers = request.headers().clone();
+    req_headers.remove("authorization");
 
     info_request(RequestLog {
         method: method.to_string(),
@@ -29,6 +24,10 @@ pub async fn logging_middleware(
         headers: req_headers.clone(),
     })
     .await;
+
+    let response = next.run(request).await;
+    let status = response.status();
+    let res_headers = response.headers();
 
     info_response(ResponseLog {
         status: status.as_u16(),

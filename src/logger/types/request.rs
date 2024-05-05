@@ -31,6 +31,27 @@ impl RequestLogModel {
     }
 }
 
+#[derive(Clone, Serialize)]
+pub struct RequestLogModelHttp {
+    pub raw: RawLogModel,
+    pub url: String,
+    pub method: String,
+    pub headers: HashMap<String, String>,
+    pub source: String,
+}
+
+impl From<RequestLogModel> for RequestLogModelHttp {
+    fn from(request: RequestLogModel) -> Self {
+        Self {
+            raw: request.raw,
+            url: request.url,
+            method: request.method,
+            headers: request.headers,
+            source: "master_backend".to_string(),
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct RequestLog {
     pub url: String,

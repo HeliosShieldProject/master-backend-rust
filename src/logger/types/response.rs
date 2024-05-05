@@ -29,6 +29,25 @@ impl ResponseLogModel {
     }
 }
 
+#[derive(Clone, Serialize)]
+pub struct ResponseLogModelHttp {
+    pub raw: RawLogModel,
+    pub status: String,
+    pub headers: HashMap<String, String>,
+    pub source: String,
+}
+
+impl From<ResponseLogModel> for ResponseLogModelHttp {
+    fn from(response: ResponseLogModel) -> Self {
+        Self {
+            raw: response.raw,
+            status: response.status,
+            headers: response.headers,
+            source: "master_backend".to_string(),
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct ResponseLog {
     pub status: u16,

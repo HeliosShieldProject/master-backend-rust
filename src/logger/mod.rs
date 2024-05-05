@@ -3,7 +3,7 @@ use self::{
     transports::{ConsoleLogger, HttpLogger},
     types::{RequestLog, ResponseLog},
 };
-use crate::{config::ENV, services::Services};
+use crate::{config::ENV, enums::errors::internal::InternalError};
 use axum::async_trait;
 use once_cell::sync::Lazy;
 
@@ -13,6 +13,7 @@ mod transports;
 pub mod types;
 
 pub use functions::{error, info, info_request, info_response};
+use enums::Services;
 
 #[async_trait]
 pub trait Logger {
@@ -53,7 +54,32 @@ impl ContextLogger {
         info(message.as_ref(), self.service.to_string()).await;
     }
 
-    pub async fn error<T: AsRef<str>>(&self, message: T) {
-        error(message.as_ref(), self.service.to_string()).await;
+    pub async fn on_error<R>(&self, result: Result<R, InternalError>) -> Result<R, InternalError> {
+        if let Err(e) = &result {
+            error(e.to_string().as_str(), self.service.to_string()).await;
+        }
+        result
+    }
+}
+
+pub trait ResultExt<R> {
+    async fn log_error(self, service: Services) -> Result<R, InternalError>;
+    async fn log<T: AsRef<str>>(self, message: T, service: Services) -> Result<R, InternalError>;
+}
+
+impl<R> ResultExt<R> for Result<R, InternalError> {
+    async fn log_error(self, service: Services) -> Result<R, InternalError> {
+        if let Err(e) = &self {
+            error(e.to_string().as_str(), service.to_string()).await;
+        }
+        self
+    }
+
+    async fn log<T: AsRef<str>>(self, message: T, service: Services) -> Result<R, InternalError> {
+        match self {
+            Ok(_) => info(message.as_ref(), service.to_string()).await,
+            Err(ref e) => error(e.to_string().as_str(), service.to_string()).await,
+        }
+        self
     }
 }
