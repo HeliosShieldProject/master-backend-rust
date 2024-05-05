@@ -3,6 +3,7 @@ use crate::{
         auth::internal::AccessToken, device::response::Device, response::success::SuccessResponse,
     },
     enums::errors::response::{to_response, ResponseError},
+    logger::{enums::Handlers::GetDevices, ResultExtReponse},
     services::device_service,
     AppState,
 };
@@ -55,7 +56,9 @@ pub async fn get_devices(
 ) -> Result<SuccessResponse<Vec<Device>>, ResponseError> {
     let devices = device_service::get_devices(&state.pool, &claims.user_id)
         .await
-        .map_err(to_response)?
+        .map_err(to_response)
+        .log_error(GetDevices)
+        .await?
         .into_iter()
         .map(|device| Device::from(device))
         .collect();

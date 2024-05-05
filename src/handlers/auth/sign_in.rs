@@ -5,6 +5,7 @@ use crate::{
         response::success::SuccessResponse,
     },
     enums::errors::response::{to_response, ResponseError},
+    logger::{enums::Handlers::SignIn, ResultExtReponse},
     services::user_service,
     AppState,
 };
@@ -72,7 +73,9 @@ pub async fn sign_in(
         },
     )
     .await
-    .map_err(to_response)?;
+    .map_err(to_response)
+    .log_error(SignIn)
+    .await?;
 
     Ok(SuccessResponse::new(StatusCode::OK, "Signed in successfully").with_data(tokens))
 }

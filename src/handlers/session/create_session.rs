@@ -6,6 +6,7 @@ use crate::{
         session::{request::CreateSession, response::Session},
     },
     enums::errors::response::{to_response, ResponseError},
+    logger::{enums::Handlers, ResultExtReponse},
     services::session_service,
     AppState,
 };
@@ -62,7 +63,9 @@ pub async fn create_session(
     let country = Country::from_str(&payload.country).map_err(to_response)?;
     let session = session_service::create_session(&state.pool, &claims.device_id, &country)
         .await
-        .map_err(to_response)?;
+        .map_err(to_response)
+        .log_error(Handlers::CreateSession)
+        .await?;
 
     Ok(
         SuccessResponse::new(StatusCode::CREATED, "Session created successfully")

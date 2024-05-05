@@ -1,6 +1,7 @@
 use crate::{
     dto::{auth::internal::AccessToken, response::success::SuccessResponse},
     enums::errors::response::{to_response, ResponseError},
+    logger::{enums::Handlers::CloseSession, ResultExtReponse},
     services::session_service,
     AppState,
 };
@@ -48,7 +49,9 @@ pub async fn close_session(
 ) -> Result<SuccessResponse<String>, ResponseError> {
     session_service::close_session(&state.pool, &claims.device_id)
         .await
-        .map_err(to_response)?;
+        .map_err(to_response)
+        .log_error(CloseSession)
+        .await?;
 
     Ok(SuccessResponse::new(
         StatusCode::OK,

@@ -4,6 +4,7 @@ use crate::{
         response::success::SuccessResponse,
     },
     enums::errors::response::{to_response, ResponseError},
+    logger::{enums::Handlers::ChangePassword, ResultExtReponse},
     services::user_service,
     AppState,
 };
@@ -52,7 +53,9 @@ pub async fn change_password(
 ) -> Result<SuccessResponse<String>, ResponseError> {
     user_service::change_password(&state.pool, &claims.user_id, &payload.password)
         .await
-        .map_err(to_response)?;
+        .map_err(to_response)
+        .log_error(ChangePassword)
+        .await?;
 
     Ok(SuccessResponse::new(
         StatusCode::OK,

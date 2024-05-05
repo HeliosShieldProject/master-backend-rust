@@ -5,6 +5,7 @@ use crate::{
         response::success::SuccessResponse,
     },
     enums::errors::response::{to_response, ResponseError},
+    logger::{enums::Handlers::SignUp, ResultExtReponse},
     services::user_service,
     AppState,
 };
@@ -63,7 +64,9 @@ pub async fn sign_up(
         },
     )
     .await
-    .map_err(to_response)?;
+    .map_err(to_response)
+    .log_error(SignUp)
+    .await?;
 
     Ok(SuccessResponse::new(StatusCode::CREATED, "Signed up successfully").with_data(tokens))
 }

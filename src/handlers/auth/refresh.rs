@@ -4,6 +4,7 @@ use crate::{
         response::success::SuccessResponse,
     },
     enums::errors::response::{to_response, ResponseError},
+    logger::{enums::Handlers::Refresh, ResultExtReponse},
     utils::token::generate_tokens,
 };
 use axum::http::StatusCode;
@@ -42,7 +43,9 @@ use axum::http::StatusCode;
 pub async fn refresh(claims: RefreshToken) -> Result<SuccessResponse<Tokens>, ResponseError> {
     let tokens = generate_tokens(&claims.user_id.to_string(), &claims.device_id.to_string())
         .await
-        .map_err(to_response)?;
+        .map_err(to_response)
+        .log_error(Refresh)
+        .await?;
 
     Ok(SuccessResponse::new(StatusCode::OK, "Tokens refreshed successfully").with_data(tokens))
 }
