@@ -11,18 +11,26 @@ use crate::{
         response,
     },
     enums::errors::internal::{to_internal, InternalError, SessionError},
+    logger::{enums::Services::SessionService, ContextLogger, ResultExt},
     services::config_service::get_config_by_country,
 };
 use chrono::Local;
 use diesel::prelude::*;
 use uuid::Uuid;
 
+const LOG: ContextLogger = ContextLogger::new(SessionService);
+
 pub async fn create_session(
     pool: &deadpool_diesel::postgres::Pool,
     device_id: &Uuid,
     country: &Country,
 ) -> Result<response::Session, InternalError> {
-    let conn = pool.get().await.map_err(to_internal)?;
+    let conn = pool
+        .get()
+        .await
+        .map_err(to_internal)
+        .log_error(SessionService)
+        .await?;
     let (device_id, country) = (device_id.clone(), country.clone());
 
     if let Ok(current_session) = get_session(
@@ -59,9 +67,12 @@ pub async fn create_session(
             session
         })
         .await
-        .map_err(to_internal)?
+        .map_err(to_internal)
+        .log_error(SessionService)
+        .await?
         .map_err(|_| InternalError::Internal)?;
 
+    LOG.info(format!("Created session: {}", &session.id)).await;
     Ok(response::Session::new(session, server, config))
 }
 
@@ -69,7 +80,12 @@ pub async fn close_session_by_id(
     pool: &deadpool_diesel::postgres::Pool,
     session_id: &Uuid,
 ) -> Result<(), InternalError> {
-    let conn = pool.get().await.map_err(to_internal)?;
+    let conn = pool
+        .get()
+        .await
+        .map_err(to_internal)
+        .log_error(SessionService)
+        .await?;
     let session_id = session_id.clone();
     let _ = conn
         .interact(move |conn| {
@@ -92,7 +108,9 @@ pub async fn close_session_by_id(
             Ok(())
         })
         .await
-        .map_err(to_internal)?;
+        .map_err(to_internal)
+        .log(format!("Closed session: {}", session_id), SessionService)
+        .await?;
     Ok(())
 }
 

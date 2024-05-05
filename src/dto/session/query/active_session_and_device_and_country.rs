@@ -6,6 +6,7 @@ use crate::{
     },
     dto::session::SessionBy,
     enums::errors::internal::{to_internal, InternalError, SessionError},
+    logger::{enums::Services::SessionService, ResultExt},
 };
 use diesel::prelude::*;
 use diesel::QueryDsl;
@@ -21,7 +22,12 @@ impl SessionBy for ActiveSessionAndDeviceAndCountry {
         &self,
         pool: &'a deadpool_diesel::postgres::Pool,
     ) -> Result<(Session, Device, Config, Server), InternalError> {
-        let conn = pool.get().await.map_err(to_internal)?;
+        let conn = pool
+            .get()
+            .await
+            .map_err(to_internal)
+            .log_error(SessionService)
+            .await?;
         let (device_id, country) = (self.device_id.clone(), self.country.clone());
         let result: Vec<(Session, Device, Config, Server)> = conn
             .interact(move |conn| {
@@ -40,7 +46,15 @@ impl SessionBy for ActiveSessionAndDeviceAndCountry {
                     .load::<(Session, Device, Config, Server)>(conn)
             })
             .await
-            .map_err(to_internal)?
+            .map_err(to_internal)
+            .log(
+                format!(
+                    "Got active session by device_id: {} and country: {:?}",
+                    device_id, country
+                ),
+                SessionService,
+            )
+            .await?
             .map_err(|_| InternalError::Internal)?;
         if result.len() != 1 {
             return Err(InternalError::SessionError(SessionError::SessionNotFound));
