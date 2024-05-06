@@ -1,0 +1,67 @@
+name: "master-backend"
+
+services:
+  master-backend:
+    build:
+      context: .
+      args:
+        - MASTER_BACKEND_PORT=${MASTER_BACKEND_PORT}
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "${MASTER_BACKEND_PORT}:${MASTER_BACKEND_PORT}"
+    depends_on:
+      - database
+
+  database:
+    image: postgres:12
+    restart: always
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
+    command: -p ${DATABASE_PORT}
+    volumes:
+      - database-volume:/var/lib/postgresql/data
+
+  logger:
+    image: ghcr.io/heliosshieldproject/logger-rust:latest
+    restart: always
+    environment:
+      - MONGO_URL=${MONGO_URL}
+      - LOGGER_URI=${LOGGER_URI}
+    ports:
+      - "${LOGGER_PORT}:${LOGGER_PORT}"
+
+  logs-database:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${LOGS_DATABASE_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${LOGS_DATABASE_PASSWORD}
+    volumes:
+      - logs-database-volume:/data/db
+    command:
+      - --port
+      - ${LOGS_DATABASE_PORT}
+    ports:
+      - "${LOGS_DATABASE_PORT}:${LOGS_DATABASE_PORT}"
+
+  logs-viewer:
+    image: mongo-express
+    restart: always
+    ports:
+      - ${LOGS_VIEWER_PORT}:8081
+    environment:
+      ME_CONFIG_MONGODB_URL: ${MONGO_URL}
+      ME_CONFIG_OPTIONS_EDITORTHEME: nord
+      ME_CONFIG_BASICAUTH_USERNAME: ${LOGS_VIEWER_USER}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${LOGS_VIEWER_PASSWORD}
+    depends_on:
+      - logs-database
+
+volumes:
+  database-volume:
+  logs-database-volume:

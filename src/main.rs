@@ -37,7 +37,7 @@ async fn main() {
         _ => app_router(state.clone()).with_state(state),
     };
 
-    let listener = TcpListener::bind(format!("localhost:{}", ENV.master_backend_port))
+    let listener = TcpListener::bind(&ENV.master_backend_url)
         .await
         .unwrap();
 

@@ -1,0 +1,75 @@
+name: Build, Test and Deploy to DigitalOcean
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-cargo-
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Login  to GitHub Container Registry
+        run: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }}
+      
+      - name: Set ghcr.io url
+        run: echo "REPO=${GITHUB_REPOSITORY@L}" >> "${GITHUB_ENV}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build the Docker image
+        run: |
+          docker build . -t ghcr.io/${{ env.REPO }}:${{ github.sha }}
+          docker tag ghcr.io/${{ env.REPO }}:${{ github.sha }} ghcr.io/${{ env.REPO }}:latest
+
+      - name: Push the Docker image
+        run: |
+          docker push ghcr.io/${{ env.REPO }}:${{ github.sha }}
+          docker push ghcr.io/${{ env.REPO }}:latest
+
+  # deploy:
+  #   needs: build
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v3
+
+  #     - name: Add SSH key
+  #       run: |
+  #         mkdir -p ~/.ssh
+  #         echo "${{ secrets.HELIOS_SSH }}" > ~/.ssh/helios_ssh
+  #         chmod 600 ~/.ssh/helios_ssh
+      
+  #     - name: Setup to DigitalOcean
+  #       run: |
+  #         ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }}"
+  #         ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -f docker-compose.yml"
+  #         scp -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/docker-compose.yml
+          
+  #     - name: Deploy to DigitalOcean
+  #       run: |          
+  #         ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker-compose down"
+  #         ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker-compose pull"
+  #         ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker-compose up -d"
