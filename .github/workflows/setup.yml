@@ -18,32 +18,32 @@ jobs:
       
       - name: Form environment variables
         run : |
-          echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
-          echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
-          echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
-          echo "DATABASE_USER=${{ secrets.DATABASE_USER }}" >> .env
-          echo "DO_AUTH_TOKEN=${{ secrets.DO_AUTH_TOKEN }}" >> .env
-          echo "GHCR_PAT=${{ secrets.GHCR_PAT }}" >> .env
-          echo "HELIOS_SSH=${{ secrets.HELIOS_SSH }}" >> .env
-          echo "JWT_ACCESS_SECRET=${{ secrets.JWT_ACCESS_SECRET }}" >> .env
-          echo "JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}" >> .env
-          echo "LOGGER_PORT=${{ secrets.LOGGER_PORT }}" >> .env
-          echo "LOGGER_URI=${{ secrets.LOGGER_URI }}" >> .env
-          echo "LOGGER_URL=${{ secrets.LOGGER_URL }}" >> .env
-          echo "LOGS_DATABASE_PASSWORD=${{ secrets.LOGS_DATABASE_PASSWORD }}" >> .env
-          echo "LOGS_DATABASE_PORT=${{ secrets.LOGS_DATABASE_PORT }}" >> .env
-          echo "LOGS_DATABASE_USER=${{ secrets.LOGS_DATABASE_USER }}" >> .env
-          echo "LOGS_VIEWER_PASSWORD=${{ secrets.LOGS_VIEWER_PASSWORD }}" >> .env
-          echo "LOGS_VIEWER_USER=${{ secrets.LOGS_VIEWER_USER }}" >> .env
-          echo "MASTER_BACKEND_PORT=${{ secrets.MASTER_BACKEND_PORT }}" >> .env
-          echo "MASTER_BACKEND_URL=${{ secrets.MASTER_BACKEND_URL }}" >> .env
-          echo "MONGO_URL=${{ secrets.MONGO_URL }}" >> .env
-          echo "RUST_ENV=${{ secrets.RUST_ENV }}" >> .env
+          echo "DATABASE_NAME=\"${{ secrets.DATABASE_NAME }}\"" >> .env
+          echo "DATABASE_PASSWORD=\"${{ secrets.DATABASE_PASSWORD }}\"" >> .env
+          echo "DATABASE_PORT=\"${{ secrets.DATABASE_PORT }}\"" >> .env
+          echo "DATABASE_URL=\"${{ secrets.DATABASE_URL }}\"" >> .env
+          echo "DATABASE_USER=\"${{ secrets.DATABASE_USER }}\"" >> .env
+          echo "DO_AUTH_TOKEN=\"${{ secrets.DO_AUTH_TOKEN }}\"" >> .env
+          echo "GHCR_PAT=\"${{ secrets.GHCR_PAT }}\"" >> .env
+          echo "HELIOS_SSH=\"${{ secrets.HELIOS_SSH }}\"" >> .env
+          echo "JWT_ACCESS_SECRET=\"${{ secrets.JWT_ACCESS_SECRET }}\"" >> .env
+          echo "JWT_REFRESH_SECRET=\"${{ secrets.JWT_REFRESH_SECRET }}\"" >> .env
+          echo "LOGGER_PORT=\"${{ secrets.LOGGER_PORT }}\"" >> .env
+          echo "LOGGER_URI=\"${{ secrets.LOGGER_URI }}\"" >> .env
+          echo "LOGGER_URL=\"${{ secrets.LOGGER_URL }}\"" >> .env
+          echo "LOGS_DATABASE_PASSWORD=\"${{ secrets.LOGS_DATABASE_PASSWORD }}\"" >> .env
+          echo "LOGS_DATABASE_PORT=\"${{ secrets.LOGS_DATABASE_PORT }}\"" >> .env
+          echo "LOGS_DATABASE_USER=\"${{ secrets.LOGS_DATABASE_USER }}\"" >> .env
+          echo "LOGS_VIEWER_PASSWORD=\"${{ secrets.LOGS_VIEWER_PASSWORD }}\"" >> .env
+          echo "LOGS_VIEWER_USER=\"${{ secrets.LOGS_VIEWER_USER }}\"" >> .env
+          echo "MASTER_BACKEND_PORT=\"${{ secrets.MASTER_BACKEND_PORT }}\"" >> .env
+          echo "MASTER_BACKEND_URL=\"${{ secrets.MASTER_BACKEND_URL }}\"" >> .env
+          echo "MONGO_URL=\"${{ secrets.MONGO_URL }}\"" >> .env
+          echo "RUST_ENV=\"${{ secrets.RUST_ENV }}\"" >> .env
 
       - name: Setup DigitalOcean droplet
         run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }}"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin"
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -f docker-compose.yml"
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -f .env"
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -rf traefik/"
