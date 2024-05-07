@@ -23,7 +23,7 @@ jobs:
           echo "DATABASE_PORT=\"${{ secrets.DATABASE_PORT }}\"" >> .env
           echo "DATABASE_URL=\"${{ secrets.DATABASE_URL }}\"" >> .env
           echo "DATABASE_USER=\"${{ secrets.DATABASE_USER }}\"" >> .env
-          echo "DO_AUTH_TOKEN=\"${{ secrets.DO_AUTH_TOKEN }}\"" >> .env
+          echo "NETLIFY_TOKEN=\"${{ secrets.NETLIFY_TOKEN }}\"" >> .env
           echo "GHCR_PAT=\"${{ secrets.GHCR_PAT }}\"" >> .env
           echo "HELIOS_SSH=\"${{ secrets.HELIOS_SSH }}\"" >> .env
           echo "JWT_ACCESS_SECRET=\"${{ secrets.JWT_ACCESS_SECRET }}\"" >> .env
@@ -55,4 +55,4 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose down"
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose pull"
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose up -d"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose up -d --build"
