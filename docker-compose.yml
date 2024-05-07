@@ -10,7 +10,7 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      DO_AUTH_TOKEN: ${DO_AUTH_TOKEN}
+      NETLIFY_TOKEN: ${NETLIFY_TOKEN}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml
@@ -97,9 +97,9 @@ services:
     labels:
       - "traefik.http.routers.logs-viewer.rule=Host(`logs.helios.michkoff.com`)"
       - "traefik.http.routers.logs-viewer.entrypoints=websecure"
-      - "traefik.http.routers.logs-database.tls.certresolver=myresolver"
-      - "traefik.http.routers.logs-database.tls.domains[0].main=logs.helios.michkoff.com"
-      - "traefik.http.routers.logs-database.tls.domains[0].sans=www.logs.helios.michkoff.com"
+      - "traefik.http.routers.logs-viewer.tls.certresolver=myresolver"
+      - "traefik.http.routers.logs-viewer.tls.domains[0].main=logs.helios.michkoff.com"
+      - "traefik.http.routers.logs-viewer.tls.domains[0].sans=www.logs.helios.michkoff.com"
 
 volumes:
   database-volume:
