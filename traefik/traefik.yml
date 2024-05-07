@@ -1,0 +1,28 @@
+log:
+  level: INFO
+
+providers:
+  docker: true
+  file:
+    filename: /etc/traefik/dynamic_conf.yml
+
+entrypoints:
+  web:
+    address: :80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: :443
+  tcp:
+    address: :5432
+
+certificatesresolvers:
+  myresolver:
+    acme:
+      dnsChallenge:
+        provider: digitalocean
+      email: michkov.evgeny@gmail.com
+      storage: /etc/traefik/acme.json

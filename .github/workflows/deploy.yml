@@ -12,24 +12,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Cache dependencies
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-cargo-
-
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-
-      - name: Build
-        run: cargo build --release
-
       - name: Login  to GitHub Container Registry
         run: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }}
       
@@ -64,12 +46,16 @@ jobs:
       
   #     - name: Setup to DigitalOcean
   #       run: |
-  #         ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }}"
-  #         ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -f docker-compose.yml"
-  #         scp -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/docker-compose.yml
+  #         ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GHCR_PAT }}"
+  #         ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -f docker-compose.yml"
+  #         ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -f .env"
+  #         ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -rf traefik/"
+  #         scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/docker-compose.yml
+  #         scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} .env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/.env
+  #         scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} -r traefik/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/traefik/
           
   #     - name: Deploy to DigitalOcean
   #       run: |          
-  #         ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker-compose down"
-  #         ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker-compose pull"
-  #         ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker-compose up -d"
+  #         ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose down"
+  #         ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose pull"
+  #         ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose up -d"
