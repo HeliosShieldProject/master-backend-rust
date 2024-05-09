@@ -4,16 +4,23 @@ services:
   traefik:
     container_name: traefik
     image: traefik:latest
-    restart: 
-      always  
+    restart: always
     ports:
       - "80:80"
       - "443:443"
+      - "5432:5432"
+      - "8080:8080"
     environment:
       NETLIFY_TOKEN: ${NETLIFY_TOKEN}
+    labels:
+      - "traefic.http.routers.traefik.rule=Host(`traefik.helios.michkoff.com`)"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+      - "traefic.http.routers.traefik.service=api@internal"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml
+      - ./traefik/dynamic_conf.yml:/etc/traefik/dynamic_conf.yml
 
   master-backend:
     container_name: master-backend
@@ -51,7 +58,9 @@ services:
     labels:
       - "traefik.tcp.routers.database.rule=HostSNI(`database.helios.michkoff.com`)"
       - "traefik.tcp.routers.database.entrypoints=tcp"
+      - "traefic.tcp.routers.postgres.tls=true"
       - "traefik.tcp.routers.database.tls.certresolver=myresolver"
+      - "traefik.tcp.services.database.loadbalancer.server.port=${DATABASE_PORT}"
 
   logger:
     container_name: logger

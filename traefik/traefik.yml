@@ -1,6 +1,9 @@
 log:
   level: INFO
 
+api:
+  dashboard: true
+
 providers:
   docker: true
   file:
