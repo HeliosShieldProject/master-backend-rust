@@ -24,7 +24,6 @@ jobs:
           echo "DATABASE_URL=\"${{ secrets.DATABASE_URL }}\"" >> .env
           echo "DATABASE_USER=\"${{ secrets.DATABASE_USER }}\"" >> .env
           echo "GHCR_PAT=\"${{ secrets.GHCR_PAT }}\"" >> .env
-          echo "HELIOS_SSH=\"${{ secrets.HELIOS_SSH }}\"" >> .env
           echo "JWT_ACCESS_SECRET=\"${{ secrets.JWT_ACCESS_SECRET }}\"" >> .env
           echo "JWT_REFRESH_SECRET=\"${{ secrets.JWT_REFRESH_SECRET }}\"" >> .env
           echo "LOGGER_PORT=\"${{ secrets.LOGGER_PORT }}\"" >> .env
