@@ -11,12 +11,12 @@ services:
       - "5432:5432"
       - "8080:8080"
     environment:
-      NETLIFY_TOKEN: ${NETLIFY_TOKEN}
+      DO_AUTH_TOKEN: ${DO_AUTH_TOKEN}
     labels:
-      - "traefic.http.routers.traefik.rule=Host(`traefik.helios.michkoff.com`)"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${HELIOS_DOMAIN}`)"
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
-      - "traefic.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.service=api@internal"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml
@@ -37,11 +37,11 @@ services:
       - RUST_ENV=${RUST_ENV}
       - LOGGER_URL=${LOGGER_URL}
     labels:
-      - "traefik.http.routers.master-backend.rule=Host(`api.helios.michkoff.com`)"
+      - "traefik.http.routers.master-backend.rule=Host(`api.${HELIOS_DOMAIN}`)"
       - "traefik.http.routers.master-backend.entrypoints=websecure"
       - "traefik.http.routers.master-backend.tls.certresolver=myresolver"
-      - "traefik.http.routers.master-backend.tls.domains[0].main=api.helios.michkoff.com"
-      - "traefik.http.routers.master-backend.tls.domains[0].sans=www.api.helios.michkoff.com"
+      - "traefik.http.routers.master-backend.tls.domains[0].main=api.${HELIOS_DOMAIN}"
+      - "traefik.http.routers.master-backend.tls.domains[0].sans=www.api.${HELIOS_DOMAIN}"
 
   database:
     container_name: database
@@ -56,9 +56,9 @@ services:
     volumes:
       - database-volume:/var/lib/postgresql/data
     labels:
-      - "traefik.tcp.routers.database.rule=HostSNI(`database.helios.michkoff.com`)"
+      - "traefik.tcp.routers.database.rule=HostSNI(`database.${HELIOS_DOMAIN}`)"
       - "traefik.tcp.routers.database.entrypoints=tcp"
-      - "traefic.tcp.routers.postgres.tls=true"
+      - "traefik.tcp.routers.postgres.tls=true"
       - "traefik.tcp.routers.database.tls.certresolver=myresolver"
       - "traefik.tcp.services.database.loadbalancer.server.port=${DATABASE_PORT}"
 
@@ -71,11 +71,11 @@ services:
       - LOGGER_URI=${LOGGER_URI}
     ports: ["${LOGGER_PORT}"]
     labels:
-      - "traefik.http.routers.logger.rule=Host(`logger.helios.michkoff.com`)"
+      - "traefik.http.routers.logger.rule=Host(`logger.${HELIOS_DOMAIN}`)"
       - "traefik.http.routers.logger.entrypoints=websecure"
       - "traefik.http.routers.logger.tls.certresolver=myresolver"
-      - "traefik.http.routers.logger.tls.domains[0].main=logger.helios.michkoff.com"
-      - "traefik.http.routers.logger.tls.domains[0].sans=www.logger.helios.michkoff.com"
+      - "traefik.http.routers.logger.tls.domains[0].main=logger.${HELIOS_DOMAIN}"
+      - "traefik.http.routers.logger.tls.domains[0].sans=www.logger.${HELIOS_DOMAIN}"
 
   logs-database:
     container_name: logs-database
@@ -104,11 +104,11 @@ services:
     depends_on:
       - logs-database
     labels:
-      - "traefik.http.routers.logs-viewer.rule=Host(`logs.helios.michkoff.com`)"
+      - "traefik.http.routers.logs-viewer.rule=Host(`logs.${HELIOS_DOMAIN}`)"
       - "traefik.http.routers.logs-viewer.entrypoints=websecure"
       - "traefik.http.routers.logs-viewer.tls.certresolver=myresolver"
-      - "traefik.http.routers.logs-viewer.tls.domains[0].main=logs.helios.michkoff.com"
-      - "traefik.http.routers.logs-viewer.tls.domains[0].sans=www.logs.helios.michkoff.com"
+      - "traefik.http.routers.logs-viewer.tls.domains[0].main=logs.${HELIOS_DOMAIN}"
+      - "traefik.http.routers.logs-viewer.tls.domains[0].sans=www.logs.${HELIOS_DOMAIN}"
 
 volumes:
   database-volume:

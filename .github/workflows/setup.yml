@@ -23,7 +23,6 @@ jobs:
           echo "DATABASE_PORT=\"${{ secrets.DATABASE_PORT }}\"" >> .env
           echo "DATABASE_URL=\"${{ secrets.DATABASE_URL }}\"" >> .env
           echo "DATABASE_USER=\"${{ secrets.DATABASE_USER }}\"" >> .env
-          echo "NETLIFY_TOKEN=\"${{ secrets.NETLIFY_TOKEN }}\"" >> .env
           echo "GHCR_PAT=\"${{ secrets.GHCR_PAT }}\"" >> .env
           echo "HELIOS_SSH=\"${{ secrets.HELIOS_SSH }}\"" >> .env
           echo "JWT_ACCESS_SECRET=\"${{ secrets.JWT_ACCESS_SECRET }}\"" >> .env
@@ -40,6 +39,8 @@ jobs:
           echo "MASTER_BACKEND_URL=\"${{ secrets.MASTER_BACKEND_URL }}\"" >> .env
           echo "MONGO_URL=\"${{ secrets.MONGO_URL }}\"" >> .env
           echo "RUST_ENV=\"${{ secrets.RUST_ENV }}\"" >> .env
+          echo "DO_AUTH_TOKEN=\"${{ secrets.DO_AUTH_TOKEN }}\"" >> .env
+          echo "HELIOS_DOMAIN=\"${{ secrets.HELIOS_DOMAIN }}\"" >> .env
 
       - name: Setup DigitalOcean droplet
         run: |
