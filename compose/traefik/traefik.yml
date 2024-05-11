@@ -6,8 +6,14 @@ api:
 
 providers:
   docker: true
-  file:
-    filename: /etc/traefik/dynamic_conf.yml
+
+metrics:
+  prometheus:
+    buckets:
+      - 0.1
+      - 0.3
+      - 1.2
+      - 5.0
 
 entrypoints:
   web:
@@ -26,6 +32,6 @@ certificatesresolvers:
   myresolver:
     acme:
       dnsChallenge:
-        provider: digitalocean
+        provider: netlify
       email: michkov.evgeny@gmail.com
       storage: /etc/traefik/acme.json
