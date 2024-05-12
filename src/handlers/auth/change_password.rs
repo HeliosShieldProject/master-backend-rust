@@ -4,11 +4,11 @@ use crate::{
         response::success::SuccessResponse,
     },
     enums::errors::response::{to_response, ResponseError},
-    logger::{enums::Handlers::ChangePassword, ResultExtReponse},
     services::user_service,
     AppState,
 };
 use axum::{extract::State, http::StatusCode, Json};
+use tracing::{error, info};
 
 #[utoipa::path(
     tag = "Auth",
@@ -53,10 +53,13 @@ pub async fn change_password(
 ) -> Result<SuccessResponse<String>, ResponseError> {
     user_service::change_password(&state.pool, &claims.user_id, &payload.password)
         .await
-        .map_err(to_response)
-        .log_error(ChangePassword)
-        .await?;
+        .map_err(|e| {
+            error!("Failed to change password: {}", e);
+            e
+        })
+        .map_err(to_response)?;
 
+    info!("Password changed successfully for user: {}", claims.user_id);
     Ok(SuccessResponse::new(
         StatusCode::OK,
         "Password changed successfully",

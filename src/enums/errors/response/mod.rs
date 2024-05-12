@@ -32,18 +32,6 @@ pub fn to_response<T: Error>(error: T) -> ResponseError {
     error.as_response()
 }
 
-impl ResponseError {
-    pub fn to_string(&self) -> String {
-        match self {
-            ResponseError::AuthError(e) => e.to_string(),
-            ResponseError::DeviceError(e) => e.to_string(),
-            ResponseError::CountryError(e) => e.to_string(),
-            ResponseError::SessionError(e) => e.to_string(),
-            ResponseError::Internal => "Internal server error".to_string(),
-        }
-    }
-}
-
 impl Error for internal::InternalError {
     fn as_response(&self) -> ResponseError {
         match self {

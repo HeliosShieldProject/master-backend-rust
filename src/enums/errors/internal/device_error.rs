@@ -18,11 +18,11 @@ impl Error for DeviceError {
     }
 }
 
-impl DeviceError {
-    pub fn to_string(&self) -> String {
+impl std::fmt::Display for DeviceError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            DeviceError::DeviceNotFound => "Device not found".to_string(),
-            DeviceError::DeviceAlreadyExists => "Device already exists".to_string(),
+            DeviceError::DeviceNotFound => write!(f, "Device not found"),
+            DeviceError::DeviceAlreadyExists => write!(f, "Device already exists"),
         }
     }
 }

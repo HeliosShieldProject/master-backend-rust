@@ -40,18 +40,18 @@ impl Error for AuthError {
     }
 }
 
-impl AuthError {
-    pub fn to_string(&self) -> String {
+impl std::fmt::Display for AuthError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            AuthError::WrongToken => "Wrong token".to_string(),
-            AuthError::WrongPassword => "Wrong password".to_string(),
-            AuthError::WrongEmail => "Wrong email".to_string(),
-            AuthError::MissingCredentials => "Missing credentials".to_string(),
-            AuthError::MissingDevice => "Missing device".to_string(),
-            AuthError::TokenCreation => "Token creation error".to_string(),
-            AuthError::UserNotFound => "User not found".to_string(),
-            AuthError::UserAlreadyExists => "User already exists".to_string(),
-            AuthError::PasswordIsSame => "Password is same".to_string(),
+            AuthError::WrongToken => write!(f, "Wrong token"),
+            AuthError::WrongPassword => write!(f, "Wrong password"),
+            AuthError::WrongEmail => write!(f, "Wrong email"),
+            AuthError::MissingCredentials => write!(f, "Missing credentials"),
+            AuthError::MissingDevice => write!(f, "Missing device"),
+            AuthError::TokenCreation => write!(f, "Token creation error"),
+            AuthError::UserNotFound => write!(f, "User not found"),
+            AuthError::UserAlreadyExists => write!(f, "User already exists"),
+            AuthError::PasswordIsSame => write!(f, "Password is the same"),
         }
     }
 }

@@ -6,6 +6,3 @@ pub use access_token::AccessToken;
 
 mod refresh_token;
 pub use refresh_token::RefreshToken;
-
-mod user_ids;
-pub use user_ids::UserIds;

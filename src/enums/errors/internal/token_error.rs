@@ -21,10 +21,10 @@ impl response::Error for TokenError {
     }
 }
 
-impl TokenError {
-    pub fn to_string(&self) -> String {
+impl std::fmt::Display for TokenError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            TokenError::Encode => "Token encode error".to_string(),
+            TokenError::Encode => write!(f, "Token encoding error"),
         }
     }
 }

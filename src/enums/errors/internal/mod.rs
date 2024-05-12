@@ -15,8 +15,7 @@ pub use country_error::CountryError;
 
 pub mod session_error;
 pub use session_error::SessionError;
-
-use crate::logger;
+use tracing::error;
 
 pub enum InternalError {
     HashError(HashError),
@@ -29,17 +28,17 @@ pub enum InternalError {
     Internal,
 }
 
-impl InternalError {
-    pub fn to_string(&self) -> String {
+impl std::fmt::Display for InternalError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            InternalError::HashError(e) => e.to_string(),
-            InternalError::TokenError(e) => e.to_string(),
-            InternalError::AuthError(e) => e.to_string(),
-            InternalError::DeviceError(e) => e.to_string(),
-            InternalError::CountryError(e) => e.to_string(),
-            InternalError::SessionError(e) => e.to_string(),
-            InternalError::UuidParse => "Uuid parse error".to_string(),
-            InternalError::Internal => "Internal error".to_string(),
+            InternalError::HashError(e) => write!(f, "{}", e),
+            InternalError::TokenError(e) => write!(f, "{}", e),
+            InternalError::AuthError(e) => write!(f, "{}", e),
+            InternalError::DeviceError(e) => write!(f, "{}", e),
+            InternalError::CountryError(e) => write!(f, "{}", e),
+            InternalError::SessionError(e) => write!(f, "{}", e),
+            InternalError::UuidParse => write!(f, "Uuid parse error"),
+            InternalError::Internal => write!(f, "Internal error"),
         }
     }
 }
@@ -54,6 +53,7 @@ pub fn to_internal<T: Error>(error: T) -> InternalError {
 
 impl Error for deadpool_diesel::PoolError {
     fn as_internal(&self) -> InternalError {
+        error!("PoolError: {}", self);
         InternalError::Internal
     }
 }

@@ -11,26 +11,19 @@ use crate::{
         response,
     },
     enums::errors::internal::{to_internal, InternalError, SessionError},
-    logger::{enums::Services::SessionService, ContextLogger, ResultExt},
     services::config_service::get_config_by_country,
 };
 use chrono::Local;
 use diesel::prelude::*;
+use tracing::{error, info};
 use uuid::Uuid;
-
-const LOG: ContextLogger = ContextLogger::new(SessionService);
 
 pub async fn create_session(
     pool: &deadpool_diesel::postgres::Pool,
     device_id: &Uuid,
     country: &Country,
 ) -> Result<response::Session, InternalError> {
-    let conn = pool
-        .get()
-        .await
-        .map_err(to_internal)
-        .log_error(SessionService)
-        .await?;
+    let conn = pool.get().await.map_err(to_internal)?;
     let (device_id, country) = (device_id.clone(), country.clone());
 
     if let Ok(current_session) = get_session(
@@ -40,7 +33,8 @@ pub async fn create_session(
     .await
     {
         let (session, _device, config, server) = current_session;
-        let response = response::Session::new(session, server, config);
+        let response = response::Session::new(session.clone(), server, config);
+        info!("Found active session with the same country: {}", session.id);
         return Ok(response);
     }
 
@@ -54,72 +48,78 @@ pub async fn create_session(
         device_id: device_id.clone(),
         config_id: config.id.clone(),
     };
-    let session = conn
-        .interact(move |conn| {
-            let session = diesel::insert_into(schema::session::table)
-                .values(&new_session)
-                .get_result::<Session>(conn);
-            let _ = diesel::update(schema::config::table)
-                .filter(schema::config::id.eq(config.id))
-                .set(schema::config::status.eq(ConfigStatus::InUse))
-                .execute(conn);
 
-            session
-        })
-        .await
-        .map_err(to_internal)
-        .log_error(SessionService)
-        .await?
-        .map_err(|_| InternalError::Internal)?;
+    conn.interact(move |conn| {
+        let session = diesel::insert_into(schema::session::table)
+            .values(&new_session)
+            .get_result::<Session>(conn);
+        let _ = diesel::update(schema::config::table)
+            .filter(schema::config::id.eq(config.id))
+            .set(schema::config::status.eq(ConfigStatus::InUse))
+            .execute(conn);
 
-    LOG.info(format!("Created session: {}", &session.id)).await;
-    Ok(response::Session::new(session, server, config))
+        session
+    })
+    .await
+    .map_err(|e| {
+        error!("Error creating session: {:?}", e);
+        e
+    })
+    .map_err(to_internal)?
+    .map_err(|_| InternalError::Internal)
+    .map(|session: Session| {
+        info!("Created session: {}", &session.id);
+        response::Session::new(session, server, config)
+    })
 }
 
 pub async fn close_session_by_id(
     pool: &deadpool_diesel::postgres::Pool,
     session_id: &Uuid,
-) -> Result<(), InternalError> {
-    let conn = pool
-        .get()
-        .await
-        .map_err(to_internal)
-        .log_error(SessionService)
-        .await?;
+) -> Result<Uuid, InternalError> {
+    let conn = pool.get().await.map_err(to_internal)?;
     let session_id = session_id.clone();
-    let _ = conn
-        .interact(move |conn| {
-            let session = match diesel::update(schema::session::table)
-                .filter(schema::session::id.eq(session_id))
-                .set((
-                    schema::session::status.eq(SessionStatus::Closed),
-                    schema::session::closed_at.eq(Local::now().naive_local()),
-                ))
-                .get_result::<Session>(conn)
-                .map_err(|_| InternalError::SessionError(SessionError::SessionNotFound))
-            {
-                Ok(session) => session,
-                Err(_) => return Err(InternalError::SessionError(SessionError::SessionNotFound)),
-            };
-            let _ = diesel::update(schema::config::table)
-                .filter(schema::config::id.eq(session.config_id))
-                .set(schema::config::status.eq(ConfigStatus::NotInUse))
-                .execute(conn);
-            Ok(())
-        })
-        .await
-        .map_err(to_internal)
-        .log(format!("Closed session: {}", session_id), SessionService)
-        .await?;
-    Ok(())
+
+    conn.interact(move |conn| {
+        let session = match diesel::update(schema::session::table)
+            .filter(schema::session::id.eq(session_id))
+            .set((
+                schema::session::status.eq(SessionStatus::Closed),
+                schema::session::closed_at.eq(Local::now().naive_local()),
+            ))
+            .get_result::<Session>(conn)
+            .map_err(|_| InternalError::SessionError(SessionError::SessionNotFound))
+        {
+            Ok(session) => {
+                info!("Found session: {}", session.id);
+                session
+            }
+            Err(_) => return Err(InternalError::SessionError(SessionError::SessionNotFound)),
+        };
+        let _ = diesel::update(schema::config::table)
+            .filter(schema::config::id.eq(session.config_id))
+            .set(schema::config::status.eq(ConfigStatus::NotInUse))
+            .execute(conn);
+        Ok(())
+    })
+    .await
+    .map_err(|e| {
+        error!("Error closing session: {:?}", e);
+        e
+    })
+    .map_err(to_internal)
+    .map(|_| {
+        info!("Closed session: {}", session_id);
+        session_id
+    })
 }
 
 pub async fn close_session(
     pool: &deadpool_diesel::postgres::Pool,
     device_id: &Uuid,
-) -> Result<(), InternalError> {
+) -> Result<Uuid, InternalError> {
     let device_id = device_id.clone();
     let (session, _, _, _) = get_session(&pool, ActiveSessionAndDevice { device_id }).await?;
-    let _ = close_session_by_id(&pool, &session.id).await?;
-    Ok(())
+    let session_id = close_session_by_id(&pool, &session.id).await?;
+    Ok(session_id)
 }

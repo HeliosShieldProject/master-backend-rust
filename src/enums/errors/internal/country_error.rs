@@ -14,10 +14,10 @@ impl Error for CountryError {
     }
 }
 
-impl CountryError {
-    pub fn to_string(&self) -> String {
+impl std::fmt::Display for CountryError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            CountryError::CountryNotFound => "Country not found".to_string(),
+            CountryError::CountryNotFound => write!(f, "Country not found"),
         }
     }
 }

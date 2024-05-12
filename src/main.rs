@@ -1,11 +1,9 @@
-use crate::logger::info;
 use config::ENV;
 use deadpool_diesel::postgres::{Manager, Pool};
 use routers::app_router;
-use swagger::ApiDoc;
 use tokio::net::TcpListener;
-use utoipa::OpenApi;
-use utoipa_swagger_ui::SwaggerUi;
+use tracing::info;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 mod config;
 mod data;
@@ -13,8 +11,6 @@ mod dto;
 mod enums;
 mod guards;
 mod handlers;
-mod logger;
-mod middleware;
 mod routers;
 mod services;
 mod swagger;
@@ -27,20 +23,17 @@ pub struct AppState {
 
 #[tokio::main]
 async fn main() {
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
     let manager = Manager::new(&ENV.database_url, deadpool_diesel::Runtime::Tokio1);
     let pool = Pool::builder(manager).build().unwrap();
     let state = AppState { pool };
     let app = app_router(state.clone()).with_state(state);
 
-    let listener = TcpListener::bind(&ENV.master_backend_url)
-        .await
-        .unwrap();
-
-    info(
-        format!("Listening on {}", listener.local_addr().unwrap()).as_str(),
-        "main".to_string(),
-    )
-    .await;
+    let listener = TcpListener::bind(&ENV.master_backend_url).await.unwrap();
+    info!("Listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app.into_make_service())
         .await
         .unwrap();

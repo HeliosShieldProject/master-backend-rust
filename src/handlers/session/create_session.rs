@@ -6,11 +6,11 @@ use crate::{
         session::{request::CreateSession, response::Session},
     },
     enums::errors::response::{to_response, ResponseError},
-    logger::{enums::Handlers, ResultExtReponse},
     services::session_service,
     AppState,
 };
 use axum::{extract::State, http::StatusCode, Json};
+use tracing::{error, info};
 
 #[utoipa::path(
     tag = "Session",
@@ -63,10 +63,13 @@ pub async fn create_session(
     let country = Country::from_str(&payload.country).map_err(to_response)?;
     let session = session_service::create_session(&state.pool, &claims.device_id, &country)
         .await
-        .map_err(to_response)
-        .log_error(Handlers::CreateSession)
-        .await?;
+        .map_err(|e| {
+            error!("Failed to create session: {}", e);
+            e
+        })
+        .map_err(to_response)?;
 
+    info!("Session created successfully: {}", session.session_id);
     Ok(
         SuccessResponse::new(StatusCode::CREATED, "Session created successfully")
             .with_data(session),

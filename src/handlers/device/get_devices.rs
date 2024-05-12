@@ -3,11 +3,11 @@ use crate::{
         auth::internal::AccessToken, device::response::Device, response::success::SuccessResponse,
     },
     enums::errors::response::{to_response, ResponseError},
-    logger::{enums::Handlers::GetDevices, ResultExtReponse},
     services::device_service,
     AppState,
 };
 use axum::{extract::State, http::StatusCode};
+use tracing::{error, info};
 
 #[utoipa::path(
     tag = "Device",
@@ -54,14 +54,17 @@ pub async fn get_devices(
     claims: AccessToken,
     State(state): State<AppState>,
 ) -> Result<SuccessResponse<Vec<Device>>, ResponseError> {
-    let devices = device_service::get_devices(&state.pool, &claims.user_id)
+    let devices: Vec<Device> = device_service::get_devices(&state.pool, &claims.user_id)
         .await
-        .map_err(to_response)
-        .log_error(GetDevices)
-        .await?
+        .map_err(|e| {
+            error!("Failed to get devices: {}", e);
+            e
+        })
+        .map_err(to_response)?
         .into_iter()
         .map(|device| Device::from(device))
         .collect();
-
+    
+    info!("Devices retrieved successfully: {}", devices.len());
     Ok(SuccessResponse::new(StatusCode::OK, "Devices retrieved successfully").with_data(devices))
 }

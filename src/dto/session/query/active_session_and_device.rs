@@ -6,10 +6,10 @@ use crate::{
     },
     dto::session::SessionBy,
     enums::errors::internal::{to_internal, InternalError, SessionError},
-    logger::{enums::Services::SessionService, ResultExt},
 };
 use diesel::prelude::*;
 use diesel::QueryDsl;
+use tracing::{error, info};
 use uuid::Uuid;
 
 pub struct ActiveSessionAndDevice {
@@ -21,12 +21,7 @@ impl SessionBy for ActiveSessionAndDevice {
         &self,
         pool: &'a deadpool_diesel::postgres::Pool,
     ) -> Result<(Session, Device, Config, Server), InternalError> {
-        let conn = pool
-            .get()
-            .await
-            .map_err(to_internal)
-            .log_error(SessionService)
-            .await?;
+        let conn = pool.get().await.map_err(to_internal)?;
         let device_id = self.device_id.clone();
         let result: Vec<(Session, Device, Config, Server)> = conn
             .interact(move |conn| {
@@ -44,16 +39,19 @@ impl SessionBy for ActiveSessionAndDevice {
                     .load::<(Session, Device, Config, Server)>(conn)
             })
             .await
-            .map_err(to_internal)
-            .log(
-                format!("Got active session by device_id: {}", device_id),
-                SessionService,
-            )
-            .await?
+            .map_err(|e| {
+                error!("Failed to get session: {}", e);
+                e
+            })
+            .map_err(to_internal)?
             .map_err(|_| InternalError::Internal)?;
+
         if result.len() != 1 {
+            error!("Session not found for device_id: {}", device_id);
             return Err(InternalError::SessionError(SessionError::SessionNotFound));
         }
+
+        info!("Found active session: {} for device_id: {}", result.first().unwrap().0.id, device_id);
         Ok(result.first().unwrap().clone())
     }
 }

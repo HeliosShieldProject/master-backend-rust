@@ -5,11 +5,11 @@ use crate::{
         response::success::SuccessResponse,
     },
     enums::errors::response::{to_response, ResponseError},
-    logger::{enums::Handlers::SignIn, ResultExtReponse},
     services::user_service,
     AppState,
 };
 use axum::{extract::State, http::StatusCode, Json};
+use tracing::{error, info};
 
 #[utoipa::path(
     tag = "Auth",
@@ -64,7 +64,7 @@ pub async fn sign_in(
     let tokens = user_service::sign_in(
         &state.pool,
         &NewUser {
-            email: payload.email,
+            email: payload.email.clone(),
             password: payload.password,
         },
         &DeviceInfo {
@@ -73,9 +73,12 @@ pub async fn sign_in(
         },
     )
     .await
-    .map_err(to_response)
-    .log_error(SignIn)
-    .await?;
+    .map_err(|e| {
+        error!("Failed to sign in: {}", e);
+        e
+    })
+    .map_err(to_response)?;
 
+    info!("User signed in: {}", payload.email);
     Ok(SuccessResponse::new(StatusCode::OK, "Signed in successfully").with_data(tokens))
 }

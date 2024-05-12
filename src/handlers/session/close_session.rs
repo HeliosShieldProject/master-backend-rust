@@ -1,11 +1,11 @@
 use crate::{
     dto::{auth::internal::AccessToken, response::success::SuccessResponse},
     enums::errors::response::{to_response, ResponseError},
-    logger::{enums::Handlers::CloseSession, ResultExtReponse},
     services::session_service,
     AppState,
 };
 use axum::{extract::State, http::StatusCode};
+use tracing::{error, info};
 
 #[utoipa::path(
     tag = "Session",
@@ -47,12 +47,17 @@ pub async fn close_session(
     claims: AccessToken,
     State(state): State<AppState>,
 ) -> Result<SuccessResponse<String>, ResponseError> {
-    session_service::close_session(&state.pool, &claims.device_id)
+    let session_id = session_service::close_session(&state.pool, &claims.device_id)
         .await
-        .map_err(to_response)
-        .log_error(CloseSession)
-        .await?;
+        .map_err(
+            |e| {
+                error!("Failed to close session: {}", e);
+                e
+            },
+        )
+        .map_err(to_response)?;
 
+    info!("Closed session successfully: {}", session_id);
     Ok(SuccessResponse::new(
         StatusCode::OK,
         "Closed session successfully",
