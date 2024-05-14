@@ -24,3 +24,9 @@ scrape_configs:
     static_configs:
       - targets: 
         - loki:3100
+  
+  - job_name: /master-backend
+    metrics_path: /metrics
+    static_configs:
+      - targets: 
+        - master-backend:${MASTER_METRICS_PORT:-8081}

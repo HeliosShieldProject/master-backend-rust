@@ -1,4 +1,4 @@
-name: "master-backend"
+name: "master-server"
 
 services:
   traefik:

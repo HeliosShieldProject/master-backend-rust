@@ -1,4 +1,4 @@
-name: "master-backend"
+name: "master-server"
 
 services:
   traefik:
@@ -42,6 +42,8 @@ services:
       - "traefik.http.routers.prometheus.rule=Host(`prometheus.${HELIOS_DOMAIN}`)"
       - "traefik.http.routers.prometheus.entrypoints=websecure"
       - "traefik.http.routers.prometheus.tls.certresolver=myresolver"
+    environment:
+      - MASTER_METRICS_PORT=${MASTER_METRICS_PORT}
 
   grafana:
     container_name: grafana
@@ -98,6 +100,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - MASTER_BACKEND_PORT=${MASTER_BACKEND_PORT}
     restart: always
     ports:
       - "${MASTER_BACKEND_PORT}:${MASTER_BACKEND_PORT}"
@@ -105,11 +109,11 @@ services:
       - database
     environment:
       - MASTER_BACKEND_URL=${MASTER_BACKEND_URL}
+      - MASTER_METRICS_URL=${MASTER_METRICS_URL}
       - DATABASE_URL=${DATABASE_URL}
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - RUST_ENV=${RUST_ENV}
-      - LOGGER_URL=${LOGGER_URL}
     labels:
       - "traefik.http.routers.master-backend.rule=Host(`api.${HELIOS_DOMAIN}`)"
       - "traefik.http.routers.master-backend.entrypoints=websecure"
