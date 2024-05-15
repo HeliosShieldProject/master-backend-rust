@@ -19,24 +19,24 @@ jobs:
       - name: Form environment variables
         run: |
           echo "GHCR_PAT=\"${{ secrets.GHCR_PAT }}\"" >> .env
-          echo "MASTER_BACKEND_PORT=\"${MASTER_BACKEND_PORT}\"" >> .env
-          echo "MASTER_BACKEND_URL=\"${MASTER_BACKEND_URL}\"" >> .env
-          echo "MASTER_METRICS_PORT=\"${MASTER_METRICS_PORT}\"" >> .env
-          echo "MASTER_METRICS_URL=\"${MASTER_METRICS_URL}\"" >> .env
-          echo "DATABASE_PORT=\"${DATABASE_PORT}\"" >> .env
-          echo "DATABASE_NAME=\"${DATABASE_NAME}\"" >> .env
-          echo "DATABASE_USER=\"${DATABASE_USER}\"" >> .env
-          echo "DATABASE_PASSWORD=\"${DATABASE_PASSWORD}\"" >> .env
-          echo "DATABASE_HOST=\"${DATABASE_HOST}\"" >> .env
-          echo "DATABASE_URL=\"${DATABASE_URL}\"" >> .env
-          echo "JWT_ACCESS_SECRET=\"${JWT_ACCESS_SECRET}\"" >> .env
-          echo "JWT_REFRESH_SECRET=\"${JWT_REFRESH_SECRET}\"" >> .env
-          echo "RUST_ENV=\"${RUST_ENV}\"" >> .env
-          echo "HELIOS_DOMAIN=\"${HELIOS_DOMAIN}\"" >> .env
-          echo "DO_AUTH_TOKEN=\"${DO_AUTH_TOKEN}\"" >> .env
-          echo "TRAEFIK_AUTH=\"${TRAEFIK_AUTH}\"" >> .env
-          echo "GRAFANA_USER=\"${GRAFANA_USER}\"" >> .env
-          echo "GRAFANA_PASSWORD=\"${GRAFANA_PASSWORD}\"" >> .env
+          echo "MASTER_BACKEND_PORT=\"${{ secrets.MASTER_BACKEND_PORT }}\"" >> .env
+          echo "MASTER_BACKEND_URL=\"${{ secrets.MASTER_BACKEND_URL }}\"" >> .env
+          echo "MASTER_METRICS_PORT=\"${{ secrets.MASTER_METRICS_PORT }}\"" >> .env
+          echo "MASTER_METRICS_URL=\"${{ secrets.MASTER_METRICS_URL }}\"" >> .env
+          echo "DATABASE_PORT=\"${{ secrets.DATABASE_PORT }}\"" >> .env
+          echo "DATABASE_NAME=\"${{ secrets.DATABASE_NAME }}\"" >> .env
+          echo "DATABASE_USER=\"${{ secrets.DATABASE_USER }}\"" >> .env
+          echo "DATABASE_PASSWORD=\"${{ secrets.DATABASE_PASSWORD }}\"" >> .env
+          echo "DATABASE_HOST=\"${{ secrets.DATABASE_HOST }}\"" >> .env
+          echo "DATABASE_URL=\"${{ secrets.DATABASE_URL }}\"" >> .env
+          echo "JWT_ACCESS_SECRET=\"${{ secrets.JWT_ACCESS_SECRET }}\"" >> .env
+          echo "JWT_REFRESH_SECRET=\"${{ secrets.JWT_REFRESH_SECRET }}\"" >> .env
+          echo "RUST_ENV=\"${{ secrets.RUST_ENV }}\"" >> .env
+          echo "HELIOS_DOMAIN=\"${{ secrets.HELIOS_DOMAIN }}\"" >> .env
+          echo "DO_AUTH_TOKEN=\"${{ secrets.DO_AUTH_TOKEN }}\"" >> .env
+          echo "TRAEFIK_AUTH=\"${{ secrets.TRAEFIK_AUTH }}\"" >> .env
+          echo "GRAFANA_USER=\"${{ secrets.GRAFANA_USER }}\"" >> .env
+          echo "GRAFANA_PASSWORD=\"${{ secrets.GRAFANA_PASSWORD }}\"" >> .env
 
       - name: Setup DigitalOcean droplet
         run: |
