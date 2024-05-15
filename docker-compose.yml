@@ -103,11 +103,11 @@ services:
       - database
     environment:
       - MASTER_BACKEND_URL=${MASTER_BACKEND_URL}
+      - MASTER_METRICS_URL=${MASTER_METRICS_URL}
       - DATABASE_URL=${DATABASE_URL}
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
       - RUST_ENV=${RUST_ENV}
-      - LOGGER_URL=${LOGGER_URL}
     labels:
       - "traefik.http.routers.master-backend.rule=Host(`api.${HELIOS_DOMAIN}`)"
       - "traefik.http.routers.master-backend.entrypoints=websecure"
