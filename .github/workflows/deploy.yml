@@ -43,13 +43,13 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin"
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -f docker-compose.yml"
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -f .env"
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -rf traefik/"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -rf compose/"
           scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/docker-compose.yml
           scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} .env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/.env
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} -r traefik/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/traefik/
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} -r compose/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/compose/
 
       - name: Deploy to DigitalOcean
         run: |
           ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose down"
           ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose pull"
-          ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose up -d"
+          ssh -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose up -d --build"
