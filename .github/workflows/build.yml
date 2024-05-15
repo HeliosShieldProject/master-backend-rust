@@ -1,9 +1,11 @@
-name: Build and Push Docker Image
+name: Build docker image
 
 on:
-  push:
-    branches:
-      - production
+  workflow_dispatch:
+# on:
+#   push:
+#     branches:
+#       - production
 
 jobs:
   build:

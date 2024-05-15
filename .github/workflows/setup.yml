@@ -44,6 +44,7 @@ jobs:
       - name: Setup DigitalOcean droplet
         run: |
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker plugin install grafana/loki-docker-driver:2.9.2 --alias loki --grant-all-permissions"
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -f docker-compose.yml"
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -f .env"
           ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -rf traefik/"
