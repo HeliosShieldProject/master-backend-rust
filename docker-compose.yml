@@ -24,7 +24,7 @@ services:
     logging:
       driver: "loki"
       options:
-        loki-url: "http://host.docker.internal:3100/loki/api/v1/push"
+        loki-url: "https://loki.${HELIOS_DOMAIN}/loki/api/v1/push"
 
   prometheus:
     container_name: prometheus
@@ -63,7 +63,7 @@ services:
     logging:
       driver: "loki"
       options:
-        loki-url: "http://host.docker.internal:3100/loki/api/v1/push"
+        loki-url: "https://loki.${HELIOS_DOMAIN}/loki/api/v1/push"
 
   loki:
     container_name: loki
@@ -89,9 +89,7 @@ services:
       - ./compose/promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml
     command: -config.file=/etc/promtail/promtail-config.yaml
     labels:
-      - "traefik.http.routers.promtail.rule=Host(`promtail.${HELIOS_DOMAIN}`)"
-      - "traefik.http.routers.promtail.entrypoints=websecure"
-      - "traefik.http.routers.promtail.tls.certresolver=myresolver"
+      - "traefik.enable=false"
 
   master-backend:
     container_name: master-backend
@@ -99,6 +97,7 @@ services:
     restart: always
     ports:
       - "${MASTER_BACKEND_PORT}:${MASTER_BACKEND_PORT}"
+      - "${MASTER_METRICS_PORT}:${MASTER_METRICS_PORT}"
     depends_on:
       - database
     environment:
@@ -112,10 +111,11 @@ services:
       - "traefik.http.routers.master-backend.rule=Host(`api.${HELIOS_DOMAIN}`)"
       - "traefik.http.routers.master-backend.entrypoints=websecure"
       - "traefik.http.routers.master-backend.tls.certresolver=myresolver"
+      - "traefik.http.services.backend.loadbalancer.server.port=${MASTER_BACKEND_PORT}"
     logging:
       driver: "loki"
       options:
-        loki-url: "http://host.docker.internal:3100/loki/api/v1/push"
+        loki-url: "https://loki.${HELIOS_DOMAIN}/loki/api/v1/push"
 
   database:
     container_name: database
@@ -138,7 +138,7 @@ services:
     logging:
       driver: "loki"
       options:
-        loki-url: "http://host.docker.internal:3100/loki/api/v1/push"
+        loki-url: "https://loki.${HELIOS_DOMAIN}/loki/api/v1/push"
 
 volumes:
   database-volume:

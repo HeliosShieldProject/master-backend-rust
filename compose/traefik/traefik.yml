@@ -32,6 +32,6 @@ certificatesresolvers:
   myresolver:
     acme:
       dnsChallenge:
-        provider: netlify
+        provider: digitalocean
       email: michkov.evgeny@gmail.com
       storage: /etc/traefik/acme.json
