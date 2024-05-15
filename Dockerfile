@@ -14,7 +14,8 @@ COPY . .
 RUN cargo build --release --target x86_64-unknown-linux-musl
 
 FROM scratch
-LABEL org.opencontainers.image.source https://github.com/HeliosShieldProject/master-backend-rust
 COPY --from=builder /master-backend/target/x86_64-unknown-linux-musl/release/helios-master-backend /master-backend
 ENTRYPOINT ["/master-backend"]
 EXPOSE $MASTER_BACKEND_PORT
+
+LABEL org.opencontainers.image.source https://github.com/HeliosShieldProject/master-backend-rust

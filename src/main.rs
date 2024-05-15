@@ -8,6 +8,12 @@ use tokio::net::TcpListener;
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
+// In order to fix SSL error while building for the x86_64-unknown-linux-musl target
+extern crate openssl;
+#[allow(unused_imports)]
+#[macro_use]
+extern crate diesel;
+
 mod config;
 mod data;
 mod dto;
@@ -16,7 +22,7 @@ mod guards;
 mod handlers;
 mod routers;
 mod services;
-mod swagger;
+// mod swagger;
 mod utils;
 
 #[derive(Clone)]
