@@ -1,19 +1,19 @@
 use axum::{
     http::StatusCode,
-    response::{IntoResponse, Response},
+    response::{self, IntoResponse},
     Json,
 };
 use serde::Serialize;
 use serde_json::json;
 
-pub struct SuccessResponse<T> {
+pub struct Response<D> {
     pub status: StatusCode,
     pub message: String,
-    pub data: Option<T>,
+    pub data: Option<D>,
 }
 
-impl<T: Serialize> IntoResponse for SuccessResponse<T> {
-    fn into_response(self) -> Response {
+impl<D: Serialize> IntoResponse for Response<D> {
+    fn into_response(self) -> response::Response {
         let body = match self.data {
             Some(data) => Json(json!({
                 "message": self.message,
@@ -27,7 +27,7 @@ impl<T: Serialize> IntoResponse for SuccessResponse<T> {
     }
 }
 
-impl<T> SuccessResponse<T> {
+impl<D> Response<D> {
     pub fn new(status: StatusCode, message: &str) -> Self {
         Self {
             status,
@@ -36,7 +36,7 @@ impl<T> SuccessResponse<T> {
         }
     }
 
-    pub fn with_data(mut self, data: T) -> Self {
+    pub fn with_data(mut self, data: D) -> Self {
         self.data = Some(data);
         self
     }

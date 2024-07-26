@@ -1,5 +1,5 @@
 use crate::{
-    dto::{auth::internal::AccessToken, response::success::SuccessResponse},
+    dto::{auth::internal::AccessToken, response::success::Response},
     enums::errors::response::{to_response, ResponseError},
     services::session_service,
     AppState,
@@ -46,7 +46,7 @@ use tracing::{error, info};
 pub async fn close_session(
     claims: AccessToken,
     State(state): State<AppState>,
-) -> Result<SuccessResponse<String>, ResponseError> {
+) -> Result<Response<String>, ResponseError> {
     let session_id = session_service::close_session(&state.pool, &claims.device_id)
         .await
         .map_err(|e| {
@@ -56,8 +56,5 @@ pub async fn close_session(
         .map_err(to_response)?;
 
     info!("Closed session successfully: {}", session_id);
-    Ok(SuccessResponse::new(
-        StatusCode::OK,
-        "Closed session successfully",
-    ))
+    Ok(Response::new(StatusCode::OK, "Closed session successfully"))
 }

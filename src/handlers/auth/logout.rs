@@ -1,5 +1,5 @@
 use crate::{
-    dto::{auth::internal::AccessToken, response::success::SuccessResponse},
+    dto::{auth::internal::AccessToken, response::success::Response},
     enums::errors::response::{to_response, ResponseError},
     services::device_service,
     AppState,
@@ -18,7 +18,7 @@ use tracing::{error, info};
 pub async fn logout(
     State(state): State<AppState>,
     access_token: AccessToken,
-) -> Result<SuccessResponse<String>, ResponseError> {
+) -> Result<Response<String>, ResponseError> {
     let _ = device_service::logout_device(&state.pool, &access_token.device_id)
         .await
         .map_err(|e| {
@@ -28,8 +28,5 @@ pub async fn logout(
         .map_err(to_response)?;
 
     info!("Device logged out: {:?}", access_token.device_id);
-    Ok(SuccessResponse::new(
-        StatusCode::OK,
-        "Logged out successfully",
-    ))
+    Ok(Response::new(StatusCode::OK, "Logged out successfully"))
 }

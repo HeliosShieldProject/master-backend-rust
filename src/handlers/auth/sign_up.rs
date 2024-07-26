@@ -2,7 +2,7 @@ use crate::{
     dto::{
         auth::{internal::NewUser, request::SignUpRequest, response::Tokens},
         device::internal::DeviceInfo,
-        response::success::SuccessResponse,
+        response::success::Response,
     },
     enums::errors::response::{to_response, ResponseError},
     services::user_service,
@@ -51,7 +51,7 @@ use tracing::{error, info};
 pub async fn sign_up(
     State(state): State<AppState>,
     Json(payload): Json<SignUpRequest>,
-) -> Result<SuccessResponse<Tokens>, ResponseError> {
+) -> Result<Response<Tokens>, ResponseError> {
     let tokens = user_service::sign_up(
         &state.pool,
         &NewUser {
@@ -71,5 +71,5 @@ pub async fn sign_up(
     .map_err(to_response)?;
 
     info!("User signed up successfully: {:?}", payload.email);
-    Ok(SuccessResponse::new(StatusCode::CREATED, "Signed up successfully").with_data(tokens))
+    Ok(Response::new(StatusCode::CREATED, "Signed up successfully").with_data(tokens))
 }

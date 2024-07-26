@@ -1,22 +1,22 @@
 use axum::{
     http::StatusCode,
-    response::{IntoResponse, Response},
+    response::{self, IntoResponse},
     Json,
 };
 use serde::Serialize;
 use serde_json::json;
 
-pub struct ErrorResponse<T> {
+pub struct Response<E> {
     pub status: StatusCode,
     pub message: String,
-    pub error: T,
+    pub error: E,
 }
 
-impl<T> IntoResponse for ErrorResponse<T>
+impl<E> IntoResponse for Response<E>
 where
-    T: Serialize,
+    E: Serialize,
 {
-    fn into_response(self) -> Response {
+    fn into_response(self) -> response::Response {
         let body = Json(json!({
             "message": self.message,
             "error": self.error,

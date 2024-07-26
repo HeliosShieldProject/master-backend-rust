@@ -2,7 +2,7 @@ use crate::{
     dto::{
         auth::{internal::NewUser, request::SignInRequest, response::Tokens},
         device::internal::DeviceInfo,
-        response::success::SuccessResponse,
+        response::success::Response,
     },
     enums::errors::response::{to_response, ResponseError},
     services::user_service,
@@ -60,7 +60,7 @@ use tracing::{error, info};
 pub async fn sign_in(
     State(state): State<AppState>,
     Json(payload): Json<SignInRequest>,
-) -> Result<SuccessResponse<Tokens>, ResponseError> {
+) -> Result<Response<Tokens>, ResponseError> {
     let tokens = user_service::sign_in(
         &state.pool,
         &NewUser {
@@ -80,5 +80,5 @@ pub async fn sign_in(
     .map_err(to_response)?;
 
     info!("User signed in: {}", payload.email);
-    Ok(SuccessResponse::new(StatusCode::OK, "Signed in successfully").with_data(tokens))
+    Ok(Response::new(StatusCode::OK, "Signed in successfully").with_data(tokens))
 }

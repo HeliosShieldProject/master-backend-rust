@@ -10,10 +10,10 @@ pub use country_error::CountryError;
 mod session_error;
 pub use session_error::SessionError;
 
-use crate::{dto::response::error::ErrorResponse, enums::errors::internal};
+use crate::{dto::response::error::Response, enums::errors::internal};
 use axum::{
     http::StatusCode,
-    response::{IntoResponse, Response},
+    response::{self, IntoResponse},
 };
 
 pub enum ResponseError {
@@ -47,13 +47,13 @@ impl Error for internal::InternalError {
 }
 
 impl IntoResponse for ResponseError {
-    fn into_response(self) -> Response {
+    fn into_response(self) -> response::Response {
         match self {
             ResponseError::AuthError(e) => e.into_response(),
             ResponseError::DeviceError(e) => e.into_response(),
             ResponseError::CountryError(e) => e.into_response(),
             ResponseError::SessionError(e) => e.into_response(),
-            _ => ErrorResponse {
+            _ => Response {
                 status: StatusCode::INTERNAL_SERVER_ERROR,
                 message: "Internal server error".to_string(),
                 error: "Internal",

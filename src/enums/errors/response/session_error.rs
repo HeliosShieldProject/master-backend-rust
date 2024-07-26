@@ -1,7 +1,7 @@
-use crate::dto::response::error::ErrorResponse;
+use crate::dto::response::error::Response;
 use axum::{
     http::StatusCode,
-    response::{IntoResponse, Response},
+    response::{self, IntoResponse},
 };
 use serde::Serialize;
 
@@ -12,7 +12,7 @@ pub enum SessionError {
 }
 
 impl IntoResponse for SessionError {
-    fn into_response(self) -> Response {
+    fn into_response(self) -> response::Response {
         let (status, message) = match self {
             SessionError::SessionNotFound => (StatusCode::NOT_FOUND, "Session not found"),
             SessionError::SessionAlreadyExists => {
@@ -20,7 +20,7 @@ impl IntoResponse for SessionError {
             }
         };
 
-        ErrorResponse {
+        Response {
             status,
             message: message.to_string(),
             error: self,

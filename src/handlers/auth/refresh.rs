@@ -1,7 +1,7 @@
 use crate::{
     dto::{
         auth::{internal::RefreshToken, response::Tokens},
-        response::success::SuccessResponse,
+        response::success::Response,
     },
     enums::errors::response::{to_response, ResponseError},
     utils::token::generate_tokens,
@@ -40,7 +40,7 @@ use tracing::{error, info};
         ),
     )
 )]
-pub async fn refresh(claims: RefreshToken) -> Result<SuccessResponse<Tokens>, ResponseError> {
+pub async fn refresh(claims: RefreshToken) -> Result<Response<Tokens>, ResponseError> {
     let tokens = generate_tokens(&claims.user_id.to_string(), &claims.device_id.to_string())
         .await
         .map_err(|e| {
@@ -50,5 +50,5 @@ pub async fn refresh(claims: RefreshToken) -> Result<SuccessResponse<Tokens>, Re
         .map_err(to_response)?;
 
     info!("Tokens refreshed for user: {:?}", claims.user_id);
-    Ok(SuccessResponse::new(StatusCode::OK, "Tokens refreshed successfully").with_data(tokens))
+    Ok(Response::new(StatusCode::OK, "Tokens refreshed successfully").with_data(tokens))
 }
