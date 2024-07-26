@@ -26,7 +26,7 @@ pub async fn logout(
             e
         })
         .map_err(to_response)?;
-    
+
     info!("Device logged out: {:?}", access_token.device_id);
     Ok(SuccessResponse::new(
         StatusCode::OK,

@@ -64,7 +64,7 @@ pub async fn get_devices(
         .into_iter()
         .map(|device| Device::from(device))
         .collect();
-    
+
     info!("Devices retrieved successfully: {}", devices.len());
     Ok(SuccessResponse::new(StatusCode::OK, "Devices retrieved successfully").with_data(devices))
 }

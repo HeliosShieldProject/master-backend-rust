@@ -9,9 +9,22 @@ use crate::{
 };
 use diesel::prelude::*;
 use diesel::QueryDsl;
+use serde::Deserialize;
 use tracing::info;
 
 use super::server_service;
+
+#[derive(Deserialize, Debug)]
+struct ConfigResponse {
+    private_key: String,
+    user_ip: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct AgentResponse {
+    data: ConfigResponse,
+    message: String,
+}
 
 pub async fn create_config(
     pool: &deadpool_diesel::postgres::Pool,
@@ -22,9 +35,27 @@ pub async fn create_config(
 
     let server = server_service::get_server_by_country(pool, &country).await?;
 
+    let client = reqwest::Client::new();
+    let response = client
+        .post(format!("http://{}/configs", server.backend_uri))
+        .send()
+        .await
+        .map_err(|e| {
+            println!("{:?}", e);
+            InternalError::Internal
+        })?
+        .json::<AgentResponse>()
+        .await
+        .map_err(|e| {
+            println!("{:?}", e);
+            InternalError::Internal
+        })?;
+
+    let config = response.data;
+    println!("{:?}", config);
     let config = NewConfig {
-        private_key: "private_key".to_string(),
-        user_ip: "user_ip".to_string(),
+        private_key: config.private_key,
+        user_ip: config.user_ip,
         server_id: server.id,
     };
 

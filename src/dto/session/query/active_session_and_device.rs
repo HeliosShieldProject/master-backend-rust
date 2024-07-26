@@ -51,7 +51,11 @@ impl SessionBy for ActiveSessionAndDevice {
             return Err(InternalError::SessionError(SessionError::SessionNotFound));
         }
 
-        info!("Found active session: {} for device_id: {}", result.first().unwrap().0.id, device_id);
+        info!(
+            "Found active session: {} for device_id: {}",
+            result.first().unwrap().0.id,
+            device_id
+        );
         Ok(result.first().unwrap().clone())
     }
 }

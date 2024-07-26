@@ -60,6 +60,7 @@ services:
       - "traefik.http.routers.grafana.rule=Host(`grafana.${HELIOS_DOMAIN}`)"
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls.certresolver=myresolver"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     logging:
       driver: "loki"
       options:

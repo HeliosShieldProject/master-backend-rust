@@ -146,7 +146,10 @@ pub async fn get_devices(
         _ => InternalError::Internal,
     })
     .map(|devices: Vec<Device>| {
-        let ids = devices.iter().map(|device| device.id).collect::<Vec<Uuid>>();
+        let ids = devices
+            .iter()
+            .map(|device| device.id)
+            .collect::<Vec<Uuid>>();
         info!("Got devices: {:?}", ids);
         devices
     })

@@ -49,12 +49,10 @@ pub async fn close_session(
 ) -> Result<SuccessResponse<String>, ResponseError> {
     let session_id = session_service::close_session(&state.pool, &claims.device_id)
         .await
-        .map_err(
-            |e| {
-                error!("Failed to close session: {}", e);
-                e
-            },
-        )
+        .map_err(|e| {
+            error!("Failed to close session: {}", e);
+            e
+        })
         .map_err(to_response)?;
 
     info!("Closed session successfully: {}", session_id);
