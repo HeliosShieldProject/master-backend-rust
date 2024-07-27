@@ -12,4 +12,6 @@ sleep 2
 
 psql postgresql://helios:123456789@localhost:5555/heliosdb -f migrations/00000000000000_diesel_initial_setup/
 psql postgresql://helios:123456789@localhost:5555/heliosdb -f migrations/2024-04-18-122252_initial/up.sql
-psql postgresql://helios:123456789@localhost:5555/heliosdb -f src/tests/e2e/scripts/seed.sql
+psql postgresql://helios:123456789@localhost:5555/heliosdb -f src/tests/e2e/sql/seed.sql
+
+cd "$original_dir"
