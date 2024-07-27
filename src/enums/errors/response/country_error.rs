@@ -3,10 +3,9 @@ use axum::{
     http::StatusCode,
     response::{self, IntoResponse},
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize)]
-
+#[derive(Deserialize, Serialize, PartialEq, Eq, Debug)]
 pub enum CountryError {
     CountryNotFound,
 }

@@ -15,7 +15,9 @@ use axum::{
     http::StatusCode,
     response::{self, IntoResponse},
 };
+use serde::{Deserialize, Serialize};
 
+#[derive(Deserialize, Serialize, PartialEq, Eq, Debug)]
 pub enum ResponseError {
     AuthError(AuthError),
     DeviceError(DeviceError),

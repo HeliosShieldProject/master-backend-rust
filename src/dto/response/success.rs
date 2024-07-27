@@ -3,10 +3,12 @@ use axum::{
     response::{self, IntoResponse},
     Json,
 };
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Response<D> {
+    #[serde(with = "http_serde::status_code")]
     pub status: StatusCode,
     pub message: String,
     pub data: Option<D>,
