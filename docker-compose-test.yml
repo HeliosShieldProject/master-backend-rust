@@ -1,0 +1,13 @@
+name: "master-server-testing"
+
+services:
+  database:
+    container_name: test-database
+    image: postgres:12
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    ports:
+      - "${DATABASE_PORT}:${DATABASE_PORT}"
+    command: -p ${DATABASE_PORT}

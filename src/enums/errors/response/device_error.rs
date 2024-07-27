@@ -11,6 +11,15 @@ pub enum DeviceError {
     DeviceAlreadyExists,
 }
 
+impl std::fmt::Display for DeviceError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            DeviceError::DeviceNotFound => write!(f, "DeviceNotFound"),
+            DeviceError::DeviceAlreadyExists => write!(f, "DeviceAlreadyExists"),
+        }
+    }
+}
+
 impl IntoResponse for DeviceError {
     fn into_response(self) -> response::Response {
         let (status, message) = match self {

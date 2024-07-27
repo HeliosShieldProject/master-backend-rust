@@ -14,6 +14,12 @@ pub struct Response<E> {
     pub error: E,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RawResponse {
+    pub message: String,
+    pub error: String,
+}
+
 impl<E> IntoResponse for Response<E>
 where
     E: Serialize,

@@ -18,6 +18,22 @@ pub enum AuthError {
     PasswordIsSame,
 }
 
+impl std::fmt::Display for AuthError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            AuthError::WrongToken => write!(f, "WrongToken"),
+            AuthError::WrongPassword => write!(f, "WrongPassword"),
+            AuthError::WrongEmail => write!(f, "WrongEmail"),
+            AuthError::MissingCredentials => write!(f, "MissingCredentials"),
+            AuthError::MissingDevice => write!(f, "MissingDevice"),
+            AuthError::TokenCreation => write!(f, "TokenCreation"),
+            AuthError::UserNotFound => write!(f, "UserNotFound"),
+            AuthError::UserAlreadyExists => write!(f, "UserAlreadyExists"),
+            AuthError::PasswordIsSame => write!(f, "PasswordIsSame"),
+        }
+    }
+}
+
 impl IntoResponse for AuthError {
     fn into_response(self) -> response::Response {
         let (status, message) = match self {

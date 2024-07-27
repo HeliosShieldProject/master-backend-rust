@@ -14,6 +14,12 @@ pub struct Response<D> {
     pub data: Option<D>,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+pub struct RawResponse<D> {
+    pub message: String,
+    pub data: Option<D>,
+}
+
 impl<D: Serialize> IntoResponse for Response<D> {
     fn into_response(self) -> response::Response {
         let body = match self.data {

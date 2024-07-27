@@ -11,6 +11,15 @@ pub enum SessionError {
     SessionAlreadyExists,
 }
 
+impl std::fmt::Display for SessionError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            SessionError::SessionNotFound => write!(f, "SessionNotFound"),
+            SessionError::SessionAlreadyExists => write!(f, "SessionAlreadyExists"),
+        }
+    }
+}
+
 impl IntoResponse for SessionError {
     fn into_response(self) -> response::Response {
         let (status, message) = match self {

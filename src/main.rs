@@ -23,6 +23,7 @@ mod handlers;
 mod routers;
 mod services;
 // mod swagger;
+mod tests;
 mod utils;
 
 #[derive(Clone)]
