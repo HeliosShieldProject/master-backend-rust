@@ -39,11 +39,11 @@ use tracing::{error, info};
         ),
         (
             status = 401,
-            description = "Wrong email or password",
+            description = "Wrong password",
             body = (),
             example = json!({
-                "message": "Wrong email | Wrong password",
-                "error": "WrongEmail | WrongPassword"
+                "message": "Wrong password",
+                "error": "WrongPassword"
             })
         ),
         (

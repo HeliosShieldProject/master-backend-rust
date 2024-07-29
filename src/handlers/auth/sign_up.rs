@@ -30,11 +30,11 @@ use tracing::{error, info};
         ),
         (
             status = 409,
-            description = "User already exists or password is the same",
+            description = "User already exists",
             body = (),
             example = json!({
-                "message": "User already exists | Password is the same",
-                "error": "UserExists | PasswordIsSame"
+                "message": "User already exists",
+                "error": "UserExists "
             })
         ),
         (
