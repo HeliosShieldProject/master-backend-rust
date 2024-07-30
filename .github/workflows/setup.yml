@@ -48,6 +48,8 @@ jobs:
           scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/docker-compose.yml
           scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} .env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/.env
           scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} -r compose/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/compose/
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "curl --proto '=https' --tlsv1.2 -LsSf https://github.com/diesel-rs/diesel/releases/download/v2.2.1/diesel_cli-installer.sh | sh"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "diesel setup && diesel migration run"
 
       - name: Deploy to DigitalOcean
         run: |

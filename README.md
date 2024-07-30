@@ -29,27 +29,27 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 . ~/.bashrc
 ```
 
-1. Clone the repository:
+2. Clone the repository:
 
 ```bash
 git clone https://github.com/HeliosShieldProject/master-backend-rust.git
 cd master-backend-rust
 ```
 
-1. Set the environment variables:
+3. Set the environment variables:
 
 ```bash
 cp .env.example .env
 # then edit the .env file with actual values
 ```
 
-1. Run database:
+4. Run database:
 
 ```bash
 docker-compose -f docker-compose-test up -d
 ```
 
-1. Setup the database:
+5. Setup the database:
 
 ```bash
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/diesel-rs/diesel/releases/download/v2.2.1/diesel_cli-installer.sh | sh
@@ -59,7 +59,7 @@ diesel migration run
 
 > Also seed it with some data or use [psql with this sql](src/tests/e2e/sql/seed.sql)
 
-1. Run the backend:
+6. Run the backend:
 
 ```bash
 cargo run
@@ -74,20 +74,20 @@ git clone
 cd master-backend-rust
 ```
 
-1. Set the environment variables:
+2. Set the environment variables:
 
 ```bash
 cp .env.example .env
 # then edit the .env file with actual values
 ```
 
-1. Run database:
+3. Run database:
 
 ```bash
 docker-compose up -d database
 ```
 
-1. Setup the database:
+4. Setup the database:
 
 ```bash
 curl --proto '=https' --tlsv1.2 -LsSf https://github.com/diesel-rs/diesel/releases/download/v2.2.1/diesel_cli-installer.sh | sh
@@ -97,7 +97,7 @@ diesel migration run
 
 > Also seed it with some data or use [psql with this sql](src/tests/e2e/sql/seed.sql)
 
-1. Run the backend:
+5. Run the backend:
 
 ```bash
 docker-compose up -d master-backend
