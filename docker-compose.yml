@@ -16,7 +16,6 @@ services:
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
       - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.middlewares.traefik-auth.basicauth.users=${TRAEFIK_AUTH}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ./compose/traefik/traefik.yml:/etc/traefik/traefik.yml
