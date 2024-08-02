@@ -1,4 +1,4 @@
-use crate::dto::response::error::Response;
+use crate::{dto::response::error::Response, enums::errors::internal};
 use axum::{
     http::StatusCode,
     response::{self, IntoResponse},
@@ -33,5 +33,14 @@ impl IntoResponse for DeviceError {
             error: self,
         }
         .into_response()
+    }
+}
+
+impl From<internal::DeviceError> for DeviceError {
+    fn from(error: internal::DeviceError) -> Self {
+        match error {
+            internal::DeviceError::DeviceNotFound => DeviceError::DeviceNotFound,
+            internal::DeviceError::DeviceAlreadyExists => DeviceError::DeviceAlreadyExists,
+        }
     }
 }

@@ -1,4 +1,5 @@
-use crate::dto::response::error::Response;
+use super::ExternalError;
+use crate::{dto::response::error::Response, enums::errors::internal};
 use axum::{
     http::StatusCode,
     response::{self, IntoResponse},
@@ -35,5 +36,14 @@ impl IntoResponse for SessionError {
             error: self,
         }
         .into_response()
+    }
+}
+
+impl From<internal::SessionError> for SessionError {
+    fn from(error: internal::SessionError) -> Self {
+        match error {
+            internal::SessionError::SessionNotFound => SessionError::SessionNotFound,
+            internal::SessionError::SessionAlreadyExists => SessionError::SessionAlreadyExists,
+        }
     }
 }

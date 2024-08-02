@@ -1,4 +1,4 @@
-use crate::dto::response::error::Response;
+use crate::{dto::response::error::Response, enums::errors::internal};
 use axum::{
     http::StatusCode,
     response::{self, IntoResponse},
@@ -54,5 +54,21 @@ impl IntoResponse for AuthError {
             error: self,
         }
         .into_response()
+    }
+}
+
+impl From<internal::AuthError> for AuthError {
+    fn from(error: internal::AuthError) -> Self {
+        match error {
+            internal::AuthError::WrongToken => AuthError::WrongToken,
+            internal::AuthError::WrongPassword => AuthError::WrongPassword,
+            internal::AuthError::WrongEmail => AuthError::WrongEmail,
+            internal::AuthError::MissingCredentials => AuthError::MissingCredentials,
+            internal::AuthError::MissingDevice => AuthError::MissingDevice,
+            internal::AuthError::TokenCreation => AuthError::TokenCreation,
+            internal::AuthError::UserNotFound => AuthError::UserNotFound,
+            internal::AuthError::UserAlreadyExists => AuthError::UserAlreadyExists,
+            internal::AuthError::PasswordIsSame => AuthError::PasswordIsSame,
+        }
     }
 }

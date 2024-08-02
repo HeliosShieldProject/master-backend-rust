@@ -3,7 +3,7 @@ mod test {
     use crate::{
         data::enums::OS,
         dto::{auth::response::Tokens, response},
-        enums::errors::response::{AuthError, ResponseError},
+        enums::errors::external::{AuthError, ExternalError},
         tests::config::ENV,
     };
     use serde_json::json;
@@ -79,7 +79,7 @@ mod test {
         let body: response::error::RawResponse = response.json().await.unwrap();
         assert_eq!(
             body.error,
-            ResponseError::AuthError(AuthError::UserAlreadyExists).to_string()
+            ExternalError::AuthError(AuthError::UserAlreadyExists).to_string()
         );
     }
 

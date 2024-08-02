@@ -1,24 +1,7 @@
-use crate::enums::errors::{
-    internal::{self, InternalError},
-    response::{self, ResponseError},
-};
+use super::InternalError;
 
 pub enum TokenError {
     Encode,
-}
-
-impl internal::Error for jsonwebtoken::errors::Error {
-    fn as_internal(&self) -> InternalError {
-        InternalError::TokenError(TokenError::Encode)
-    }
-}
-
-impl response::Error for TokenError {
-    fn as_response(&self) -> ResponseError {
-        match self {
-            TokenError::Encode => ResponseError::AuthError(response::AuthError::WrongToken),
-        }
-    }
 }
 
 impl std::fmt::Display for TokenError {
@@ -26,5 +9,19 @@ impl std::fmt::Display for TokenError {
         match self {
             TokenError::Encode => write!(f, "Token encoding error"),
         }
+    }
+}
+
+impl std::convert::From<uuid::Error> for InternalError {
+    fn from(error: uuid::Error) -> Self {
+        tracing::error!("{}", error);
+        InternalError::TokenError(TokenError::Encode)
+    }
+}
+
+impl From<jsonwebtoken::errors::Error> for InternalError {
+    fn from(error: jsonwebtoken::errors::Error) -> Self {
+        tracing::error!("{}", error);
+        InternalError::TokenError(TokenError::Encode)
     }
 }

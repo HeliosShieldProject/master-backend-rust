@@ -3,7 +3,7 @@ use crate::{
         auth::{internal::AccessToken, request::ChangePasswordRequest},
         response::success::Response,
     },
-    enums::errors::response::{to_response, ResponseError},
+    enums::errors::external::ExternalError,
     services::user_service,
     AppState,
 };
@@ -50,16 +50,11 @@ pub async fn change_password(
     claims: AccessToken,
     State(state): State<AppState>,
     Json(payload): Json<ChangePasswordRequest>,
-) -> Result<Response<String>, ResponseError> {
-    user_service::change_password(&state.pool, &claims.user_id, &payload.password)
-        .await
-        .map_err(|e| {
-            error!("Failed to change password: {}", e);
-            e
-        })
-        .map_err(to_response)?;
+) -> Result<Response<String>, ExternalError> {
+    user_service::change_password(&state.pool, &claims.user_id, &payload.password).await?;
 
     info!("Password changed successfully for user: {}", claims.user_id);
+
     Ok(Response::new(
         StatusCode::OK,
         "Password changed successfully",

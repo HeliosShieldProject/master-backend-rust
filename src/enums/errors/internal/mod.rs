@@ -15,7 +15,6 @@ pub use country_error::CountryError;
 
 pub mod session_error;
 pub use session_error::SessionError;
-use tracing::error;
 
 pub enum InternalError {
     HashError(HashError),
@@ -43,29 +42,23 @@ impl std::fmt::Display for InternalError {
     }
 }
 
-pub trait Error {
-    fn as_internal(&self) -> InternalError;
-}
-
-pub fn to_internal<T: Error>(error: T) -> InternalError {
-    error.as_internal()
-}
-
-impl Error for deadpool_diesel::PoolError {
-    fn as_internal(&self) -> InternalError {
-        error!("PoolError: {}", self);
+impl From<deadpool_diesel::PoolError> for InternalError {
+    fn from(error: deadpool_diesel::PoolError) -> Self {
+        tracing::error!("{}", error);
         InternalError::Internal
     }
 }
 
-impl Error for deadpool_diesel::InteractError {
-    fn as_internal(&self) -> InternalError {
+impl From<deadpool_diesel::InteractError> for InternalError {
+    fn from(error: deadpool_diesel::InteractError) -> Self {
+        tracing::error!("{}", error);
         InternalError::Internal
     }
 }
 
-impl Error for uuid::Error {
-    fn as_internal(&self) -> InternalError {
-        InternalError::UuidParse
+impl From<diesel::result::Error> for InternalError {
+    fn from(error: diesel::result::Error) -> Self {
+        tracing::error!("{}", error);
+        InternalError::Internal
     }
 }

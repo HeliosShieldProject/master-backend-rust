@@ -1,4 +1,4 @@
-use crate::dto::response::error::Response;
+use crate::{dto::response::error::Response, enums::errors::internal};
 use axum::{
     http::StatusCode,
     response::{self, IntoResponse},
@@ -30,5 +30,13 @@ impl IntoResponse for CountryError {
             error: self,
         }
         .into_response()
+    }
+}
+
+impl From<internal::CountryError> for CountryError {
+    fn from(error: internal::CountryError) -> Self {
+        match error {
+            internal::CountryError::CountryNotFound => CountryError::CountryNotFound,
+        }
     }
 }

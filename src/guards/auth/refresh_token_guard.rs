@@ -1,7 +1,7 @@
 use crate::{
     config::ENV,
     dto::auth::internal::RefreshToken,
-    enums::errors::response::{AuthError, ResponseError},
+    enums::errors::external::{AuthError, ExternalError},
 };
 use axum::{async_trait, extract::FromRequestParts, http::request::Parts, RequestPartsExt};
 use axum_extra::{
@@ -15,19 +15,19 @@ impl<S> FromRequestParts<S> for RefreshToken
 where
     S: Send + Sync,
 {
-    type Rejection = ResponseError;
+    type Rejection = ExternalError;
 
     async fn from_request_parts(parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
         let TypedHeader(Authorization(bearer)) = parts
             .extract::<TypedHeader<Authorization<Bearer>>>()
             .await
-            .map_err(|_| ResponseError::AuthError(AuthError::MissingCredentials))?;
+            .map_err(|_| ExternalError::AuthError(AuthError::MissingCredentials))?;
         let token_data = decode::<RefreshToken>(
             bearer.token(),
             &DecodingKey::from_secret(ENV.jwt_refresh_secret.as_ref()),
             &Validation::default(),
         )
-        .map_err(|_| ResponseError::AuthError(AuthError::WrongToken))?;
+        .map_err(|_| ExternalError::AuthError(AuthError::WrongToken))?;
 
         Ok(token_data.claims)
     }

@@ -4,7 +4,7 @@ use crate::{
         device::internal::DeviceInfo,
         response::success::Response,
     },
-    enums::errors::response::{to_response, ResponseError},
+    enums::errors::external::ExternalError,
     services::user_service,
     AppState,
 };
@@ -60,7 +60,7 @@ use tracing::{error, info};
 pub async fn sign_in(
     State(state): State<AppState>,
     Json(payload): Json<SignInRequest>,
-) -> Result<Response<Tokens>, ResponseError> {
+) -> Result<Response<Tokens>, ExternalError> {
     let tokens = user_service::sign_in(
         &state.pool,
         &NewUser {
@@ -72,13 +72,9 @@ pub async fn sign_in(
             name: payload.device.name,
         },
     )
-    .await
-    .map_err(|e| {
-        error!("Failed to sign in: {}", e);
-        e
-    })
-    .map_err(to_response)?;
+    .await?;
 
     info!("User signed in: {}", payload.email);
+
     Ok(Response::new(StatusCode::OK, "Signed in successfully").with_data(tokens))
 }

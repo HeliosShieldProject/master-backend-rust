@@ -5,7 +5,7 @@ use crate::{
         response::success::Response,
         session::{request::CreateSession, response::Session},
     },
-    enums::errors::response::{to_response, ResponseError},
+    enums::errors::external::ExternalError,
     services::session_service,
     AppState,
 };
@@ -59,16 +59,11 @@ pub async fn create_session(
     claims: AccessToken,
     State(state): State<AppState>,
     Json(payload): Json<CreateSession>,
-) -> Result<Response<Session>, ResponseError> {
-    let country = Country::from_str(&payload.country).map_err(to_response)?;
-    let session = session_service::create_session(&state.pool, &claims.device_id, &country)
-        .await
-        .map_err(|e| {
-            error!("Failed to create session: {}", e);
-            e
-        })
-        .map_err(to_response)?;
+) -> Result<Response<Session>, ExternalError> {
+    let country = Country::from_str(&payload.country)?;
+    let session = session_service::create_session(&state.pool, &claims.device_id, &country).await?;
 
     info!("Session created successfully: {}", session.session_id);
+
     Ok(Response::new(StatusCode::CREATED, "Session created successfully").with_data(session))
 }

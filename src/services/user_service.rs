@@ -4,7 +4,7 @@ use crate::{
         auth::{internal::NewUser, response::Tokens},
         device::internal::{DeviceInfo, NewDevice},
     },
-    enums::errors::internal::{to_internal, AuthError, InternalError},
+    enums::errors::internal::{AuthError, InternalError},
     services::device_service,
     utils::{hash, token::generate_tokens},
 };
@@ -17,89 +17,70 @@ pub async fn get_by_id(
     pool: &deadpool_diesel::postgres::Pool,
     id: &Uuid,
 ) -> Result<User, InternalError> {
-    let conn = pool.get().await.map_err(to_internal)?;
+    let conn = pool.get().await?;
     let id = id.clone();
 
-    conn.interact(move |conn| {
-        schema::user::table
-            .find(id)
-            .select(User::as_select())
-            .first(conn)
-    })
-    .await
-    .map_err(|e| {
-        error!("User not found: {}", e);
-        e
-    })
-    .map_err(to_internal)?
-    .map_err(|e| match e {
-        diesel::result::Error::NotFound => InternalError::AuthError(AuthError::UserNotFound),
-        _ => InternalError::Internal,
-    })
-    .map(|user| {
-        info!("Got user by id: {}", user.id);
-        user
-    })
+    let user = conn
+        .interact(move |conn| {
+            schema::user::table
+                .find(id)
+                .select(User::as_select())
+                .first(conn)
+        })
+        .await??;
+
+    info!("Got user by id: {}", user.id);
+
+    Ok(user)
 }
 
 pub async fn get_by_email(
     pool: &deadpool_diesel::postgres::Pool,
     email: &str,
 ) -> Result<User, InternalError> {
-    let conn = pool.get().await.map_err(to_internal)?;
+    let conn = pool.get().await?;
     let email_ = email.to_string();
 
-    conn.interact(move |conn| {
-        schema::user::table
-            .filter(schema::user::email.eq(email_))
-            .select(User::as_select())
-            .first(conn)
-    })
-    .await
-    .map_err(|e| {
-        error!("User not found: {}", e);
-        e
-    })
-    .map_err(to_internal)?
-    .map_err(|e| match e {
-        diesel::result::Error::NotFound => InternalError::AuthError(AuthError::UserNotFound),
-        _ => InternalError::Internal,
-    })
-    .map(|user| {
-        info!("Got user by email: {}", user.email);
-        user
-    })
+    let user = conn
+        .interact(move |conn| {
+            schema::user::table
+                .filter(schema::user::email.eq(email_))
+                .select(User::as_select())
+                .first(conn)
+        })
+        .await
+        .map_err(|e| {
+            error!("User not found: {}", e);
+            e
+        })??;
+
+    info!("Got user by email: {}", user.id);
+
+    Ok(user)
 }
 
 pub async fn add_user(
     pool: &deadpool_diesel::postgres::Pool,
     new_user: &NewUser,
 ) -> Result<User, InternalError> {
-    let conn = pool.get().await.map_err(to_internal)?;
+    let conn = pool.get().await?;
     let new_user_ = new_user.clone();
 
-    conn.interact(move |conn| {
-        diesel::insert_into(schema::user::table)
-            .values(&new_user_)
-            .get_result(conn)
-    })
-    .await
-    .map_err(|e| {
-        error!("User not added: {}", e);
-        e
-    })
-    .map_err(to_internal)?
-    .map_err(|e| match e {
-        diesel::result::Error::DatabaseError(
-            diesel::result::DatabaseErrorKind::UniqueViolation,
-            _,
-        ) => InternalError::AuthError(AuthError::UserAlreadyExists),
-        _ => InternalError::Internal,
-    })
-    .map(|user: User| {
-        info!("Added user: {}", user.id);
-        user
-    })
+    let user: User = conn
+        .interact(move |conn| {
+            diesel::insert_into(schema::user::table)
+                .values(&new_user_)
+                .get_result(conn)
+        })
+        .await
+        .map_err(|e| {
+            error!("User not added: {}", e);
+            e
+        })??;
+
+    info!("Added user: {}", user.id);
+
+    Ok(user)
 }
 
 pub async fn change_password(
@@ -107,7 +88,7 @@ pub async fn change_password(
     user_id: &Uuid,
     new_password: &str,
 ) -> Result<User, InternalError> {
-    let conn = pool.get().await.map_err(to_internal)?;
+    let conn = pool.get().await?;
     let user = get_by_id(&pool, &user_id).await?;
 
     if hash::verify_password(&new_password, &user.password)
@@ -120,22 +101,21 @@ pub async fn change_password(
     let hashed_password = hash::hash_password(&new_password).await?;
     let id = user_id.clone();
 
-    conn.interact(move |conn| {
-        diesel::update(schema::user::table.find(id))
-            .set(schema::user::password.eq(hashed_password))
-            .get_result(conn)
-    })
-    .await
-    .map_err(|e| {
-        error!("Password not changed: {}", e);
-        e
-    })
-    .map_err(to_internal)?
-    .map_err(|_| InternalError::Internal)
-    .map(|user: User| {
-        info!("Changed password for user: {}", user.id);
-        user
-    })
+    let user: User = conn
+        .interact(move |conn| {
+            diesel::update(schema::user::table.find(id))
+                .set(schema::user::password.eq(hashed_password))
+                .get_result(conn)
+        })
+        .await
+        .map_err(|e| {
+            error!("Password not changed: {}", e);
+            e
+        })??;
+
+    info!("Changed password for user: {}", user.id);
+
+    Ok(user)
 }
 
 pub async fn sign_in(
@@ -157,6 +137,7 @@ pub async fn sign_in(
     let tokens = generate_tokens(&user_db.id.to_string(), &device.id.to_string()).await?;
 
     info!("User signed in: {}", user_db.id);
+
     Ok(tokens)
 }
 
