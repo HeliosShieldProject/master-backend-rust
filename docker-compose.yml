@@ -8,7 +8,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "5432:5432"
     environment:
       DO_AUTH_TOKEN: ${DO_AUTH_TOKEN}
     labels:
@@ -112,29 +111,6 @@ services:
       - "traefik.http.routers.master-backend.entrypoints=websecure"
       - "traefik.http.routers.master-backend.tls.certresolver=myresolver"
       - "traefik.http.services.backend.loadbalancer.server.port=${MASTER_BACKEND_PORT}"
-    logging:
-      driver: "loki"
-      options:
-        loki-url: "https://loki.${HELIOS_DOMAIN}/loki/api/v1/push"
-
-  database:
-    container_name: database
-    image: postgres:12
-    restart: always
-    environment:
-      POSTGRES_DB: ${DATABASE_NAME}
-      POSTGRES_USER: ${DATABASE_USER}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
-    ports:
-      - "${DATABASE_PORT}:${DATABASE_PORT}"
-    command: -p ${DATABASE_PORT}
-    volumes:
-      - database-volume:/var/lib/postgresql/data
-    labels:
-      - "traefik.tcp.routers.database.rule=HostSNI(`database.${HELIOS_DOMAIN}`)"
-      - "traefik.tcp.routers.database.entrypoints=tcp"
-      - "traefik.tcp.routers.database.tls.certresolver=myresolver"
-      - "traefik.tcp.services.database.loadbalancer.server.port=${DATABASE_PORT}"
     logging:
       driver: "loki"
       options:
