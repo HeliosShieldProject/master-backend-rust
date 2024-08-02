@@ -16,6 +16,9 @@ pub use country_error::CountryError;
 pub mod session_error;
 pub use session_error::SessionError;
 
+pub mod database_error;
+pub use database_error::DatabaseError;
+
 pub enum InternalError {
     HashError(HashError),
     TokenError(TokenError),
@@ -23,6 +26,7 @@ pub enum InternalError {
     DeviceError(DeviceError),
     CountryError(CountryError),
     SessionError(SessionError),
+    DatabaseError(DatabaseError),
     UuidParse,
     Internal,
 }
@@ -30,6 +34,7 @@ pub enum InternalError {
 impl std::fmt::Display for InternalError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            InternalError::DatabaseError(e) => write!(f, "{}", e),
             InternalError::HashError(e) => write!(f, "{}", e),
             InternalError::TokenError(e) => write!(f, "{}", e),
             InternalError::AuthError(e) => write!(f, "{}", e),
@@ -39,26 +44,5 @@ impl std::fmt::Display for InternalError {
             InternalError::UuidParse => write!(f, "Uuid parse error"),
             InternalError::Internal => write!(f, "Internal error"),
         }
-    }
-}
-
-impl From<deadpool_diesel::PoolError> for InternalError {
-    fn from(error: deadpool_diesel::PoolError) -> Self {
-        tracing::error!("{}", error);
-        InternalError::Internal
-    }
-}
-
-impl From<deadpool_diesel::InteractError> for InternalError {
-    fn from(error: deadpool_diesel::InteractError) -> Self {
-        tracing::error!("{}", error);
-        InternalError::Internal
-    }
-}
-
-impl From<diesel::result::Error> for InternalError {
-    fn from(error: diesel::result::Error) -> Self {
-        tracing::error!("{}", error);
-        InternalError::Internal
     }
 }
