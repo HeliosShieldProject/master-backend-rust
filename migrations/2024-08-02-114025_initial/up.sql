@@ -28,7 +28,6 @@ CREATE TABLE
     "server" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
         "public_key" TEXT NOT NULL,
-        "backend_uri" TEXT NOT NULL,
         "wireguard_uri" TEXT NOT NULL,
         "country" "Country" NOT NULL,
         "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

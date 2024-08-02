@@ -10,7 +10,6 @@ use uuid::Uuid;
 pub struct Server {
     pub id: Uuid,
     pub public_key: String,
-    pub backend_uri: String,
     pub wireguard_uri: String,
     pub country: Country,
     pub created_at: NaiveDateTime,
