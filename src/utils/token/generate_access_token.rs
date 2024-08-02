@@ -14,8 +14,8 @@ pub async fn generate_access_token(
     let access_token_values = AccessToken {
         exp: (now + Duration::hours(1)).timestamp(),
         iat: now.timestamp(),
-        user_id: Uuid::parse_str(&user_id)?,
-        device_id: Uuid::parse_str(&device_id)?,
+        user_id: Uuid::parse_str(user_id)?,
+        device_id: Uuid::parse_str(device_id)?,
     };
 
     let access_token = encode(

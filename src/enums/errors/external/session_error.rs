@@ -1,4 +1,3 @@
-use super::ExternalError;
 use crate::{dto::response::error::Response, enums::errors::internal};
 use axum::{
     http::StatusCode,

@@ -15,7 +15,7 @@ use crate::{
 };
 use chrono::Local;
 use diesel::prelude::*;
-use tracing::{error, info};
+use tracing::info;
 use uuid::Uuid;
 
 pub async fn create_session(
@@ -24,10 +24,10 @@ pub async fn create_session(
     country: &Country,
 ) -> Result<response::Session, InternalError> {
     let conn = pool.get().await?;
-    let (device_id, country) = (device_id.clone(), country.clone());
+    let (device_id, country) = (*device_id, *country);
 
     if let Ok(current_session) = get_session(
-        &pool,
+        pool,
         ActiveSessionAndDeviceAndCountry { device_id, country },
     )
     .await
@@ -38,15 +38,15 @@ pub async fn create_session(
         return Ok(response);
     }
 
-    if let Ok((session, _, _, _)) = get_session(&pool, ActiveSessionAndDevice { device_id }).await {
-        let _ = close_session_by_id(&pool, &session.id).await?;
+    if let Ok((session, _, _, _)) = get_session(pool, ActiveSessionAndDevice { device_id }).await {
+        let _ = close_session_by_id(pool, &session.id).await?;
     }
 
-    let (config, server) = get_config_by_country(&pool, &country).await?;
+    let (config, server) = get_config_by_country(pool, &country).await?;
     let new_session = NewSession {
         status: SessionStatus::Active,
-        device_id: device_id.clone(),
-        config_id: config.id.clone(),
+        device_id,
+        config_id: config.id,
     };
 
     let session: Session = conn
@@ -73,7 +73,7 @@ pub async fn close_session_by_id(
     session_id: &Uuid,
 ) -> Result<Uuid, InternalError> {
     let conn = pool.get().await?;
-    let session_id = session_id.clone();
+    let session_id = *session_id;
 
     conn.interact(move |conn| {
         let session = match diesel::update(schema::session::table)
@@ -108,8 +108,13 @@ pub async fn close_session(
     pool: &deadpool_diesel::postgres::Pool,
     device_id: &Uuid,
 ) -> Result<Uuid, InternalError> {
-    let device_id = device_id.clone();
-    let (session, _, _, _) = get_session(&pool, ActiveSessionAndDevice { device_id }).await?;
-    let session_id = close_session_by_id(&pool, &session.id).await?;
+    let (session, _, _, _) = get_session(
+        pool,
+        ActiveSessionAndDevice {
+            device_id: *device_id,
+        },
+    )
+    .await?;
+    let session_id = close_session_by_id(pool, &session.id).await?;
     Ok(session_id)
 }

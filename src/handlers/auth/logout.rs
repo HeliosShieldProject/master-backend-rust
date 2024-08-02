@@ -5,7 +5,7 @@ use crate::{
     AppState,
 };
 use axum::{extract::State, http::StatusCode};
-use tracing::{error, info};
+use tracing::info;
 
 #[utoipa::path(
     tag = "Auth",
@@ -19,7 +19,7 @@ pub async fn logout(
     State(state): State<AppState>,
     access_token: AccessToken,
 ) -> Result<Response<String>, ExternalError> {
-    let _ = device_service::logout_device(&state.pool, &access_token.device_id).await?;
+    device_service::logout_device(&state.pool, &access_token.device_id).await?;
 
     info!("Device logged out: {:?}", access_token.device_id);
 

@@ -109,10 +109,4 @@ diesel::joinable!(device -> user (user_id));
 diesel::joinable!(session -> config (config_id));
 diesel::joinable!(session -> device (device_id));
 
-diesel::allow_tables_to_appear_in_same_query!(
-    config,
-    device,
-    server,
-    session,
-    user,
-);
+diesel::allow_tables_to_appear_in_same_query!(config, device, server, session, user,);

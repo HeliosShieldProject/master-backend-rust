@@ -5,7 +5,7 @@ use crate::{
     AppState,
 };
 use axum::{extract::State, http::StatusCode};
-use tracing::{error, info};
+use tracing::info;
 
 #[utoipa::path(
     tag = "Device",
@@ -55,7 +55,7 @@ pub async fn get_devices(
     let devices: Vec<Device> = device_service::get_devices(&state.pool, &claims.user_id)
         .await?
         .into_iter()
-        .map(|device| Device::from(device))
+        .map(Device::from)
         .collect();
 
     info!("Devices retrieved successfully: {}", devices.len());

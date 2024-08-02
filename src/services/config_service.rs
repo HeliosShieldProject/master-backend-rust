@@ -4,84 +4,17 @@ use crate::{
         models::{Config, Server},
         schema,
     },
-    dto::config::internal::NewConfig,
-    enums::errors::internal::{to_internal, InternalError},
+    enums::errors::internal::InternalError,
 };
 use diesel::prelude::*;
 use diesel::QueryDsl;
-use serde::Deserialize;
 use tracing::info;
-
-use super::server_service;
-
-#[derive(Deserialize, Debug)]
-struct ConfigResponse {
-    private_key: String,
-    user_ip: String,
-}
-
-#[derive(Deserialize, Debug)]
-struct AgentResponse {
-    data: ConfigResponse,
-    message: String,
-}
-
-pub async fn create_config(
-    pool: &deadpool_diesel::postgres::Pool,
-    country: &Country,
-) -> Result<(Config, Server), InternalError> {
-    let conn = pool.get().await.map_err(to_internal)?;
-    let country = country.to_owned();
-
-    let server = server_service::get_server_by_country(pool, &country).await?;
-
-    let client = reqwest::Client::new();
-    let response = client
-        .post(format!("http://{}/configs", server.backend_uri))
-        .send()
-        .await
-        .map_err(|e| {
-            println!("{:?}", e);
-            InternalError::Internal
-        })?
-        .json::<AgentResponse>()
-        .await
-        .map_err(|e| {
-            println!("{:?}", e);
-            InternalError::Internal
-        })?;
-
-    let config = response.data;
-    println!("{:?}", config);
-    let config = NewConfig {
-        private_key: config.private_key,
-        user_ip: config.user_ip,
-        server_id: server.id,
-    };
-
-    conn.interact(move |conn| {
-        diesel::insert_into(schema::config::table)
-            .values(&config)
-            .get_result::<Config>(conn)
-    })
-    .await
-    .map_err(|e| {
-        info!("Failed to create config: {}", e);
-        e
-    })
-    .map_err(to_internal)?
-    .map_err(|_| InternalError::Internal)
-    .map(|config| {
-        info!("Created config: {}", config.id);
-        (config, server)
-    })
-}
 
 pub async fn get_config_by_country(
     pool: &deadpool_diesel::postgres::Pool,
     country: &Country,
 ) -> Result<(Config, Server), InternalError> {
-    let conn = pool.get().await.map_err(to_internal)?;
+    let conn = pool.get().await?;
     let country = country.to_owned();
 
     let result: Vec<(Config, Server)> = conn
@@ -93,23 +26,11 @@ pub async fn get_config_by_country(
                 .select((Config::as_select(), Server::as_select()))
                 .load::<(Config, Server)>(conn)
         })
-        .await
-        .map_err(|e| {
-            info!("Config not found: {}", e);
-            e
-        })
-        .map_err(to_internal)?
-        .map_err(|e| match e {
-            diesel::result::Error::NotFound => InternalError::Internal,
-            _ => InternalError::Internal,
-        })?;
+        .await??;
 
-    if !result.is_empty() {
-        let (config, server) = result.first().unwrap().clone();
-        info!("Got config by country: {:?}", country);
+    let (config, server) = result.first().unwrap().clone();
 
-        return Ok((config, server));
-    }
+    info!("Got config by country: {:?}", country);
 
-    Ok(create_config(pool, &country).await?)
+    Ok((config, server))
 }

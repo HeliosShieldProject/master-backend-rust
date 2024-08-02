@@ -8,7 +8,7 @@ use crate::{
     AppState,
 };
 use axum::{extract::State, http::StatusCode, Json};
-use tracing::{error, info};
+use tracing::info;
 
 #[utoipa::path(
     tag = "Auth",

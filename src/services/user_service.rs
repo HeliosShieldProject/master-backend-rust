@@ -18,7 +18,7 @@ pub async fn get_by_id(
     id: &Uuid,
 ) -> Result<User, InternalError> {
     let conn = pool.get().await?;
-    let id = id.clone();
+    let id = *id;
 
     let user = conn
         .interact(move |conn| {
@@ -89,17 +89,17 @@ pub async fn change_password(
     new_password: &str,
 ) -> Result<User, InternalError> {
     let conn = pool.get().await?;
-    let user = get_by_id(&pool, &user_id).await?;
+    let user = get_by_id(pool, user_id).await?;
 
-    if hash::verify_password(&new_password, &user.password)
+    if hash::verify_password(new_password, &user.password)
         .await
         .is_ok()
     {
         error!("Password is the same");
         return Err(InternalError::AuthError(AuthError::PasswordIsSame));
     }
-    let hashed_password = hash::hash_password(&new_password).await?;
-    let id = user_id.clone();
+    let hashed_password = hash::hash_password(new_password).await?;
+    let id = *user_id;
 
     let user: User = conn
         .interact(move |conn| {
@@ -123,16 +123,16 @@ pub async fn sign_in(
     user: &NewUser,
     device: &DeviceInfo,
 ) -> Result<Tokens, InternalError> {
-    let user_db = get_by_email(&pool, &user.email).await?;
+    let user_db = get_by_email(pool, &user.email).await?;
 
     hash::verify_password(&user.password, &user_db.password).await?;
 
     let device = NewDevice {
         name: device.name.clone(),
         os: OS::from_str(&device.os),
-        user_id: user_db.id.clone(),
+        user_id: user_db.id,
     };
-    let device = device_service::add_device(&pool, &device).await?;
+    let device = device_service::add_device(pool, &device).await?;
 
     let tokens = generate_tokens(&user_db.id.to_string(), &device.id.to_string()).await?;
 
@@ -146,7 +146,7 @@ pub async fn sign_up(
     user: &NewUser,
     device: &DeviceInfo,
 ) -> Result<Tokens, InternalError> {
-    if get_by_email(&pool, &user.email).await.is_ok() {
+    if get_by_email(pool, &user.email).await.is_ok() {
         error!("User already exists: {}", user.email);
         return Err(InternalError::AuthError(AuthError::UserAlreadyExists));
     }
@@ -157,14 +157,14 @@ pub async fn sign_up(
         email: user.email.clone(),
         password: hashed_password.clone(),
     };
-    let user = add_user(&pool, &new_user).await?;
+    let user = add_user(pool, &new_user).await?;
 
     let device = NewDevice {
         name: device.name.clone(),
         os: OS::from_str(&device.os),
-        user_id: user.id.clone(),
+        user_id: user.id,
     };
-    let device = device_service::add_device(&pool, &device).await?;
+    let device = device_service::add_device(pool, &device).await?;
 
     let tokens = generate_tokens(&user.id.to_string(), &device.id.to_string()).await?;
 

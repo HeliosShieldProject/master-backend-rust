@@ -7,7 +7,7 @@ use crate::{
     utils::token::generate_tokens,
 };
 use axum::http::StatusCode;
-use tracing::{error, info};
+use tracing::info;
 
 #[utoipa::path(
     tag = "Auth",

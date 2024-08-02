@@ -38,7 +38,7 @@ pub async fn add_device(
     let conn = pool.get().await?;
     let new_device = new_device.clone();
 
-    if let Ok(device) = get_device(&pool, &new_device).await {
+    if let Ok(device) = get_device(pool, &new_device).await {
         conn.interact(move |conn| {
             diesel::update(schema::device::table)
                 .filter(schema::device::name.eq(new_device.name))
@@ -72,7 +72,7 @@ pub async fn logout_device(
     device_id: &Uuid,
 ) -> Result<(), InternalError> {
     let conn = pool.get().await?;
-    let device_id = device_id.clone();
+    let device_id = *device_id;
 
     conn.interact(move |conn| {
         diesel::update(schema::device::table)
@@ -92,7 +92,7 @@ pub async fn get_devices(
     user_id: &Uuid,
 ) -> Result<Vec<Device>, InternalError> {
     let conn = pool.get().await?;
-    let user_id = user_id.clone();
+    let user_id = *user_id;
 
     let devices = conn
         .interact(move |conn| {

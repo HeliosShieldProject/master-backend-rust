@@ -23,7 +23,8 @@ impl SessionBy for ActiveSessionAndDeviceAndCountry {
         pool: &'a deadpool_diesel::postgres::Pool,
     ) -> Result<(Session, Device, Config, Server), InternalError> {
         let conn = pool.get().await?;
-        let (device_id, country) = (self.device_id.clone(), self.country.clone());
+
+        let (device_id, country) = (self.device_id, self.country);
         let result: Vec<(Session, Device, Config, Server)> = conn
             .interact(move |conn| {
                 schema::session::table
@@ -47,6 +48,7 @@ impl SessionBy for ActiveSessionAndDeviceAndCountry {
                 "Session not found for device_id: {} and country: {}",
                 device_id, country
             );
+
             return Err(InternalError::SessionError(SessionError::SessionNotFound));
         }
 
@@ -56,6 +58,7 @@ impl SessionBy for ActiveSessionAndDeviceAndCountry {
             device_id,
             country
         );
+
         Ok(result.first().unwrap().clone())
     }
 }
