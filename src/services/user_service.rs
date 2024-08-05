@@ -31,8 +31,8 @@ pub async fn get_by_id(
                 .first(conn)
         })
         .await
-        .log_error(&format!("User not found by id: {}", id))
-        .map_err(|_| InternalError::AuthError(AuthError::UserNotFound))??;
+        .log_error(&format!("User not found by id: {}", id))?
+        .map_err(|_| InternalError::AuthError(AuthError::UserNotFound))?;
 
     info!("Got user by id: {}", user.id);
 
@@ -54,8 +54,8 @@ pub async fn get_by_email(
                 .first(conn)
         })
         .await
-        .log_error(&format!("User not found by email: {}", email))
-        .map_err(|_| InternalError::AuthError(AuthError::UserNotFound))??;
+        .log_error(&format!("User not found by email: {}", email))?
+        .map_err(|_| InternalError::AuthError(AuthError::UserNotFound))?;
 
     info!("Got user by email: {}", user.id);
 
@@ -68,15 +68,15 @@ pub async fn add_user(
 ) -> Result<User, InternalError> {
     let conn = pool.get().await?;
     let new_user = new_user.clone();
-    
+
     let user: User = conn
         .interact(move |conn| {
             diesel::insert_into(schema::user::table)
                 .values(new_user)
                 .get_result(conn)
         })
-        .await
-        .log_error("User not added")??;
+        .await?
+        .log_error("User not added")?;
 
     info!("Added user: {}", user.id);
 
@@ -107,8 +107,8 @@ pub async fn change_password(
                 .set(schema::user::password.eq(hashed_password))
                 .get_result(conn)
         })
-        .await
-        .log_error(&format!("Password not changed for user: {}", id))??;
+        .await?
+        .log_error(&format!("Password not changed for user: {}", id))?;
 
     info!("Changed password for user: {}", user.id);
 

@@ -83,8 +83,6 @@ CREATE TABLE
 
 CREATE UNIQUE INDEX "server_publicKey_key" ON "server" ("public_key");
 
-CREATE UNIQUE INDEX "server_backendUri_key" ON "server" ("backend_uri");
-
 CREATE UNIQUE INDEX "server_wireguardUri_key" ON "server" ("wireguard_uri");
 
 CREATE INDEX "config_privateKey_key" ON "config" ("private_key");
