@@ -4,7 +4,10 @@ use crate::{
         auth::{internal::NewUser, response::Tokens},
         device::internal::{DeviceInfo, NewDevice},
     },
-    enums::errors::internal::{AuthError, InternalError},
+    enums::errors::{
+        internal::{AuthError, InternalError},
+        LogError,
+    },
     services::device_service,
     utils::{hash, token::generate_tokens},
 };
@@ -27,7 +30,9 @@ pub async fn get_by_id(
                 .select(User::as_select())
                 .first(conn)
         })
-        .await??;
+        .await
+        .log_error(&format!("User not found by id: {}", id))
+        .map_err(|_| InternalError::AuthError(AuthError::UserNotFound))??;
 
     info!("Got user by id: {}", user.id);
 
@@ -49,10 +54,8 @@ pub async fn get_by_email(
                 .first(conn)
         })
         .await
-        .map_err(|e| {
-            error!("User not found: {}", e);
-            e
-        })??;
+        .log_error(&format!("User not found by email: {}", email))
+        .map_err(|_| InternalError::AuthError(AuthError::UserNotFound))??;
 
     info!("Got user by email: {}", user.id);
 
@@ -64,19 +67,16 @@ pub async fn add_user(
     new_user: &NewUser,
 ) -> Result<User, InternalError> {
     let conn = pool.get().await?;
-    let new_user_ = new_user.clone();
-
+    let new_user = new_user.clone();
+    
     let user: User = conn
         .interact(move |conn| {
             diesel::insert_into(schema::user::table)
-                .values(&new_user_)
+                .values(new_user)
                 .get_result(conn)
         })
         .await
-        .map_err(|e| {
-            error!("User not added: {}", e);
-            e
-        })??;
+        .log_error("User not added")??;
 
     info!("Added user: {}", user.id);
 
@@ -108,10 +108,7 @@ pub async fn change_password(
                 .get_result(conn)
         })
         .await
-        .map_err(|e| {
-            error!("Password not changed: {}", e);
-            e
-        })??;
+        .log_error(&format!("Password not changed for user: {}", id))??;
 
     info!("Changed password for user: {}", user.id);
 
@@ -125,7 +122,10 @@ pub async fn sign_in(
 ) -> Result<Tokens, InternalError> {
     let user_db = get_by_email(pool, &user.email).await?;
 
-    hash::verify_password(&user.password, &user_db.password).await?;
+    hash::verify_password(&user.password, &user_db.password)
+        .await
+        .log_error("Password is incorrect")
+        .map_err(|_| InternalError::AuthError(AuthError::WrongPassword))?;
 
     let device = NewDevice {
         name: device.name.clone(),

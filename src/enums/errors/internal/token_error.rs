@@ -1,5 +1,6 @@
 use super::InternalError;
 
+#[derive(Debug)]
 pub enum TokenError {
     Encode,
 }

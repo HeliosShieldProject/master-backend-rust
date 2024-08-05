@@ -19,6 +19,7 @@ pub use session_error::SessionError;
 pub mod database_error;
 pub use database_error::DatabaseError;
 
+#[derive(Debug)]
 pub enum InternalError {
     HashError(HashError),
     TokenError(TokenError),
@@ -46,3 +47,4 @@ impl std::fmt::Display for InternalError {
         }
     }
 }
+
