@@ -2,9 +2,9 @@ use crate::{
     dto::{auth::internal::AccessToken, device::response::Device, response::success::Response},
     enums::errors::external::ExternalError,
     services::device_service,
-    AppState,
 };
 use axum::{extract::State, http::StatusCode};
+use deadpool_diesel::postgres::Pool;
 use tracing::info;
 
 #[utoipa::path(
@@ -50,9 +50,9 @@ use tracing::info;
 )]
 pub async fn get_devices(
     claims: AccessToken,
-    State(state): State<AppState>,
+    State(pool): State<Pool>,
 ) -> Result<Response<Vec<Device>>, ExternalError> {
-    let devices: Vec<Device> = device_service::get_devices(&state.pool, &claims.user_id)
+    let devices: Vec<Device> = device_service::get_devices(&pool, &claims.user_id)
         .await?
         .into_iter()
         .map(Device::from)

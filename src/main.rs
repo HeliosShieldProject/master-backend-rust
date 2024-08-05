@@ -1,8 +1,8 @@
 use axum::{routing::get, Router};
 use config::ENV;
-use deadpool_diesel::postgres::{Manager, Pool};
 use metrics_exporter_prometheus::{Matcher, PrometheusBuilder};
 use routers::app_router;
+use state::AppState;
 use std::future::ready;
 use tokio::net::TcpListener;
 use tracing::info;
@@ -22,19 +22,12 @@ mod guards;
 mod handlers;
 mod routers;
 mod services;
-// mod swagger;
+mod state;
 mod tests;
 mod utils;
 
-#[derive(Clone)]
-pub struct AppState {
-    pool: Pool,
-}
-
 async fn start_main_server() {
-    let manager = Manager::new(&ENV.database_url, deadpool_diesel::Runtime::Tokio1);
-    let pool = Pool::builder(manager).build().unwrap();
-    let state = AppState { pool };
+    let state = AppState::default();
     let app = app_router(state.clone()).with_state(state);
 
     let listener = TcpListener::bind(&ENV.master_backend_url).await.unwrap();

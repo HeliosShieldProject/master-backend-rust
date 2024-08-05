@@ -6,9 +6,9 @@ use crate::{
     },
     enums::errors::external::ExternalError,
     services::user_service,
-    AppState,
 };
 use axum::{extract::State, http::StatusCode, Json};
+use deadpool_diesel::postgres::Pool;
 use tracing::info;
 
 #[utoipa::path(
@@ -49,11 +49,11 @@ use tracing::info;
     )
 )]
 pub async fn sign_up(
-    State(state): State<AppState>,
+    State(pool): State<Pool>,
     Json(payload): Json<SignUpRequest>,
 ) -> Result<Response<Tokens>, ExternalError> {
     let tokens = user_service::sign_up(
-        &state.pool,
+        &pool,
         &NewUser {
             email: payload.email.clone(),
             password: payload.password,

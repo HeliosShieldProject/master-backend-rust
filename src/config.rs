@@ -16,6 +16,12 @@ pub struct Config {
     pub jwt_refresh_secret: String,
     /// Version of the rust environment.
     pub rust_env: String,
+    pub discord_client_secret: String,
+    pub discord_client_id: String,
+    pub github_client_secret: String,
+    pub github_client_id: String,
+    pub google_client_secret: String,
+    pub google_client_id: String,
 }
 
 pub static ENV: Lazy<Config> = Lazy::new(|| {
@@ -26,6 +32,15 @@ pub static ENV: Lazy<Config> = Lazy::new(|| {
         master_metrics_url: env::var("MASTER_METRICS_URL").expect("MASTER_METRICS_URL must be set"),
         jwt_access_secret: env::var("JWT_ACCESS_SECRET").expect("JWT_ACCESS_SECRET must be set"),
         jwt_refresh_secret: env::var("JWT_REFRESH_SECRET").expect("JWT_REFRESH_SECRET must be set"),
+        discord_client_secret: env::var("DISCORD_CLIENT_SECRET")
+            .expect("DISCORD_CLIENT_SECRET must be set"),
+        discord_client_id: env::var("DISCORD_CLIENT_ID").expect("DISCORD_CLIENT_ID must be set"),
+        github_client_secret: env::var("GITHUB_CLIENT_SECRET")
+            .expect("GITHUB_CLIENT_SECRET must be set"),
+        github_client_id: env::var("GITHUB_CLIENT_ID").expect("GITHUB_CLIENT_ID must be set"),
+        google_client_secret: env::var("GOOGLE_CLIENT_SECRET")
+            .expect("GOOGLE_CLIENT_SECRET must be set"),
+        google_client_id: env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID must be set"),
         rust_env: env::var("RUST_ENV").expect("RUST_ENV must be set"),
     }
 });

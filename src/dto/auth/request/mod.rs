@@ -6,3 +6,6 @@ pub use sign_in::SignInRequest;
 
 pub mod sign_up;
 pub use sign_up::SignUpRequest;
+
+pub mod authorize;
+pub use authorize::AuthorizeRequest;

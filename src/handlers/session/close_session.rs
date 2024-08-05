@@ -2,9 +2,9 @@ use crate::{
     dto::{auth::internal::AccessToken, response::success::Response},
     enums::errors::external::ExternalError,
     services::session_service,
-    AppState,
 };
 use axum::{extract::State, http::StatusCode};
+use deadpool_diesel::postgres::Pool;
 use tracing::info;
 
 #[utoipa::path(
@@ -45,9 +45,9 @@ use tracing::info;
 )]
 pub async fn close_session(
     claims: AccessToken,
-    State(state): State<AppState>,
+    State(pool): State<Pool>,
 ) -> Result<Response<String>, ExternalError> {
-    let session_id = session_service::close_session(&state.pool, &claims.device_id).await?;
+    let session_id = session_service::close_session(&pool, &claims.device_id).await?;
 
     info!("Closed session successfully: {}", session_id);
 

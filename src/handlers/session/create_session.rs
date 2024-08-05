@@ -7,9 +7,9 @@ use crate::{
     },
     enums::errors::external::ExternalError,
     services::session_service,
-    AppState,
 };
 use axum::{extract::State, http::StatusCode, Json};
+use deadpool_diesel::postgres::Pool;
 use tracing::info;
 
 #[utoipa::path(
@@ -57,11 +57,11 @@ use tracing::info;
 )]
 pub async fn create_session(
     claims: AccessToken,
-    State(state): State<AppState>,
+    State(pool): State<Pool>,
     Json(payload): Json<CreateSession>,
 ) -> Result<Response<Session>, ExternalError> {
     let country = Country::from_str(&payload.country)?;
-    let session = session_service::create_session(&state.pool, &claims.device_id, &country).await?;
+    let session = session_service::create_session(&pool, &claims.device_id, &country).await?;
 
     info!("Session created successfully: {}", session.session_id);
 

@@ -12,3 +12,6 @@ pub use logout::logout;
 
 pub mod change_password;
 pub use change_password::change_password;
+
+pub mod authorize;
+pub use authorize::authorize;

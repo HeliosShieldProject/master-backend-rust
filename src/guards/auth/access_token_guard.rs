@@ -3,7 +3,7 @@ use crate::{
     dto::auth::internal::AccessToken,
     enums::errors::external::{AuthError, ExternalError},
     services::device_service::check_logged_in_device,
-    AppState,
+    state::AppState,
 };
 use axum::{
     async_trait,

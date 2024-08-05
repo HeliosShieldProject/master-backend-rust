@@ -5,9 +5,9 @@ use crate::{
     },
     enums::errors::external::ExternalError,
     services::user_service,
-    AppState,
 };
 use axum::{extract::State, http::StatusCode, Json};
+use deadpool_diesel::postgres::Pool;
 use tracing::info;
 
 #[utoipa::path(
@@ -48,10 +48,10 @@ use tracing::info;
 )]
 pub async fn change_password(
     claims: AccessToken,
-    State(state): State<AppState>,
+    State(pool): State<Pool>,
     Json(payload): Json<ChangePasswordRequest>,
 ) -> Result<Response<String>, ExternalError> {
-    user_service::change_password(&state.pool, &claims.user_id, &payload.password).await?;
+    user_service::change_password(&pool, &claims.user_id, &payload.password).await?;
 
     info!("Password changed successfully for user: {}", claims.user_id);
 
