@@ -1,7 +1,10 @@
 use crate::{
     data::{enums::OS, models::User, schema},
     dto::{
-        auth::{internal::NewUser, response::Tokens},
+        auth::{
+            internal::{NewUser, OAuthCode},
+            response::Tokens,
+        },
         device::internal::{DeviceInfo, NewDevice},
     },
     enums::errors::{
@@ -9,6 +12,7 @@ use crate::{
         LogError,
     },
     services::device_service,
+    state::AppState,
     utils::{hash, token::generate_tokens},
 };
 use diesel::prelude::*;
@@ -170,4 +174,12 @@ pub async fn sign_up(
 
     info!("User signed up: {}", user.id);
     Ok(tokens)
+}
+
+pub async fn authorize(
+    state: &AppState,
+    code: &OAuthCode,
+    device: &DeviceInfo,
+) -> Result<Tokens, InternalError> {
+    todo!()
 }
