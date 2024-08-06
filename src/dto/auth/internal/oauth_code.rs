@@ -1,4 +1,4 @@
-use crate::enums::oauth_providers::OAuthProvider;
+use crate::data::enums::OAuthProvider;
 
 #[derive(Clone, Debug)]
 pub struct OAuthCode {

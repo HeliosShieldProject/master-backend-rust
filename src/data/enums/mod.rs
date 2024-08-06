@@ -15,3 +15,6 @@ pub use session_status::SessionStatus;
 
 pub mod user_status;
 pub use user_status::UserStatus;
+
+pub mod oauth_provider;
+pub use oauth_provider::OAuthProvider;

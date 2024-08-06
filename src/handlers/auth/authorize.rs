@@ -1,4 +1,5 @@
 use crate::{
+    data::enums::OAuthProvider,
     dto::{
         auth::{internal::OAuthCode, request::AuthorizeRequest, response::Tokens},
         device::internal::DeviceInfo,
@@ -15,11 +16,11 @@ pub async fn authorize(
     State(state): State<AppState>,
     Json(payload): Json<AuthorizeRequest>,
 ) -> Result<Response<Tokens>, ExternalError> {
-    let tokens: Tokens = user_service::authorize(
+    let tokens = user_service::authorize(
         &state,
         &OAuthCode {
             code: payload.code.clone(),
-            provider: payload.provider,
+            provider: OAuthProvider::from_str(&payload.provider)?,
         },
         &DeviceInfo {
             os: payload.device.os,
@@ -27,6 +28,7 @@ pub async fn authorize(
         },
     )
     .await?;
+
     info!(
         "User authorized successfully using {:?}: code {}",
         payload.provider,
@@ -34,5 +36,5 @@ pub async fn authorize(
             + "*".repeat(payload.code.len() - 8).as_str()
     );
 
-    Ok(Response::new(StatusCode::CREATED, "Signed up successfully").with_data(tokens))
+    Ok(Response::new(StatusCode::CREATED, "Authorized successfully").with_data(tokens))
 }

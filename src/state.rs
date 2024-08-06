@@ -1,8 +1,9 @@
 use axum::extract::FromRef;
 use deadpool_diesel::postgres::{Manager, Pool};
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl};
+use reqwest::redirect;
 
-use crate::config::ENV;
+use crate::{config::ENV, data::enums::OAuthProvider};
 
 #[derive(Clone)]
 pub struct OAuthProviders {
@@ -19,18 +20,21 @@ impl OAuthProviders {
                 &ENV.discord_client_secret,
                 "https://discord.com/api/oauth2/authorize",
                 "https://discord.com/api/oauth2/token",
+                "http://localhost:3000/auth/discord/authorized",
             ),
             github: Self::client(
                 &ENV.github_client_id,
                 &ENV.github_client_secret,
                 "https://github.com/login/oauth/authorize",
                 "https://github.com/login/oauth/access_token",
+                "http://localhost:3000/auth/github/authorized",
             ),
             google: Self::client(
                 &ENV.google_client_id,
                 &ENV.google_client_secret,
                 "https://accounts.google.com/o/oauth2/v2/auth",
-                "https://www.googleapis.com/oauth2/v3/token",
+                "https://www.googleapis.com/oauth2/v4/token",
+                "http://localhost:3000/auth/google/authorized",
             ),
         }
     }
@@ -40,6 +44,7 @@ impl OAuthProviders {
         client_secret: &str,
         auth_url: &str,
         token_url: &str,
+        redirect_url: &str,
     ) -> BasicClient {
         BasicClient::new(
             ClientId::new(client_id.to_string()),
@@ -47,6 +52,15 @@ impl OAuthProviders {
             AuthUrl::new(auth_url.to_string()).unwrap(),
             Some(TokenUrl::new(token_url.to_string()).unwrap()),
         )
+        .set_redirect_uri(RedirectUrl::new(redirect_url.to_string()).unwrap())
+    }
+
+    pub fn get(&self, provider: OAuthProvider) -> &BasicClient {
+        match provider {
+            OAuthProvider::Discord => &self.discord,
+            OAuthProvider::Github => &self.github,
+            OAuthProvider::Google => &self.google,
+        }
     }
 }
 

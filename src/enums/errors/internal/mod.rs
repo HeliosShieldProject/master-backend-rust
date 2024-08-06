@@ -19,7 +19,10 @@ pub use session_error::SessionError;
 pub mod database_error;
 pub use database_error::DatabaseError;
 
-#[derive(Debug)]
+pub mod reqwest_error;
+pub use reqwest_error::ReqwestError;
+
+#[derive(Debug, Clone)]
 pub enum InternalError {
     HashError(HashError),
     TokenError(TokenError),
@@ -28,6 +31,7 @@ pub enum InternalError {
     CountryError(CountryError),
     SessionError(SessionError),
     DatabaseError(DatabaseError),
+    ReqwestError(ReqwestError),
     UuidParse,
     Internal,
 }
@@ -42,6 +46,7 @@ impl std::fmt::Display for InternalError {
             InternalError::DeviceError(e) => write!(f, "{}", e),
             InternalError::CountryError(e) => write!(f, "{}", e),
             InternalError::SessionError(e) => write!(f, "{}", e),
+            InternalError::ReqwestError(e) => write!(f, "{}", e),
             InternalError::UuidParse => write!(f, "Uuid parse error"),
             InternalError::Internal => write!(f, "Internal error"),
         }

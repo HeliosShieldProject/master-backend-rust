@@ -49,10 +49,28 @@ CREATE TABLE
     "user" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
         "email" TEXT NOT NULL,
-        "password" TEXT NOT NULL,
         "banned_at" TIMESTAMP(3),
         "banned_till" TIMESTAMP(3),
         "status" "UserStatus" NOT NULL DEFAULT 'Active',
+        "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+CREATE TABLE
+    "classic_auth" (
+        "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
+        "user_id" uuid NOT NULL,
+        "password_hash" TEXT NOT NULL,
+        "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+
+CREATE TABLE
+    "oauth" (
+        "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
+        "user_id" uuid NOT NULL,
+        "provider" TEXT NOT NULL,
+        "metadata" JSONB NOT NULL,
         "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
@@ -101,6 +119,10 @@ ALTER TABLE "session" ADD CONSTRAINT "session_device_id_fkey" FOREIGN KEY ("devi
 
 ALTER TABLE "session" ADD CONSTRAINT "session_config_id_fkey" FOREIGN KEY ("config_id") REFERENCES "config" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
+ALTER TABLE "classic_auth" ADD CONSTRAINT "classic_auth_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+ALTER TABLE "oauth" ADD CONSTRAINT "oauth_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "user" ("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -129,5 +151,15 @@ EXECUTE FUNCTION update_updated_at();
 
 CREATE TRIGGER table_updated_at_trigger
 BEFORE UPDATE ON "device"
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER table_updated_at_trigger
+BEFORE UPDATE ON "classic_auth"
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER table_updated_at_trigger
+BEFORE UPDATE ON "oauth"
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at();

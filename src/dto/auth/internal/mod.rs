@@ -9,3 +9,9 @@ pub use refresh_token::RefreshToken;
 
 mod oauth_code;
 pub use oauth_code::OAuthCode;
+
+mod oauth_user;
+pub use oauth_user::OAuthUser;
+
+mod full_user;
+pub use full_user::FullUser;

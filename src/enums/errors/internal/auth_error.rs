@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum AuthError {
     WrongToken,
     WrongPassword,
@@ -9,6 +9,10 @@ pub enum AuthError {
     UserNotFound,
     UserAlreadyExists,
     PasswordIsSame,
+    OAuthFailed,
+    OAuthDifferentEmail,
+    NoClassicAuth,
+    UnknownOAuthProvider,
 }
 
 impl std::fmt::Display for AuthError {
@@ -23,6 +27,10 @@ impl std::fmt::Display for AuthError {
             AuthError::UserNotFound => write!(f, "User not found"),
             AuthError::UserAlreadyExists => write!(f, "User already exists"),
             AuthError::PasswordIsSame => write!(f, "Password is the same"),
+            AuthError::OAuthFailed => write!(f, "OAuth failed"),
+            AuthError::OAuthDifferentEmail => write!(f, "OAuth different email"),
+            AuthError::NoClassicAuth => write!(f, "User has no classic auth"),
+            AuthError::UnknownOAuthProvider => write!(f, "Unknown OAuth provider"),
         }
     }
 }

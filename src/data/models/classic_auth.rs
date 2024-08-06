@@ -1,18 +1,16 @@
-use crate::data::{enums::UserStatus, schema};
+use crate::data::schema;
 use chrono::NaiveDateTime;
 use diesel::{Queryable, Selectable};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
 #[derive(Queryable, Selectable, Debug, Clone, Serialize, Deserialize)]
-#[diesel(table_name = schema::user)]
+#[diesel(table_name = schema::classic_auth)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct User {
+pub struct ClassicAuth {
     pub id: Uuid,
-    pub email: String,
-    pub banned_at: Option<NaiveDateTime>,
-    pub banned_till: Option<NaiveDateTime>,
-    pub status: UserStatus,
+    pub user_id: Uuid,
+    pub password_hash: String,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }

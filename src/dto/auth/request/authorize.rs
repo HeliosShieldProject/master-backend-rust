@@ -1,9 +1,10 @@
-use crate::{dto::device::internal::DeviceInfo, enums::oauth_providers::OAuthProvider};
+use crate::dto::device::internal::DeviceInfo;
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub struct AuthorizeRequest {
     pub code: String,
-    pub provider: OAuthProvider,
+    pub provider: String,
     pub device: DeviceInfo,
 }

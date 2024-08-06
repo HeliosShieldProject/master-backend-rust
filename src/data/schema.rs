@@ -24,6 +24,10 @@ pub mod sql_types {
     #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
     #[diesel(postgres_type(name = "UserStatus"))]
     pub struct UserStatus;
+
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "OAuthProvider"))]
+    pub struct OAuthProvider;
 }
 
 diesel::table! {
@@ -95,7 +99,6 @@ diesel::table! {
     user (id) {
         id -> Uuid,
         email -> Text,
-        password -> Text,
         banned_at -> Nullable<Timestamp>,
         banned_till -> Nullable<Timestamp>,
         status -> UserStatus,
@@ -104,9 +107,45 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    use diesel::sql_types::*;
+
+    classic_auth (id) {
+        id -> Uuid,
+        user_id -> Uuid,
+        password_hash -> Text,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::OAuthProvider;
+
+    oauth (id) {
+        id -> Uuid,
+        user_id -> Uuid,
+        provider -> OAuthProvider,
+        metadata -> Jsonb,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::joinable!(classic_auth -> user (user_id));
+diesel::joinable!(oauth -> user (user_id));
 diesel::joinable!(config -> server (server_id));
 diesel::joinable!(device -> user (user_id));
 diesel::joinable!(session -> config (config_id));
 diesel::joinable!(session -> device (device_id));
 
-diesel::allow_tables_to_appear_in_same_query!(config, device, server, session, user,);
+diesel::allow_tables_to_appear_in_same_query!(
+    config,
+    device,
+    server,
+    session,
+    user,
+    classic_auth,
+    oauth,
+);

@@ -16,6 +16,10 @@ pub enum AuthError {
     UserNotFound,
     UserAlreadyExists,
     PasswordIsSame,
+    OAuthFailed,
+    OAuthDifferentEmail,
+    NoClassicAuth,
+    UnknownOAuthProvider,
 }
 
 impl std::fmt::Display for AuthError {
@@ -30,6 +34,10 @@ impl std::fmt::Display for AuthError {
             AuthError::UserNotFound => write!(f, "UserNotFound"),
             AuthError::UserAlreadyExists => write!(f, "UserAlreadyExists"),
             AuthError::PasswordIsSame => write!(f, "PasswordIsSame"),
+            AuthError::OAuthFailed => write!(f, "OAuthFailed"),
+            AuthError::OAuthDifferentEmail => write!(f, "OAuthDifferentEmail"),
+            AuthError::NoClassicAuth => write!(f, "NoClassicAuth"),
+            AuthError::UnknownOAuthProvider => write!(f, "UnknownOAuthProvider"),
         }
     }
 }
@@ -46,6 +54,15 @@ impl IntoResponse for AuthError {
             AuthError::UserNotFound => (StatusCode::NOT_FOUND, "User not found"),
             AuthError::UserAlreadyExists => (StatusCode::CONFLICT, "User already exists"),
             AuthError::PasswordIsSame => (StatusCode::CONFLICT, "Password is the same"),
+            AuthError::OAuthFailed => (StatusCode::INTERNAL_SERVER_ERROR, "OAuth failed"),
+            AuthError::OAuthDifferentEmail => (StatusCode::UNAUTHORIZED, "OAuth different email"),
+            AuthError::NoClassicAuth => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "User has no classic auth",
+            ),
+            AuthError::UnknownOAuthProvider => {
+                (StatusCode::INTERNAL_SERVER_ERROR, "Unknown OAuth provider")
+            }
         };
 
         Response {
@@ -69,6 +86,20 @@ impl From<internal::AuthError> for AuthError {
             internal::AuthError::UserNotFound => AuthError::UserNotFound,
             internal::AuthError::UserAlreadyExists => AuthError::UserAlreadyExists,
             internal::AuthError::PasswordIsSame => AuthError::PasswordIsSame,
+            internal::AuthError::OAuthFailed => AuthError::OAuthFailed,
+            internal::AuthError::OAuthDifferentEmail => AuthError::OAuthDifferentEmail,
+            internal::AuthError::NoClassicAuth => AuthError::NoClassicAuth,
+            internal::AuthError::UnknownOAuthProvider => AuthError::UnknownOAuthProvider,
+        }
+    }
+}
+
+impl From<internal::ReqwestError> for AuthError {
+    fn from(error: internal::ReqwestError) -> Self {
+        match error {
+            internal::ReqwestError::JsonError => AuthError::OAuthFailed,
+            internal::ReqwestError::RequestError => AuthError::OAuthFailed,
+            internal::ReqwestError::AccessTokenError => AuthError::OAuthFailed,
         }
     }
 }

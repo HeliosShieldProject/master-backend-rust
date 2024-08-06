@@ -1,4 +1,3 @@
-use dotenvy::dotenv;
 use once_cell::sync::Lazy;
 use std::env;
 
@@ -25,7 +24,6 @@ pub struct Config {
 }
 
 pub static ENV: Lazy<Config> = Lazy::new(|| {
-    dotenv().ok();
     Config {
         master_backend_url: env::var("MASTER_BACKEND_URL").expect("MASTER_BACKEND_URL must be set"),
         database_url: env::var("DATABASE_URL").expect("DATABASE_URL must be set"),

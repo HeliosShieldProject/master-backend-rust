@@ -72,7 +72,13 @@ async fn start_metrics_server() {
 
 #[tokio::main]
 async fn main() {
+    dotenvy::dotenv().ok();
     tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::from_default_env()
+                .add_directive("h2=info".parse().unwrap())
+                .add_directive("rustls=info".parse().unwrap()),
+        )
         .with(tracing_subscriber::fmt::layer())
         .init();
 

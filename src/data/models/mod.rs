@@ -12,3 +12,9 @@ pub use server::Server;
 
 pub mod user;
 pub use user::User;
+
+pub mod classic_auth;
+pub use classic_auth::ClassicAuth;
+
+pub mod oauth;
+pub use oauth::OAuth;
