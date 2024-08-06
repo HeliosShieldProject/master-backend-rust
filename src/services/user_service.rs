@@ -6,15 +6,12 @@ use crate::{
     },
     dto::{
         auth::{
-            internal::{FullUser, NewUser, OAuthCode},
+            internal::{FullUser, NewUser, OAuthCode, OAuthUser},
             response::Tokens,
         },
         device::internal::{DeviceInfo, NewDevice},
     },
-    enums::errors::{
-        internal::{AuthError, InternalError},
-        LogError,
-    },
+    enums::errors::internal::{AuthError, InternalError},
     services::{device_service, oauth_providers_service},
     state::AppState,
     utils::{hash, token::generate_tokens},
@@ -39,8 +36,7 @@ pub async fn get_by_id(
                 .first(conn)
         })
         .await
-        .log_error(&format!("User not found by id: {}", id))?
-        .map_err(|_| InternalError::AuthError(AuthError::UserNotFound))?;
+        .map_err(|_| InternalError::AuthError(AuthError::UserNotFound))??;
 
     let oauth: Option<Vec<OAuth>> = conn
         .interact(move |conn| {
@@ -86,8 +82,7 @@ pub async fn get_by_email(
                 .first(conn)
         })
         .await
-        .log_error(&format!("User not found by email: {}", email))?
-        .map_err(|_| InternalError::AuthError(AuthError::UserNotFound))?;
+        .map_err(|_| InternalError::AuthError(AuthError::UserNotFound))??;
 
     let oauth: Option<Vec<OAuth>> = conn
         .interact(move |conn| {
@@ -136,8 +131,7 @@ pub async fn add_user(
                 .values(schema::user::email.eq(email))
                 .get_result(conn)
         })
-        .await?
-        .log_error("User not added")?;
+        .await??;
 
     info!("Added user: {}", user.id);
 
@@ -166,8 +160,7 @@ pub async fn add_classic_auth(
                 ))
                 .get_result(conn)
         })
-        .await?
-        .log_error("Classic auth not added")?;
+        .await??;
 
     info!("Added classic auth for user: {}", user_id);
 
@@ -176,13 +169,13 @@ pub async fn add_classic_auth(
 
 pub async fn add_oauth(
     state: &AppState,
-    user_id: &Uuid,
+    oauth_user: &OAuthUser,
     oauth_code: &OAuthCode,
+    user_id: &Uuid,
 ) -> Result<OAuth, InternalError> {
     let conn = state.pool.get().await?;
     let user_id = *user_id;
-    let oauth_user = oauth_providers_service::authorize_user(state, oauth_code).await?;
-    let provider = oauth_code.provider.clone();
+    let (provider, metadata) = (oauth_code.provider, oauth_user.metadata.clone());
 
     let current_user = get_by_id(&state.pool, &user_id).await?;
 
@@ -219,11 +212,11 @@ pub async fn add_oauth(
                 .values((
                     schema::oauth::user_id.eq(user_id),
                     schema::oauth::provider.eq(provider),
+                    schema::oauth::metadata.eq(metadata),
                 ))
                 .get_result(conn)
         })
-        .await?
-        .log_error("OAuth not added")?;
+        .await??;
 
     info!("Added OAuth for user: {}", user_id);
 
@@ -252,7 +245,6 @@ pub async fn sign_in(
 
     hash::verify_password(&user.password, &classic_auth.password_hash)
         .await
-        .log_error("Password is incorrect")
         .map_err(|_| InternalError::AuthError(AuthError::WrongPassword))?;
 
     let device = NewDevice {
@@ -295,12 +287,11 @@ pub async fn sign_up(
         return Err(InternalError::AuthError(AuthError::UserAlreadyExists));
     }
 
-    let current_user: FullUser;
-    if have_oauth(pool, &user.email).await {
-        current_user = get_by_email(pool, &user.email).await?;
+    let current_user: FullUser = if have_oauth(pool, &user.email).await {
+        get_by_email(pool, &user.email).await?
     } else {
-        current_user = add_user(pool, &user.email).await?;
-    }
+        add_user(pool, &user.email).await?
+    };
 
     add_classic_auth(pool, &current_user.user.id, &user.password).await?;
 
@@ -326,32 +317,33 @@ pub async fn authorize(
 ) -> Result<Tokens, InternalError> {
     let oauth_user = oauth_providers_service::authorize_user(state, code).await?;
 
-    // let current_user = get_by_email(&state.pool, &oauth_user.email).await;
-    // let user: FullUser;
-    // if current_user.is_ok() {
-    //     add_oauth(state, &current_user.clone().unwrap().user.id, code).await?;
-    //     user = current_user.unwrap();
-    // } else {
-    //     user = add_user(&state.pool, &oauth_user.email).await?;
-    //     add_oauth(state, &user.user.id, code).await?;
-    // }
+    let current_user = get_by_email(&state.pool, &oauth_user.email).await;
+    let user: FullUser;
+    if current_user.is_ok() {
+        add_oauth(
+            state,
+            &oauth_user,
+            code,
+            &current_user.clone().unwrap().user.id,
+        )
+        .await?;
+        user = current_user.unwrap();
+    } else {
+        user = add_user(&state.pool, &oauth_user.email).await?;
+        add_oauth(state, &oauth_user, code, &user.user.id).await?;
+    }
 
-    // let device = NewDevice {
-    //     name: device.name.clone(),
-    //     os: OS::from_str(&device.os),
-    //     user_id: user.user.id,
-    // };
-
-    // let device = device_service::add_device(&state.pool, &device).await?;
-
-    // let tokens = generate_tokens(&user.user.id.to_string(), &device.id.to_string()).await?;
-
-    let tokens = Tokens {
-        access_token: "".to_string(),
-        refresh_token: "".to_string()
+    let device = NewDevice {
+        name: device.name.clone(),
+        os: OS::from_str(&device.os),
+        user_id: user.user.id,
     };
 
-    // info!("User authorized: {}", user.user.id);
+    let device = device_service::add_device(&state.pool, &device).await?;
+
+    let tokens = generate_tokens(&user.user.id.to_string(), &device.id.to_string()).await?;
+
+    info!("User authorized: {}", user.user.id);
 
     Ok(tokens)
 }

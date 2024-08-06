@@ -24,6 +24,8 @@ CREATE TYPE "UserStatus" AS ENUM (
     'Deleted'
 );
 
+CREATE TYPE "OAuthProvider" AS ENUM ('Google', 'Discord', 'GitHub');
+
 CREATE TABLE
     "server" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4 (),
