@@ -25,6 +25,7 @@ mod services;
 mod state;
 mod tests;
 mod utils;
+mod extractors;
 
 async fn start_main_server() {
     let state = AppState::default();

@@ -29,7 +29,7 @@ where
         let TypedHeader(Authorization(bearer)) = parts
             .extract::<TypedHeader<Authorization<Bearer>>>()
             .await
-            .map_err(|_| ExternalError::AuthError(AuthError::MissingCredentials))?;
+            .map_err(|_| ExternalError::AuthError(AuthError::WrongToken))?;
 
         let token_data = decode::<RefreshToken>(
             bearer.token(),

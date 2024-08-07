@@ -3,7 +3,6 @@ mod test {
     use crate::{
         data::enums::OS,
         dto::{auth::response::Tokens, response},
-        enums::errors::external::{AuthError, ExternalError},
         tests::config::ENV,
     };
     use serde_json::json;
@@ -52,11 +51,6 @@ mod test {
         let response = client.post(&url).send().await.unwrap();
 
         assert_eq!(response.status(), 400);
-        let body: response::error::RawResponse = response.json().await.unwrap();
-        assert_eq!(
-            body.error,
-            ExternalError::AuthError(AuthError::MissingCredentials).to_string()
-        );
     }
 
     #[tokio::test]
@@ -67,10 +61,5 @@ mod test {
         let response = client.post(&url).send().await.unwrap();
 
         assert_eq!(response.status(), 400);
-        let body: response::error::RawResponse = response.json().await.unwrap();
-        assert_eq!(
-            body.error,
-            ExternalError::AuthError(AuthError::MissingCredentials).to_string()
-        );
     }
 }

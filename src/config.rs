@@ -13,8 +13,6 @@ pub struct Config {
     pub jwt_access_secret: String,
     /// The secret used to sign refresh tokens.
     pub jwt_refresh_secret: String,
-    /// Version of the rust environment.
-    pub rust_env: String,
     pub discord_client_secret: String,
     pub discord_client_id: String,
     pub github_client_secret: String,
@@ -38,5 +36,4 @@ pub static ENV: Lazy<Config> = Lazy::new(|| Config {
     google_client_secret: env::var("GOOGLE_CLIENT_SECRET")
         .expect("GOOGLE_CLIENT_SECRET must be set"),
     google_client_id: env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID must be set"),
-    rust_env: env::var("RUST_ENV").expect("RUST_ENV must be set"),
 });

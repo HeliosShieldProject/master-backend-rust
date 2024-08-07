@@ -32,6 +32,7 @@ pub enum InternalError {
     SessionError(SessionError),
     DatabaseError(DatabaseError),
     ReqwestError(ReqwestError),
+    SerializationError,
     UuidParse,
     Internal,
 }
@@ -47,6 +48,7 @@ impl std::fmt::Display for InternalError {
             InternalError::CountryError(e) => write!(f, "{}", e),
             InternalError::SessionError(e) => write!(f, "{}", e),
             InternalError::ReqwestError(e) => write!(f, "{}", e),
+            InternalError::SerializationError => write!(f, "Serialization error"),
             InternalError::UuidParse => write!(f, "Uuid parse error"),
             InternalError::Internal => write!(f, "Internal error"),
         }
