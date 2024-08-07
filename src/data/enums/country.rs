@@ -9,6 +9,7 @@ use std::io::Write;
 
 #[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy)]
 #[diesel(sql_type = crate::data::schema::sql_types::Country)]
+#[allow(clippy::upper_case_acronyms)]
 pub enum Country {
     UK,
     USA,

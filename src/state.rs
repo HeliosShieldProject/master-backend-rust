@@ -1,7 +1,6 @@
 use axum::extract::FromRef;
 use deadpool_diesel::postgres::{Manager, Pool};
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl};
-use reqwest::redirect;
 
 use crate::{config::ENV, data::enums::OAuthProvider};
 

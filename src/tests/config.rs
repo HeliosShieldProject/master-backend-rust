@@ -3,6 +3,7 @@ use once_cell::sync::Lazy;
 use std::env;
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct Config {
     /// The port the master backend listens on.
     pub master_backend_url: String,
@@ -18,6 +19,7 @@ pub struct Config {
     pub rust_env: String,
 }
 
+#[allow(dead_code)]
 pub static ENV: Lazy<Config> = Lazy::new(|| {
     dotenvy::from_path(".env.test").ok();
     Config {

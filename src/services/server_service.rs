@@ -6,6 +6,7 @@ use diesel::prelude::*;
 use diesel::QueryDsl;
 use tracing::info;
 
+#[allow(dead_code)]
 pub async fn get_server_by_country(
     pool: &deadpool_diesel::postgres::Pool,
     country: &Country,

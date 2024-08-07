@@ -1,8 +1,7 @@
 use axum::{
     async_trait,
-    extract::{rejection::JsonRejection, FromRequest, MatchedPath, Request},
+    extract::{rejection::JsonRejection, FromRequest, Request},
     http::StatusCode,
-    RequestPartsExt,
 };
 use serde_json::{json, Value};
 

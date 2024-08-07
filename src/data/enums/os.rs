@@ -13,6 +13,11 @@ use utoipa::ToSchema;
     Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy, Serialize, Deserialize, ToSchema,
 )]
 #[diesel(sql_type = crate::data::schema::sql_types::Os)]
+#[allow(
+    non_camel_case_types,
+    clippy::enum_variant_names,
+    clippy::upper_case_acronyms
+)]
 pub enum OS {
     Windows,
     Linux,

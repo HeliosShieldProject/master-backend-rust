@@ -1,6 +1,7 @@
 use super::InternalError;
 
 #[derive(Debug, Clone)]
+#[allow(clippy::enum_variant_names)]
 pub enum ReqwestError {
     RequestError,
     JsonError,
