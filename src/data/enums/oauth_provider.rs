@@ -7,25 +7,12 @@ use diesel::{
 use serde::{Deserialize, Serialize};
 use std::io::Write;
 
-use crate::enums::errors::internal::{AuthError, InternalError};
-
 #[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 #[diesel(sql_type = crate::data::schema::sql_types::OAuthProvider)]
 pub enum OAuthProvider {
     Github,
     Google,
     Discord,
-}
-
-impl OAuthProvider {
-    pub fn from_str(s: &str) -> Result<Self, InternalError> {
-        match s {
-            "Github" => Ok(OAuthProvider::Github),
-            "Google" => Ok(OAuthProvider::Google),
-            "Discord" => Ok(OAuthProvider::Discord),
-            _ => Err(InternalError::AuthError(AuthError::UnknownOAuthProvider)),
-        }
-    }
 }
 
 impl ToSql<crate::data::schema::sql_types::OAuthProvider, Pg> for OAuthProvider {

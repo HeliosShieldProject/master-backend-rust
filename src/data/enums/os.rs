@@ -27,19 +27,6 @@ pub enum OS {
     Unknown,
 }
 
-impl OS {
-    pub fn from_str(s: &str) -> Self {
-        match s {
-            "Windows" => OS::Windows,
-            "Linux" => OS::Linux,
-            "MacOS" => OS::MacOS,
-            "Android" => OS::Android,
-            "IOS" => OS::IOS,
-            _ => OS::Unknown,
-        }
-    }
-}
-
 impl ToSql<crate::data::schema::sql_types::Os, Pg> for OS {
     fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, Pg>) -> serialize::Result {
         match *self {

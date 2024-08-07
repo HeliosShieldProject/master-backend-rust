@@ -1,5 +1,4 @@
 use crate::{
-    data::enums::OAuthProvider,
     dto::{
         auth::{internal::OAuthCode, request::AuthorizeRequest, response::Tokens},
         device::internal::DeviceInfo,
@@ -21,7 +20,7 @@ pub async fn authorize(
         &state,
         &OAuthCode {
             code: payload.code.clone(),
-            provider: OAuthProvider::from_str(&payload.provider)?,
+            provider: payload.provider,
         },
         &DeviceInfo {
             os: payload.device.os,

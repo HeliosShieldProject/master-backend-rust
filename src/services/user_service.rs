@@ -249,7 +249,7 @@ pub async fn sign_in(
 
     let device = NewDevice {
         name: device.name.clone(),
-        os: OS::from_str(&device.os),
+        os: device.os,
         user_id: user_db.user.id,
     };
     let device = device_service::add_device(pool, &device).await?;
@@ -297,7 +297,7 @@ pub async fn sign_up(
 
     let device = NewDevice {
         name: device.name.clone(),
-        os: OS::from_str(&device.os),
+        os: device.os,
         user_id: current_user.user.id,
     };
 
@@ -335,7 +335,7 @@ pub async fn authorize(
 
     let device = NewDevice {
         name: device.name.clone(),
-        os: OS::from_str(&device.os),
+        os: device.os,
         user_id: user.user.id,
     };
 

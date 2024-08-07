@@ -1,5 +1,4 @@
 use crate::{
-    data::enums::Country,
     dto::{
         auth::internal::AccessToken,
         response::success::Response,
@@ -61,8 +60,7 @@ pub async fn create_session(
     State(pool): State<Pool>,
     Json(payload): Json<CreateSession>,
 ) -> Result<Response<Session>, ExternalError> {
-    let country = Country::from_str(&payload.country)?;
-    let session = session_service::create_session(&pool, &claims.device_id, &country).await?;
+    let session = session_service::create_session(&pool, &claims.device_id, &payload.country).await?;
 
     info!("Session created successfully: {}", session.session_id);
 
