@@ -5,9 +5,9 @@ use crate::{
         response::success::Response,
     },
     enums::errors::external::ExternalError,
-    services::user_service,
+    services::user_service,extractors::Json,
 };
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{extract::State, http::StatusCode};
 use deadpool_diesel::postgres::Pool;
 use tracing::info;
 

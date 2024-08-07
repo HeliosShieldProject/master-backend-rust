@@ -6,9 +6,10 @@ use crate::{
         session::{request::CreateSession, response::Session},
     },
     enums::errors::external::ExternalError,
+    extractors::Json,
     services::session_service,
 };
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{extract::State, http::StatusCode};
 use deadpool_diesel::postgres::Pool;
 use tracing::info;
 

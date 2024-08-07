@@ -6,10 +6,11 @@ use crate::{
         response::success::Response,
     },
     enums::errors::external::ExternalError,
+    extractors::Json,
     services::user_service,
     state::AppState,
 };
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{extract::State, http::StatusCode};
 use tracing::info;
 
 pub async fn authorize(
