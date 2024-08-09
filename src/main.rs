@@ -18,6 +18,7 @@ mod config;
 mod data;
 mod dto;
 mod enums;
+mod extractors;
 mod guards;
 mod handlers;
 mod routers;
@@ -25,7 +26,6 @@ mod services;
 mod state;
 mod tests;
 mod utils;
-mod extractors;
 
 async fn start_main_server() {
     let state = AppState::default();
@@ -73,7 +73,6 @@ async fn start_metrics_server() {
 
 #[tokio::main]
 async fn main() {
-    dotenvy::dotenv().ok();
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::from_default_env()

@@ -1,6 +1,5 @@
 use crate::{
     data::{
-        enums::OS,
         models::{ClassicAuth, OAuth, User},
         schema,
     },
