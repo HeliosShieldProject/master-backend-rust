@@ -745,6 +745,7 @@ dependencies = [
  "log",
  "metrics",
  "metrics-exporter-prometheus",
+ "mime",
  "oauth2",
  "once_cell",
  "openssl",

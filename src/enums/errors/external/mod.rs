@@ -36,8 +36,8 @@ impl std::fmt::Display for ExternalError {
             ExternalError::DeviceError(e) => write!(f, "{}", e),
             ExternalError::CountryError(e) => write!(f, "{}", e),
             ExternalError::SessionError(e) => write!(f, "{}", e),
-            ExternalError::SerializationError => write!(f, "Serialization error"),
-            ExternalError::Internal => write!(f, "Internal server error"),
+            ExternalError::SerializationError => write!(f, "SerializationError"),
+            ExternalError::Internal => write!(f, "InternalError"),
         }
     }
 }

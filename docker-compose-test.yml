@@ -3,7 +3,7 @@ name: "master-server-testing"
 services:
   database:
     container_name: test-database
-    image: postgres:12
+    image: postgres:16
     environment:
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}

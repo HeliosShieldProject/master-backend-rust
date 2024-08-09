@@ -1,103 +1,122 @@
 #[cfg(test)]
 mod test {
-    use crate::{
-        data::enums::OS,
-        dto::{auth::response::Tokens, response},
-        enums::errors::external::{AuthError, ExternalError},
-        tests::config::ENV,
+    use axum::{
+        body::Body,
+        http::{self, Request, StatusCode},
     };
-    use serde_json::json;
+    use http_body_util::BodyExt;
+    use serde_json::{json, Value};
+    use tower::ServiceExt;
+
+    use crate::{
+        enums::errors::external::{AuthError, ExternalError},
+        routers::app_router,
+        state::AppState,
+    };
 
     #[tokio::test]
-    async fn sign_up() {
-        let client = reqwest::Client::new();
-        let url = format!("http://{}/auth/sign-up", ENV.master_backend_url);
+    async fn success() {
+        let state = AppState::default();
+        let app = app_router(state.clone()).with_state(state);
 
-        let response = client
-            .post(&url)
-            .json(&json!({
-                "email": "sign_up@email.com",
-                "password": "1234",
-                "device": {
-                    "name": "android 1111",
-                    "os": OS::Android
-                }
-            }))
-            .send()
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method(http::Method::POST)
+                    .uri("/auth/sign-up")
+                    .header(http::header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
+                    .body(Body::from(
+                        json!({
+                            "email": "test_sign_up@email.com",
+                            "password": "1234",
+                            "device": {
+                                "name": "android 1111",
+                                "os": "Android"
+                            }
+                        })
+                        .to_string(),
+                    ))
+                    .unwrap(),
+            )
             .await
             .unwrap();
 
-        assert_eq!(response.status(), 201);
-        let body: response::success::RawResponse<Tokens> = response.json().await.unwrap();
-        assert!(body.data.is_some());
-        let data = body.data.unwrap();
-        assert!(!data.access_token.is_empty());
-        assert!(!data.refresh_token.is_empty());
+        assert_eq!(response.status(), StatusCode::CREATED);
+
+        let body = response.into_body().collect().await.unwrap().to_bytes();
+        let body: Value = serde_json::from_slice(&body).unwrap();
+
+        assert!(body["data"].is_object());
+        assert!(body["data"]["access_token"].is_string());
+        assert!(body["data"]["refresh_token"].is_string());
     }
 
     #[tokio::test]
-    async fn multiple_sign_up() {
-        let client = reqwest::Client::new();
-        let url = format!("http://{}/auth/sign-up", ENV.master_backend_url);
+    async fn user_already_exists() {
+        let state = AppState::default();
+        let app = app_router(state.clone()).with_state(state);
 
-        let response = client
-            .post(&url)
-            .json(&json!({
-                "email": "multiple_sign_up@email.com",
-                "password": "1234",
-                "device": {
-                    "name": "android 1111",
-                    "os": OS::Android
-                }
-            }))
-            .send()
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method(http::Method::POST)
+                    .uri("/auth/sign-up")
+                    .header(http::header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
+                    .body(Body::from(
+                        json!({
+                            "email": "test_sign_up@email.com",
+                            "password": "1234",
+                            "device": {
+                                "name": "android 1111",
+                                "os": "Android"
+                            }
+                        })
+                        .to_string(),
+                    ))
+                    .unwrap(),
+            )
             .await
             .unwrap();
 
-        assert_eq!(response.status(), 201);
-        let body: response::success::RawResponse<Tokens> = response.json().await.unwrap();
-        assert!(body.data.is_some());
-        let data = body.data.unwrap();
-        assert!(!data.access_token.is_empty());
-        assert!(!data.refresh_token.is_empty());
+        assert_eq!(response.status(), StatusCode::CONFLICT);
 
-        let response = client
-            .post(&url)
-            .json(&json!({
-                "email": "multiple_sign_up@email.com",
-                "password": "1234",
-                "device": {
-                    "name": "android 1111",
-                    "os": OS::Android
-                }
-            }))
-            .send()
-            .await
-            .unwrap();
+        let body = response.into_body().collect().await.unwrap().to_bytes();
+        let body: Value = serde_json::from_slice(&body).unwrap();
 
-        assert_eq!(response.status(), 409);
-        let body: response::error::RawResponse = response.json().await.unwrap();
-        assert_eq!(
-            body.error,
-            ExternalError::AuthError(AuthError::UserAlreadyExists).to_string()
-        );
+        assert_eq!(body["error"], AuthError::UserAlreadyExists.to_string());
     }
 
     #[tokio::test]
-    async fn sign_up_missing_credentials() {
-        let client = reqwest::Client::new();
-        let url = format!("http://{}/auth/sign-up", ENV.master_backend_url);
+    async fn missing_credentials() {
+        let state = AppState::default();
+        let app = app_router(state.clone()).with_state(state);
 
-        let response = client
-            .post(&url)
-            .json(&json!({
-                "email": "sign_up_missing_credentials@email.com",
-                "password": "1234",
-            }))
-            .send()
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method(http::Method::POST)
+                    .uri("/auth/sign-up")
+                    .header(http::header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
+                    .body(Body::from(
+                        json!({
+                            "email": "test_sign_up@email.com",
+                            "device": {
+                                "name": "android 1111",
+                                "os": "Android"
+                            }
+                        })
+                        .to_string(),
+                    ))
+                    .unwrap(),
+            )
             .await
             .unwrap();
 
-        assert_eq!(response.status(), 422);
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+
+        let body = response.into_body().collect().await.unwrap().to_bytes();
+        let body: Value = serde_json::from_slice(&body).unwrap();
+
+        assert_eq!(body["error"], ExternalError::SerializationError.to_string());
     }
 }
