@@ -29,7 +29,7 @@ mod test {
                     .header(http::header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                     .body(Body::from(
                         json!({
-                            "email": "test_sign_up@email.com",
+                            "email": "sign_up@email.com",
                             "password": "1234",
                             "device": {
                                 "name": "android 1111",
@@ -66,7 +66,7 @@ mod test {
                     .header(http::header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                     .body(Body::from(
                         json!({
-                            "email": "test_sign_up@email.com",
+                            "email": "sign_up@email.com",
                             "password": "1234",
                             "device": {
                                 "name": "android 1111",
@@ -101,7 +101,7 @@ mod test {
                     .header(http::header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
                     .body(Body::from(
                         json!({
-                            "email": "test_sign_up@email.com",
+                            "email": "sign_up@email.com",
                             "device": {
                                 "name": "android 1111",
                                 "os": "Android"
