@@ -124,6 +124,8 @@ services:
       POSTGRES_DB: ${DATABASE_NAME}
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      TZ: "GMT+3"
+      PGTZ: "GMT+3"
     ports:
       - "${DATABASE_PORT}:${DATABASE_PORT}"
     command: -p ${DATABASE_PORT}
