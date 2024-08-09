@@ -1,5 +1,5 @@
 use axum::{routing::get, Router};
-use config::ENV;
+use config::{load_env, ENV};
 use metrics_exporter_prometheus::{Matcher, PrometheusBuilder};
 use routers::app_router;
 use state::AppState;
@@ -73,6 +73,7 @@ async fn start_metrics_server() {
 
 #[tokio::main]
 async fn main() {
+    load_env();
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::from_default_env()

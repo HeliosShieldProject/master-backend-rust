@@ -8,7 +8,6 @@ argon2 = "0.5.3"
 axum = "0.7.5"
 axum-extra = { version = "0.9.3", features = ["typed-header"] }
 chrono = { version = "0.4", features = ["serde"] }
-colored = "2.1"
 deadpool-diesel = { version = "0.6.1", features = ["postgres"] }
 diesel = { version = "2.1.0", features = [
     "postgres",
@@ -17,11 +16,9 @@ diesel = { version = "2.1.0", features = [
     "chrono",
 ] }
 dotenvy = "0.15"
-futures = "0.3.30"
 http-body-util = "0.1.2"
 http-serde = "2.1.1"
 jsonwebtoken = "9.3.0"
-listenfd = "1.0.1"
 log = "0.4"
 metrics = { version = "0.23", default-features = false }
 metrics-exporter-prometheus = { version = "0.15.3", default-features = false }
@@ -32,18 +29,15 @@ rand_core = { version = "0.6.3", features = ["std"] }
 reqwest = { version = "0.12.5", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-simple_logger = "5.0.0"
 tokio = { version = "1.39", features = ["full"] }
 tower = { version = "0.4.13", features = ["full"] }
 tower-http = { version = "0.5.0", features = ["full"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 utoipa = { version = "4.2", features = ["axum_extras", "chrono", "uuid"] }
-utoipa-swagger-ui = { version = "7", features = ["axum"] }
 uuid = { version = "1.10", features = [
     "serde",
     "v4",
     "fast-rng",
     "macro-diagnostics",
 ] }
-validator = { version = "0.18", features = ["derive"] }

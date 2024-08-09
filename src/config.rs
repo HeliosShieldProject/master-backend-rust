@@ -41,7 +41,7 @@ pub static ENV: Lazy<Config> = Lazy::new(|| {
     }
 });
 
-fn load_env() {
+pub fn load_env() {
     if cfg!(test) {
         dotenvy::from_filename(".env.test").ok();
     } else {
