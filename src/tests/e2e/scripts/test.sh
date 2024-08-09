@@ -12,7 +12,7 @@ psql postgresql://helios:123456789@localhost:5555/heliosdb -f migrations/0000000
 psql postgresql://helios:123456789@localhost:5555/heliosdb -f migrations/2024-08-02-114025_initial/up.sql
 psql postgresql://helios:123456789@localhost:5555/heliosdb -f src/tests/e2e/sql/seed.sql
 
-cargo test e2e -- --test-threads=1
+cargo test e2e
 
 docker compose -f docker-compose-test.yml down
 

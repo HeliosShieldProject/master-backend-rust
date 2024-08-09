@@ -235,7 +235,9 @@ mod test {
                 http::header::AUTHORIZATION,
                 format!("Bearer {}", body["data"]["access_token"].as_str().unwrap()),
             )
-            .body(Body::from(json!({"country": "unknown country"}).to_string()))
+            .body(Body::from(
+                json!({"country": "unknown country"}).to_string(),
+            ))
             .unwrap();
         let response = ServiceExt::<Request<Body>>::ready(&mut app)
             .await

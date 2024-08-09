@@ -125,27 +125,60 @@ mod test {
     #[tokio::test]
     async fn wrong_password() {
         let state = AppState::default();
-        let app = app_router(state.clone()).with_state(state);
+        let mut app = app_router(state.clone()).with_state(state).into_service();
 
-        let response = app
-            .oneshot(
-                Request::builder()
-                    .method(http::Method::POST)
-                    .uri(SIGN_IN)
-                    .header(http::header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
-                    .body(Body::from(
-                        json!({
-                            "email": "sign_in@email.com",
-                            "password": "wrong_password",
-                            "device": {
-                                "name": "android 1111",
-                                "os": "Android"
-                            }
-                        })
-                        .to_string(),
-                    ))
-                    .unwrap(),
-            )
+        let request = Request::builder()
+            .method(http::Method::POST)
+            .uri(SIGN_UP)
+            .header(http::header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
+            .body(Body::from(
+                json!({
+                    "email": "sign_in_wrong_password@email.com",
+                    "password": "1234",
+                    "device": {
+                        "name": "android 1111",
+                        "os": "Android"
+                    }
+                })
+                .to_string(),
+            ))
+            .unwrap();
+        let response = ServiceExt::<Request<Body>>::ready(&mut app)
+            .await
+            .unwrap()
+            .call(request)
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::CREATED);
+
+        let body = response.into_body().collect().await.unwrap().to_bytes();
+        let body: Value = serde_json::from_slice(&body).unwrap();
+
+        assert!(body["data"].is_object());
+        assert!(body["data"]["access_token"].is_string());
+        assert!(body["data"]["refresh_token"].is_string());
+
+        let request = Request::builder()
+            .method(http::Method::POST)
+            .uri(SIGN_IN)
+            .header(http::header::CONTENT_TYPE, mime::APPLICATION_JSON.as_ref())
+            .body(Body::from(
+                json!({
+                    "email": "sign_in_wrong_password@email.com",
+                    "password": "wrong_password",
+                    "device": {
+                        "name": "android 1111",
+                        "os": "Android"
+                    }
+                })
+                .to_string(),
+            ))
+            .unwrap();
+        let response = ServiceExt::<Request<Body>>::ready(&mut app)
+            .await
+            .unwrap()
+            .call(request)
             .await
             .unwrap();
 
