@@ -4,9 +4,10 @@ use diesel::{
     pg::{Pg, PgValue},
     serialize::{self, IsNull, Output, ToSql},
 };
+use serde::{Deserialize, Serialize};
 use std::io::Write;
 
-#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 #[diesel(sql_type = crate::data::schema::sql_types::SessionStatus)]
 pub enum SessionStatus {
     Active,
