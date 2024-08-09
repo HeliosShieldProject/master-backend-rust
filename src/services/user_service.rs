@@ -235,7 +235,11 @@ pub async fn sign_in(
     user: &NewUser,
     device: &DeviceInfo,
 ) -> Result<Tokens, InternalError> {
-    let user_db = get_by_email(pool, &user.email).await?;
+    let user_db = get_by_email(pool, &user.email).await.map_err(|_| {
+        error!("User not found: {}", user.email);
+        InternalError::AuthError(AuthError::UserNotFound)
+    })?;
+
     if user_db.classic_auth.is_none() {
         error!("User has no classic auth: {}", user.email);
         return Err(InternalError::AuthError(AuthError::NoClassicAuth));
