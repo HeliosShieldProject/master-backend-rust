@@ -1,7 +1,7 @@
 use crate::{
     config::ENV,
     dto::auth::internal::AccessToken,
-    enums::errors::external::{AuthError, ExternalError},
+    enums::errors::external::{Auth, Error},
     services::device_service::check_logged_in_device,
     state::AppState,
 };
@@ -23,24 +23,24 @@ where
     AppState: FromRef<S>,
     S: Send + Sync,
 {
-    type Rejection = ExternalError;
+    type Rejection = Error;
 
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let TypedHeader(Authorization(bearer)) = parts
             .extract::<TypedHeader<Authorization<Bearer>>>()
             .await
-            .map_err(|_| ExternalError::AuthError(AuthError::WrongToken))?;
+            .map_err(|_| Error::Auth(Auth::WrongToken))?;
 
         let token_data = decode::<AccessToken>(
             bearer.token(),
             &DecodingKey::from_secret(ENV.jwt_access_secret.as_ref()),
             &Validation::default(),
         )
-        .map_err(|_| ExternalError::AuthError(AuthError::WrongToken))?;
+        .map_err(|_| Error::Auth(Auth::WrongToken))?;
 
         let state = AppState::from_ref(state);
         if !check_logged_in_device(&state.pool, &token_data.claims.device_id).await? {
-            return Err(ExternalError::AuthError(AuthError::WrongToken));
+            return Err(Error::Auth(Auth::WrongToken));
         }
 
         Ok(token_data.claims)

@@ -16,7 +16,7 @@ use crate::{
         request::Params,
         response,
     },
-    enums::errors::internal::{InternalError, Result, SessionError},
+    enums::errors::internal::{self, Error, Result},
     services::config_service::get_config_by_country,
 };
 
@@ -85,13 +85,13 @@ pub async fn close_session_by_id(
                 schema::session::closed_at.eq(Local::now().naive_local()),
             ))
             .get_result::<Session>(conn)
-            .map_err(|_| InternalError::SessionError(SessionError::SessionNotFound))
+            .map_err(|_| Error::Session(internal::Session::SessionNotFound))
         {
             Ok(session) => {
                 info!("Found session: {}", session.id);
                 session
             }
-            Err(_) => return Err(InternalError::SessionError(SessionError::SessionNotFound)),
+            Err(_) => return Err(Error::Session(internal::Session::SessionNotFound)),
         };
         let _ = diesel::update(schema::config::table)
             .filter(schema::config::id.eq(session.config_id))

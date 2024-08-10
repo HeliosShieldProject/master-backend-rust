@@ -1,54 +1,42 @@
-mod auth_error;
-pub use auth_error::AuthError;
-
-mod device_error;
-pub use device_error::DeviceError;
-
-mod country_error;
-pub use country_error::CountryError;
-
-mod session_error;
-pub use session_error::SessionError;
-
-use crate::dto::response::error::Response;
 use axum::{
     http::StatusCode,
     response::{self, IntoResponse},
 };
 use serde::{Deserialize, Serialize};
 
-use super::internal::InternalError;
+use super::internal;
+use crate::dto::response::error::Response;
+
+mod auth;
+mod session;
+
+pub use auth::Auth;
+pub use session::Session;
 
 #[derive(Deserialize, Serialize, PartialEq, Eq, Debug)]
-pub enum ExternalError {
-    AuthError(AuthError),
-    DeviceError(DeviceError),
-    CountryError(CountryError),
-    SessionError(SessionError),
-    SerializationError,
+pub enum Error {
+    Auth(Auth),
+    Session(Session),
+    Serialization,
     Internal,
 }
 
-impl std::fmt::Display for ExternalError {
+impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            ExternalError::AuthError(e) => write!(f, "{}", e),
-            ExternalError::DeviceError(e) => write!(f, "{}", e),
-            ExternalError::CountryError(e) => write!(f, "{}", e),
-            ExternalError::SessionError(e) => write!(f, "{}", e),
-            ExternalError::SerializationError => write!(f, "SerializationError"),
-            ExternalError::Internal => write!(f, "InternalError"),
+            Error::Auth(e) => write!(f, "{}", e),
+            Error::Session(e) => write!(f, "{}", e),
+            Error::Serialization => write!(f, "SerializationError"),
+            Error::Internal => write!(f, "InternalError"),
         }
     }
 }
 
-impl IntoResponse for ExternalError {
+impl IntoResponse for Error {
     fn into_response(self) -> response::Response {
         match self {
-            ExternalError::AuthError(e) => e.into_response(),
-            ExternalError::DeviceError(e) => e.into_response(),
-            ExternalError::CountryError(e) => e.into_response(),
-            ExternalError::SessionError(e) => e.into_response(),
+            Error::Auth(e) => e.into_response(),
+            Error::Session(e) => e.into_response(),
             _ => Response {
                 status: StatusCode::INTERNAL_SERVER_ERROR,
                 message: "Internal server error".to_string(),
@@ -59,16 +47,14 @@ impl IntoResponse for ExternalError {
     }
 }
 
-impl From<InternalError> for ExternalError {
-    fn from(error: InternalError) -> Self {
+impl From<internal::Error> for Error {
+    fn from(error: internal::Error) -> Self {
         match error {
-            InternalError::AuthError(e) => ExternalError::AuthError(e.into()),
-            InternalError::DeviceError(e) => ExternalError::DeviceError(e.into()),
-            InternalError::CountryError(e) => ExternalError::CountryError(e.into()),
-            InternalError::SessionError(e) => ExternalError::SessionError(e.into()),
-            _ => ExternalError::Internal,
+            internal::Error::Auth(e) => Error::Auth(e.into()),
+            internal::Error::Session(e) => Error::Session(e.into()),
+            _ => Error::Internal,
         }
     }
 }
 
-pub type Result<T> = core::result::Result<T, ExternalError>;
+pub type Result<T> = core::result::Result<T, Error>;

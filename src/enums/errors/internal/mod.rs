@@ -1,58 +1,38 @@
-mod hash_error;
-pub use hash_error::HashError;
+mod auth;
+mod database;
+mod hash;
+mod reqwest;
+mod session;
+mod token;
 
-mod token_error;
-pub use token_error::TokenError;
-
-mod auth_error;
-pub use auth_error::AuthError;
-
-mod device_error;
-pub use device_error::DeviceError;
-
-mod country_error;
-pub use country_error::CountryError;
-
-mod session_error;
-pub use session_error::SessionError;
-
-mod database_error;
-pub use database_error::DatabaseError;
-
-mod reqwest_error;
-pub use reqwest_error::ReqwestError;
+pub use auth::Auth;
+pub use database::Database;
+pub use hash::Hash;
+pub use reqwest::Reqwest;
+pub use session::Session;
+pub use token::Token;
 
 #[derive(Debug, Clone)]
-pub enum InternalError {
-    HashError(HashError),
-    TokenError(TokenError),
-    AuthError(AuthError),
-    DeviceError(DeviceError),
-    CountryError(CountryError),
-    SessionError(SessionError),
-    DatabaseError(DatabaseError),
-    ReqwestError(ReqwestError),
-    SerializationError,
-    UuidParse,
-    Internal,
+pub enum Error {
+    Hash(Hash),
+    Token(Token),
+    Auth(Auth),
+    Session(Session),
+    Database(Database),
+    Reqwest(Reqwest),
 }
 
-impl std::fmt::Display for InternalError {
+impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            InternalError::DatabaseError(e) => write!(f, "{}", e),
-            InternalError::HashError(e) => write!(f, "{}", e),
-            InternalError::TokenError(e) => write!(f, "{}", e),
-            InternalError::AuthError(e) => write!(f, "{}", e),
-            InternalError::DeviceError(e) => write!(f, "{}", e),
-            InternalError::CountryError(e) => write!(f, "{}", e),
-            InternalError::SessionError(e) => write!(f, "{}", e),
-            InternalError::ReqwestError(e) => write!(f, "{}", e),
-            InternalError::SerializationError => write!(f, "Serialization error"),
-            InternalError::UuidParse => write!(f, "Uuid parse error"),
-            InternalError::Internal => write!(f, "Internal error"),
+            Error::Database(e) => write!(f, "{}", e),
+            Error::Hash(e) => write!(f, "{}", e),
+            Error::Token(e) => write!(f, "{}", e),
+            Error::Auth(e) => write!(f, "{}", e),
+            Error::Session(e) => write!(f, "{}", e),
+            Error::Reqwest(e) => write!(f, "{}", e),
         }
     }
 }
 
-pub type Result<T> = core::result::Result<T, InternalError>;
+pub type Result<T> = core::result::Result<T, Error>;

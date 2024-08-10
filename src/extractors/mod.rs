@@ -5,7 +5,7 @@ use axum::{
 };
 use serde_json::{json, Value};
 
-use crate::enums::errors::external::ExternalError;
+use crate::enums::errors::external::Error;
 
 pub struct Json<T>(pub T);
 
@@ -23,7 +23,7 @@ where
             Err(rejection) => {
                 let payload = json!({
                     "message": rejection.body_text(),
-                    "error": ExternalError::SerializationError,
+                    "error": Error::Serialization.to_string(),
                 });
                 Err((rejection.status(), axum::Json(payload)))
             }

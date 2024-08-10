@@ -8,7 +8,7 @@ mod test {
     use serde_json::{json, Value};
     use tower::{Service, ServiceExt};
 
-    use crate::{enums::errors::external::AuthError, routers::app_router, state::AppState};
+    use crate::{enums::errors::external::Auth, routers::app_router, state::AppState};
 
     const SIGN_UP: &str = "/auth/sign-up";
     const LOGOUT: &str = "/auth/logout";
@@ -101,7 +101,7 @@ mod test {
         let body = response.into_body().collect().await.unwrap().to_bytes();
         let body: Value = serde_json::from_slice(&body).unwrap();
 
-        assert_eq!(body["error"], AuthError::WrongToken.to_string());
+        assert_eq!(body["error"], Auth::WrongToken.to_string());
     }
 
     #[tokio::test]
@@ -182,6 +182,6 @@ mod test {
         let body = response.into_body().collect().await.unwrap().to_bytes();
         let body: Value = serde_json::from_slice(&body).unwrap();
 
-        assert_eq!(body["error"], AuthError::WrongToken.to_string());
+        assert_eq!(body["error"], Auth::WrongToken.to_string());
     }
 }

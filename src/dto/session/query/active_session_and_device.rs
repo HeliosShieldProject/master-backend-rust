@@ -5,7 +5,7 @@ use crate::{
         schema,
     },
     dto::session::SessionBy,
-    enums::errors::internal::{InternalError, SessionError},
+    enums::errors::internal::{self, Error},
 };
 use diesel::prelude::*;
 use diesel::QueryDsl;
@@ -20,7 +20,7 @@ impl SessionBy for ActiveSessionAndDevice {
     async fn get_session<'a>(
         &self,
         pool: &'a deadpool_diesel::postgres::Pool,
-    ) -> Result<(Session, Device, Config, Server), InternalError> {
+    ) -> Result<(Session, Device, Config, Server), Error> {
         let conn = pool.get().await?;
 
         let device_id = self.device_id;
@@ -43,7 +43,7 @@ impl SessionBy for ActiveSessionAndDevice {
         if result.len() != 1 {
             error!("Session not found for device_id: {}", device_id);
 
-            return Err(InternalError::SessionError(SessionError::SessionNotFound));
+            return Err(Error::Session(internal::Session::SessionNotFound));
         }
 
         info!(

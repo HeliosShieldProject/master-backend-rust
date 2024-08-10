@@ -9,7 +9,7 @@ mod test {
     use tower::{Service, ServiceExt};
 
     use crate::{
-        enums::errors::external::{AuthError, ExternalError},
+        enums::errors::external::{Auth, Error},
         routers::app_router,
         state::AppState,
     };
@@ -118,7 +118,7 @@ mod test {
         let body = response.into_body().collect().await.unwrap().to_bytes();
         let body: Value = serde_json::from_slice(&body).unwrap();
 
-        assert_eq!(body["error"], AuthError::UserAlreadyExists.to_string());
+        assert_eq!(body["error"], Auth::UserAlreadyExists.to_string());
     }
 
     #[tokio::test]
@@ -152,6 +152,6 @@ mod test {
         let body = response.into_body().collect().await.unwrap().to_bytes();
         let body: Value = serde_json::from_slice(&body).unwrap();
 
-        assert_eq!(body["error"], ExternalError::SerializationError.to_string());
+        assert_eq!(body["error"], Error::Serialization.to_string());
     }
 }

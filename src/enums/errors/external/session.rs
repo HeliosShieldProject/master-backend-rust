@@ -6,22 +6,22 @@ use axum::{
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, PartialEq, Eq, Debug)]
-pub enum CountryError {
-    CountryNotFound,
+pub enum Session {
+    SessionNotFound,
 }
 
-impl std::fmt::Display for CountryError {
+impl std::fmt::Display for Session {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            CountryError::CountryNotFound => write!(f, "CountryNotFound"),
+            Session::SessionNotFound => write!(f, "SessionNotFound"),
         }
     }
 }
 
-impl IntoResponse for CountryError {
+impl IntoResponse for Session {
     fn into_response(self) -> response::Response {
         let (status, message) = match self {
-            CountryError::CountryNotFound => (StatusCode::NOT_FOUND, "Country not found"),
+            Session::SessionNotFound => (StatusCode::NOT_FOUND, "Session not found"),
         };
 
         Response {
@@ -33,10 +33,10 @@ impl IntoResponse for CountryError {
     }
 }
 
-impl From<internal::CountryError> for CountryError {
-    fn from(error: internal::CountryError) -> Self {
+impl From<internal::Session> for Session {
+    fn from(error: internal::Session) -> Self {
         match error {
-            internal::CountryError::CountryNotFound => CountryError::CountryNotFound,
+            internal::Session::SessionNotFound => Session::SessionNotFound,
         }
     }
 }

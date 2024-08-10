@@ -4,7 +4,7 @@ use reqwest::Client;
 use crate::{
     data::enums::OAuthProvider,
     dto::auth::internal::{OAuthCode, OAuthUser},
-    enums::errors::internal::{AuthError, InternalError, ReqwestError, Result},
+    enums::errors::internal::{Auth, Error, Reqwest, Result},
     state::AppState,
 };
 
@@ -25,7 +25,7 @@ async fn get_user_info_google(access_token: &str) -> Result<OAuthUser> {
         });
     }
 
-    Err(InternalError::AuthError(AuthError::OAuthFailed))
+    Err(Error::Auth(Auth::OAuthFailed))
 }
 
 async fn get_user_info_discord(access_token: &str) -> Result<OAuthUser> {
@@ -45,7 +45,7 @@ async fn get_user_info_discord(access_token: &str) -> Result<OAuthUser> {
         });
     }
 
-    Err(InternalError::AuthError(AuthError::OAuthFailed))
+    Err(Error::Auth(Auth::OAuthFailed))
 }
 
 async fn get_user_info_github(access_token: &str) -> Result<OAuthUser> {
@@ -80,7 +80,7 @@ async fn get_user_info_github(access_token: &str) -> Result<OAuthUser> {
         });
     }
 
-    Err(InternalError::AuthError(AuthError::OAuthFailed))
+    Err(Error::Auth(Auth::OAuthFailed))
 }
 
 pub async fn authorize_user(state: &AppState, oauth_code: &OAuthCode) -> Result<OAuthUser> {
@@ -90,7 +90,7 @@ pub async fn authorize_user(state: &AppState, oauth_code: &OAuthCode) -> Result<
         .exchange_code(AuthorizationCode::new(oauth_code.code.to_string()))
         .request_async(async_http_client)
         .await
-        .map_err(|_| InternalError::ReqwestError(ReqwestError::AccessTokenError))?;
+        .map_err(|_| Error::Reqwest(Reqwest::AccessToken))?;
 
     match oauth_code.provider {
         OAuthProvider::Google => get_user_info_google(token.access_token().secret()).await,

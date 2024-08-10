@@ -1,15 +1,11 @@
-use crate::config::ENV;
-use crate::dto::auth::internal::RefreshToken;
-use crate::enums::errors::internal::InternalError;
 use chrono::{Duration, Local};
 use jsonwebtoken::{encode, EncodingKey, Header};
 use tracing::info;
 use uuid::Uuid;
 
-pub async fn generate_refresh_token(
-    user_id: &str,
-    device_id: &str,
-) -> Result<String, InternalError> {
+use crate::{config::ENV, dto::auth::internal::RefreshToken, enums::errors::internal::Result};
+
+pub async fn generate_refresh_token(user_id: &str, device_id: &str) -> Result<String> {
     let now = Local::now();
     let refresh_token_values = RefreshToken {
         exp: (now + Duration::days(7)).timestamp(),

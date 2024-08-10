@@ -15,7 +15,7 @@ use crate::{
         },
         device::internal::{DeviceInfo, NewDevice},
     },
-    enums::errors::internal::{AuthError, InternalError, Result},
+    enums::errors::internal::{Auth, Error, Result},
     services::{device_service, oauth_providers_service},
     state::AppState,
     utils::{hash, token::generate_tokens},
@@ -33,7 +33,7 @@ pub async fn get_by_id(pool: &deadpool_diesel::postgres::Pool, id: &Uuid) -> Res
                 .first(conn)
         })
         .await
-        .map_err(|_| InternalError::AuthError(AuthError::UserNotFound))??;
+        .map_err(|_| Error::Auth(Auth::UserNotFound))??;
 
     let oauth: Option<Vec<OAuth>> = conn
         .interact(move |conn| {
@@ -76,7 +76,7 @@ pub async fn get_by_email(pool: &deadpool_diesel::postgres::Pool, email: &str) -
                 .first(conn)
         })
         .await
-        .map_err(|_| InternalError::AuthError(AuthError::UserNotFound))??;
+        .map_err(|_| Error::Auth(Auth::UserNotFound))??;
 
     let oauth: Option<Vec<OAuth>> = conn
         .interact(move |conn| {
@@ -113,7 +113,7 @@ pub async fn add_user(pool: &deadpool_diesel::postgres::Pool, email: &str) -> Re
 
     if get_by_email(pool, &email).await.is_ok() {
         error!("User already exists: {}", email);
-        return Err(InternalError::AuthError(AuthError::UserAlreadyExists));
+        return Err(Error::Auth(Auth::UserAlreadyExists));
     }
 
     let user: User = conn
@@ -175,7 +175,7 @@ pub async fn add_oauth(
             "OAuth email is different: {} != {}",
             current_user.user.email, oauth_user.email
         );
-        return Err(InternalError::AuthError(AuthError::OAuthDifferentEmail));
+        return Err(Error::Auth(Auth::OAuthDifferentEmail));
     }
 
     if current_user.oauth.is_some()
@@ -229,18 +229,18 @@ pub async fn sign_in(
 ) -> Result<Tokens> {
     let user_db = get_by_email(pool, &user.email).await.map_err(|_| {
         error!("User not found: {}", user.email);
-        InternalError::AuthError(AuthError::UserNotFound)
+        Error::Auth(Auth::UserNotFound)
     })?;
 
     if user_db.classic_auth.is_none() {
         error!("User has no classic auth: {}", user.email);
-        return Err(InternalError::AuthError(AuthError::NoClassicAuth));
+        return Err(Error::Auth(Auth::NoClassicAuth));
     }
     let classic_auth = user_db.classic_auth.unwrap();
 
     hash::verify_password(&user.password, &classic_auth.password_hash)
         .await
-        .map_err(|_| InternalError::AuthError(AuthError::WrongPassword))?;
+        .map_err(|_| Error::Auth(Auth::WrongPassword))?;
 
     let device = NewDevice {
         name: device.name.clone(),
@@ -279,7 +279,7 @@ pub async fn sign_up(
 ) -> Result<Tokens> {
     if have_classic_auth(pool, &user.email).await {
         error!("User already exists: {}", user.email);
-        return Err(InternalError::AuthError(AuthError::UserAlreadyExists));
+        return Err(Error::Auth(Auth::UserAlreadyExists));
     }
 
     let current_user: FullUser = if have_oauth(pool, &user.email).await {

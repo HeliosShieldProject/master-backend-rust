@@ -4,9 +4,9 @@ use argon2::{
 };
 use tracing::{error, info};
 
-use crate::enums::errors::internal::{HashError, InternalError};
+use crate::enums::errors::internal::{Error, Hash, Result};
 
-pub async fn verify_password(password: &str, hash: &str) -> Result<bool, InternalError> {
+pub async fn verify_password(password: &str, hash: &str) -> Result<bool> {
     let argon2 = Argon2::default();
     let hash = PasswordHash::new(hash).unwrap();
 
@@ -14,7 +14,7 @@ pub async fn verify_password(password: &str, hash: &str) -> Result<bool, Interna
         .verify_password(password.as_bytes(), &hash)
         .map_err(|_| {
             error!("Password verification failed: {:?}", hash.to_string());
-            InternalError::HashError(HashError::Verify)
+            Error::Hash(Hash::Verify)
         })
         .map(|_| {
             info!("Password verified: {:?}", hash.to_string());
