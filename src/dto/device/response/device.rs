@@ -3,10 +3,9 @@ use crate::data::{
     models,
 };
 use serde::{Deserialize, Serialize};
-use utoipa::ToSchema;
 use uuid::Uuid;
 
-#[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Device {
     pub id: Uuid,
     pub name: String,
