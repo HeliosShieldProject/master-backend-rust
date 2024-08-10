@@ -11,8 +11,6 @@ use crate::{dto::response::error::Response, enums::errors::internal};
 pub enum Auth {
     WrongToken,
     WrongPassword,
-    WrongEmail,
-    TokenCreation,
     UserNotFound,
     UserAlreadyExists,
     PasswordIsSame,
@@ -26,8 +24,6 @@ impl std::fmt::Display for Auth {
         match self {
             Auth::WrongToken => write!(f, "WrongToken"),
             Auth::WrongPassword => write!(f, "WrongPassword"),
-            Auth::WrongEmail => write!(f, "WrongEmail"),
-            Auth::TokenCreation => write!(f, "TokenCreation"),
             Auth::UserNotFound => write!(f, "UserNotFound"),
             Auth::UserAlreadyExists => write!(f, "UserAlreadyExists"),
             Auth::PasswordIsSame => write!(f, "PasswordIsSame"),
@@ -43,8 +39,6 @@ impl IntoResponse for Auth {
         let (status, message) = match self {
             Auth::WrongToken => (StatusCode::UNAUTHORIZED, "Wrong token"),
             Auth::WrongPassword => (StatusCode::UNAUTHORIZED, "Wrong password"),
-            Auth::WrongEmail => (StatusCode::UNAUTHORIZED, "Wrong email"),
-            Auth::TokenCreation => (StatusCode::INTERNAL_SERVER_ERROR, "Token creation error"),
             Auth::UserNotFound => (StatusCode::NOT_FOUND, "User not found"),
             Auth::UserAlreadyExists => (StatusCode::CONFLICT, "User already exists"),
             Auth::PasswordIsSame => (StatusCode::CONFLICT, "Password is the same"),
@@ -69,8 +63,6 @@ impl From<internal::Auth> for Auth {
     fn from(error: internal::Auth) -> Self {
         match error {
             internal::Auth::WrongPassword => Auth::WrongPassword,
-            internal::Auth::WrongEmail => Auth::WrongEmail,
-            internal::Auth::TokenCreation => Auth::TokenCreation,
             internal::Auth::UserNotFound => Auth::UserNotFound,
             internal::Auth::UserAlreadyExists => Auth::UserAlreadyExists,
             internal::Auth::PasswordIsSame => Auth::PasswordIsSame,
