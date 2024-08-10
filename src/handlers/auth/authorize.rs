@@ -1,21 +1,22 @@
+use axum::{extract::State, http::StatusCode};
+use tracing::info;
+
 use crate::{
     dto::{
         auth::{internal::OAuthCode, request::AuthorizeRequest, response::Tokens},
         device::internal::DeviceInfo,
         response::success::Response,
     },
-    enums::errors::external::ExternalError,
+    enums::errors::external::Result,
     extractors::Json,
     services::user_service,
     state::AppState,
 };
-use axum::{extract::State, http::StatusCode};
-use tracing::info;
 
 pub async fn authorize(
     State(state): State<AppState>,
     Json(payload): Json<AuthorizeRequest>,
-) -> Result<Response<Tokens>, ExternalError> {
+) -> Result<Response<Tokens>> {
     let tokens = user_service::authorize(
         &state,
         &OAuthCode {

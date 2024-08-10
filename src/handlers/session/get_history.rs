@@ -8,7 +8,7 @@ use crate::{
         response::success::Response,
         session::{internal::SessionHistory, request::Params},
     },
-    enums::errors::external::ExternalError,
+    enums::errors::external::Result,
     extractors::Json,
     services::session_service,
 };
@@ -17,7 +17,7 @@ pub async fn get_history(
     claims: AccessToken,
     State(pool): State<Pool>,
     Json(payload): Json<Params>,
-) -> Result<Response<Vec<SessionHistory>>, ExternalError> {
+) -> Result<Response<Vec<SessionHistory>>> {
     info!("Getting session history");
 
     let history = session_service::get_history(&pool, &claims.user_id, &payload).await?;

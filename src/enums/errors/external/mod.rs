@@ -70,3 +70,5 @@ impl From<InternalError> for ExternalError {
         }
     }
 }
+
+pub type Result<T> = core::result::Result<T, ExternalError>;
