@@ -1,9 +1,10 @@
+use std::future::ready;
+
 use axum::{routing::get, Router};
 use config::{load_env, ENV};
 use metrics_exporter_prometheus::{Matcher, PrometheusBuilder};
 use routers::app_router;
 use state::AppState;
-use std::future::ready;
 use tokio::net::TcpListener;
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};

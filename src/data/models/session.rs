@@ -1,7 +1,8 @@
-use crate::data::{enums::SessionStatus, schema};
 use chrono::NaiveDateTime;
 use diesel::{Queryable, Selectable};
 use uuid::Uuid;
+
+use crate::data::{enums::SessionStatus, schema};
 
 #[derive(Queryable, Selectable, Debug, Clone)]
 #[diesel(table_name = schema::session)]

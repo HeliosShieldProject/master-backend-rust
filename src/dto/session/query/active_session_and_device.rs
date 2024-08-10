@@ -1,3 +1,7 @@
+use diesel::{prelude::*, QueryDsl};
+use tracing::{error, info};
+use uuid::Uuid;
+
 use crate::{
     data::{
         enums::SessionStatus,
@@ -7,10 +11,6 @@ use crate::{
     dto::session::SessionBy,
     enums::errors::internal::{self, Error},
 };
-use diesel::prelude::*;
-use diesel::QueryDsl;
-use tracing::{error, info};
-use uuid::Uuid;
 
 pub struct ActiveSessionAndDevice {
     pub device_id: Uuid,

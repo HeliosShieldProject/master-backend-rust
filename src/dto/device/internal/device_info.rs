@@ -1,5 +1,6 @@
-use crate::data::enums::OS;
 use serde::{Deserialize, Serialize};
+
+use crate::data::enums::OS;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DeviceInfo {

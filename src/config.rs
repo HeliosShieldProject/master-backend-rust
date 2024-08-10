@@ -1,5 +1,6 @@
-use once_cell::sync::Lazy;
 use std::env;
+
+use once_cell::sync::Lazy;
 
 #[derive(Debug, Clone)]
 pub struct Config {

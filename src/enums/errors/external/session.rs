@@ -1,9 +1,10 @@
-use crate::{dto::response::error::Response, enums::errors::internal};
 use axum::{
     http::StatusCode,
     response::{self, IntoResponse},
 };
 use serde::{Deserialize, Serialize};
+
+use crate::{dto::response::error::Response, enums::errors::internal};
 
 #[derive(Deserialize, Serialize, PartialEq, Eq, Debug)]
 pub enum Session {

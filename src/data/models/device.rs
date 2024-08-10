@@ -1,11 +1,12 @@
-use crate::data::{
-    enums::{DeviceStatus, OS},
-    schema,
-};
 use chrono::NaiveDateTime;
 use diesel::{Queryable, Selectable};
 use serde::Serialize;
 use uuid::Uuid;
+
+use crate::data::{
+    enums::{DeviceStatus, OS},
+    schema,
+};
 
 #[derive(Queryable, Selectable, Debug, Clone, Serialize)]
 #[diesel(table_name = schema::device)]

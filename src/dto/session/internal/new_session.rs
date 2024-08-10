@@ -1,6 +1,7 @@
-use crate::data::{enums::SessionStatus, schema};
 use diesel::prelude::*;
 use uuid::Uuid;
+
+use crate::data::{enums::SessionStatus, schema};
 
 #[derive(Insertable, Clone)]
 #[diesel(table_name = schema::session)]

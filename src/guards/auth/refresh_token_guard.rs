@@ -1,10 +1,3 @@
-use crate::{
-    config::ENV,
-    dto::auth::internal::RefreshToken,
-    enums::errors::external::{Auth, Error},
-    services::device_service::check_logged_in_device,
-    state::AppState,
-};
 use axum::{
     async_trait,
     extract::{FromRef, FromRequestParts},
@@ -16,6 +9,14 @@ use axum_extra::{
     TypedHeader,
 };
 use jsonwebtoken::{decode, DecodingKey, Validation};
+
+use crate::{
+    config::ENV,
+    dto::auth::internal::RefreshToken,
+    enums::errors::external::{Auth, Error},
+    services::device_service::check_logged_in_device,
+    state::AppState,
+};
 
 #[async_trait]
 impl<S> FromRequestParts<S> for RefreshToken

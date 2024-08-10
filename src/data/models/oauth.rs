@@ -1,8 +1,9 @@
-use crate::data::{enums::OAuthProvider, schema};
 use chrono::NaiveDateTime;
 use diesel::{Queryable, Selectable};
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+
+use crate::data::{enums::OAuthProvider, schema};
 
 #[derive(Queryable, Selectable, Debug, Clone, Serialize, Deserialize)]
 #[diesel(table_name = schema::oauth)]

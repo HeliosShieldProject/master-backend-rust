@@ -1,19 +1,19 @@
-use {
-    super::{auth_router, device_router, session_router},
-    crate::AppState,
-    axum::{
-        extract,
-        extract::MatchedPath,
-        http::{Request, StatusCode},
-        middleware::{self, Next},
-        response::IntoResponse,
-        routing::get,
-        Router,
-    },
-    std::time::Instant,
-    tower_http::trace::TraceLayer,
-    tracing::info_span,
+use std::time::Instant;
+
+use axum::{
+    extract,
+    extract::MatchedPath,
+    http::{Request, StatusCode},
+    middleware::{self, Next},
+    response::IntoResponse,
+    routing::get,
+    Router,
 };
+use tower_http::trace::TraceLayer;
+use tracing::info_span;
+
+use super::{auth_router, device_router, session_router};
+use crate::AppState;
 
 async fn track_metrics(req: extract::Request, next: Next) -> impl IntoResponse {
     let start = Instant::now();

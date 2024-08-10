@@ -1,8 +1,8 @@
 use chrono::NaiveDateTime;
-
-use crate::data::{enums::Country, schema};
 use diesel::{Queryable, Selectable};
 use uuid::Uuid;
+
+use crate::data::{enums::Country, schema};
 
 #[derive(Queryable, Selectable, Debug, Clone)]
 #[diesel(table_name = schema::server)]

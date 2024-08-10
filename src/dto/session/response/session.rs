@@ -1,6 +1,7 @@
-use crate::data::models;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
+
+use crate::data::models;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Session {

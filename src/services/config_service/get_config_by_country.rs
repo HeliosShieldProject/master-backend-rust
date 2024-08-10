@@ -1,5 +1,4 @@
-use diesel::prelude::*;
-use diesel::QueryDsl;
+use diesel::{prelude::*, QueryDsl};
 use tracing::info;
 
 use crate::{
