@@ -4,22 +4,22 @@ pub use hash_error::HashError;
 mod token_error;
 pub use token_error::TokenError;
 
-pub mod auth_error;
+mod auth_error;
 pub use auth_error::AuthError;
 
-pub mod device_error;
+mod device_error;
 pub use device_error::DeviceError;
 
-pub mod country_error;
+mod country_error;
 pub use country_error::CountryError;
 
-pub mod session_error;
+mod session_error;
 pub use session_error::SessionError;
 
-pub mod database_error;
+mod database_error;
 pub use database_error::DatabaseError;
 
-pub mod reqwest_error;
+mod reqwest_error;
 pub use reqwest_error::ReqwestError;
 
 #[derive(Debug, Clone)]
@@ -54,3 +54,5 @@ impl std::fmt::Display for InternalError {
         }
     }
 }
+
+pub type Result<T> = core::result::Result<T, InternalError>;

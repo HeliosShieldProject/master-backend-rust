@@ -1,3 +1,8 @@
+use chrono::Local;
+use diesel::prelude::*;
+use tracing::info;
+use uuid::Uuid;
+
 use crate::{
     data::{
         enums::{ConfigStatus, Country, SessionStatus},
@@ -11,19 +16,15 @@ use crate::{
         request::Params,
         response,
     },
-    enums::errors::internal::{InternalError, SessionError},
+    enums::errors::internal::{InternalError, Result, SessionError},
     services::config_service::get_config_by_country,
 };
-use chrono::Local;
-use diesel::prelude::*;
-use tracing::info;
-use uuid::Uuid;
 
 pub async fn create_session(
     pool: &deadpool_diesel::postgres::Pool,
     device_id: &Uuid,
     country: &Country,
-) -> Result<response::Session, InternalError> {
+) -> Result<response::Session> {
     let conn = pool.get().await?;
     let (device_id, country) = (*device_id, *country);
 
@@ -72,7 +73,7 @@ pub async fn create_session(
 pub async fn close_session_by_id(
     pool: &deadpool_diesel::postgres::Pool,
     session_id: &Uuid,
-) -> Result<Uuid, InternalError> {
+) -> Result<Uuid> {
     let conn = pool.get().await?;
     let session_id = *session_id;
 
@@ -108,7 +109,7 @@ pub async fn close_session_by_id(
 pub async fn close_session(
     pool: &deadpool_diesel::postgres::Pool,
     device_id: &Uuid,
-) -> Result<Uuid, InternalError> {
+) -> Result<Uuid> {
     let (session, _, _, _) = get_session(
         pool,
         ActiveSessionAndDevice {
@@ -124,7 +125,7 @@ pub async fn get_history(
     pool: &deadpool_diesel::postgres::Pool,
     user_id: &Uuid,
     params: &Params,
-) -> Result<Vec<SessionHistory>, InternalError> {
+) -> Result<Vec<SessionHistory>> {
     let conn = pool.get().await?;
 
     let limit = params.limit.unwrap_or(10);

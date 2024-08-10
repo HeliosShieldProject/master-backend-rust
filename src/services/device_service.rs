@@ -1,17 +1,18 @@
-use crate::{
-    data::{enums::DeviceStatus, models::Device, schema},
-    dto::device::internal::NewDevice,
-    enums::errors::internal::InternalError,
-};
 use diesel::prelude::*;
 use diesel::QueryDsl;
 use tracing::info;
 use uuid::Uuid;
 
+use crate::{
+    data::{enums::DeviceStatus, models::Device, schema},
+    dto::device::internal::NewDevice,
+    enums::errors::internal::Result,
+};
+
 pub async fn check_logged_in_device(
     pool: &deadpool_diesel::postgres::Pool,
     device_id: &Uuid,
-) -> Result<bool, InternalError> {
+) -> Result<bool> {
     let conn = pool.get().await?;
     let device_id = *device_id;
 
@@ -32,7 +33,7 @@ pub async fn check_logged_in_device(
 pub async fn get_device(
     pool: &deadpool_diesel::postgres::Pool,
     device: &NewDevice,
-) -> Result<Device, InternalError> {
+) -> Result<Device> {
     let conn = pool.get().await?;
     let device = device.clone();
 
@@ -55,7 +56,7 @@ pub async fn get_device(
 pub async fn add_device(
     pool: &deadpool_diesel::postgres::Pool,
     new_device: &NewDevice,
-) -> Result<Device, InternalError> {
+) -> Result<Device> {
     let conn = pool.get().await?;
     let new_device = new_device.clone();
 
@@ -88,10 +89,7 @@ pub async fn add_device(
     Ok(device)
 }
 
-pub async fn logout_device(
-    pool: &deadpool_diesel::postgres::Pool,
-    device_id: &Uuid,
-) -> Result<(), InternalError> {
+pub async fn logout_device(pool: &deadpool_diesel::postgres::Pool, device_id: &Uuid) -> Result<()> {
     let conn = pool.get().await?;
     let device_id = *device_id;
 
@@ -111,7 +109,7 @@ pub async fn logout_device(
 pub async fn get_devices(
     pool: &deadpool_diesel::postgres::Pool,
     user_id: &Uuid,
-) -> Result<Vec<Device>, InternalError> {
+) -> Result<Vec<Device>> {
     let conn = pool.get().await?;
     let user_id = *user_id;
 

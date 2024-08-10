@@ -1,19 +1,20 @@
+use diesel::prelude::*;
+use diesel::QueryDsl;
+use tracing::info;
+
 use crate::{
     data::{
         enums::{ConfigStatus, Country},
         models::{Config, Server},
         schema,
     },
-    enums::errors::internal::InternalError,
+    enums::errors::internal::Result,
 };
-use diesel::prelude::*;
-use diesel::QueryDsl;
-use tracing::info;
 
 pub async fn get_config_by_country(
     pool: &deadpool_diesel::postgres::Pool,
     country: &Country,
-) -> Result<(Config, Server), InternalError> {
+) -> Result<(Config, Server)> {
     let conn = pool.get().await?;
     let country = country.to_owned();
 

@@ -1,13 +1,14 @@
-use crate::{
-    data::enums::OAuthProvider,
-    dto::auth::internal::{OAuthCode, OAuthUser},
-    enums::errors::internal::{AuthError, InternalError, ReqwestError},
-    state::AppState,
-};
 use oauth2::{reqwest::async_http_client, AuthorizationCode, TokenResponse};
 use reqwest::Client;
 
-async fn get_user_info_google(access_token: &str) -> Result<OAuthUser, InternalError> {
+use crate::{
+    data::enums::OAuthProvider,
+    dto::auth::internal::{OAuthCode, OAuthUser},
+    enums::errors::internal::{AuthError, InternalError, ReqwestError, Result},
+    state::AppState,
+};
+
+async fn get_user_info_google(access_token: &str) -> Result<OAuthUser> {
     let client = Client::new();
     let res = client
         .get("https://www.googleapis.com/oauth2/v3/userinfo")
@@ -27,7 +28,7 @@ async fn get_user_info_google(access_token: &str) -> Result<OAuthUser, InternalE
     Err(InternalError::AuthError(AuthError::OAuthFailed))
 }
 
-async fn get_user_info_discord(access_token: &str) -> Result<OAuthUser, InternalError> {
+async fn get_user_info_discord(access_token: &str) -> Result<OAuthUser> {
     let client = Client::new();
     let res = client
         .get("https://discord.com/api/users/@me")
@@ -47,7 +48,7 @@ async fn get_user_info_discord(access_token: &str) -> Result<OAuthUser, Internal
     Err(InternalError::AuthError(AuthError::OAuthFailed))
 }
 
-async fn get_user_info_github(access_token: &str) -> Result<OAuthUser, InternalError> {
+async fn get_user_info_github(access_token: &str) -> Result<OAuthUser> {
     let client = Client::new();
     let res = client
         .get("https://api.github.com/user")
@@ -82,10 +83,7 @@ async fn get_user_info_github(access_token: &str) -> Result<OAuthUser, InternalE
     Err(InternalError::AuthError(AuthError::OAuthFailed))
 }
 
-pub async fn authorize_user(
-    state: &AppState,
-    oauth_code: &OAuthCode,
-) -> Result<OAuthUser, InternalError> {
+pub async fn authorize_user(state: &AppState, oauth_code: &OAuthCode) -> Result<OAuthUser> {
     let token = state
         .oauth_providers
         .get(oauth_code.provider)

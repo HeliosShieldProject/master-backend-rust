@@ -1,3 +1,8 @@
+use diesel::prelude::*;
+use diesel::QueryDsl;
+use tracing::{error, info};
+use uuid::Uuid;
+
 use crate::{
     data::{
         models::{ClassicAuth, OAuth, User},
@@ -10,20 +15,13 @@ use crate::{
         },
         device::internal::{DeviceInfo, NewDevice},
     },
-    enums::errors::internal::{AuthError, InternalError},
+    enums::errors::internal::{AuthError, InternalError, Result},
     services::{device_service, oauth_providers_service},
     state::AppState,
     utils::{hash, token::generate_tokens},
 };
-use diesel::prelude::*;
-use diesel::QueryDsl;
-use tracing::{error, info};
-use uuid::Uuid;
 
-pub async fn get_by_id(
-    pool: &deadpool_diesel::postgres::Pool,
-    id: &Uuid,
-) -> Result<FullUser, InternalError> {
+pub async fn get_by_id(pool: &deadpool_diesel::postgres::Pool, id: &Uuid) -> Result<FullUser> {
     let conn = pool.get().await?;
     let id = *id;
 
@@ -66,10 +64,7 @@ pub async fn get_by_id(
     })
 }
 
-pub async fn get_by_email(
-    pool: &deadpool_diesel::postgres::Pool,
-    email: &str,
-) -> Result<FullUser, InternalError> {
+pub async fn get_by_email(pool: &deadpool_diesel::postgres::Pool, email: &str) -> Result<FullUser> {
     let conn = pool.get().await?;
     let email_ = email.to_string();
 
@@ -112,10 +107,7 @@ pub async fn get_by_email(
     })
 }
 
-pub async fn add_user(
-    pool: &deadpool_diesel::postgres::Pool,
-    email: &str,
-) -> Result<FullUser, InternalError> {
+pub async fn add_user(pool: &deadpool_diesel::postgres::Pool, email: &str) -> Result<FullUser> {
     let conn = pool.get().await?;
     let email = email.to_owned();
 
@@ -145,7 +137,7 @@ pub async fn add_classic_auth(
     pool: &deadpool_diesel::postgres::Pool,
     user_id: &Uuid,
     password: &str,
-) -> Result<ClassicAuth, InternalError> {
+) -> Result<ClassicAuth> {
     let conn = pool.get().await?;
     let user_id = *user_id;
     let hashed_password = hash::hash_password(password).await?;
@@ -171,7 +163,7 @@ pub async fn add_oauth(
     oauth_user: &OAuthUser,
     oauth_code: &OAuthCode,
     user_id: &Uuid,
-) -> Result<OAuth, InternalError> {
+) -> Result<OAuth> {
     let conn = state.pool.get().await?;
     let user_id = *user_id;
     let (provider, metadata) = (oauth_code.provider, oauth_user.metadata.clone());
@@ -226,7 +218,7 @@ pub async fn change_password(
     pool: &deadpool_diesel::postgres::Pool,
     user_id: &Uuid,
     new_password: &str,
-) -> Result<User, InternalError> {
+) -> Result<User> {
     todo!()
 }
 
@@ -234,7 +226,7 @@ pub async fn sign_in(
     pool: &deadpool_diesel::postgres::Pool,
     user: &NewUser,
     device: &DeviceInfo,
-) -> Result<Tokens, InternalError> {
+) -> Result<Tokens> {
     let user_db = get_by_email(pool, &user.email).await.map_err(|_| {
         error!("User not found: {}", user.email);
         InternalError::AuthError(AuthError::UserNotFound)
@@ -284,7 +276,7 @@ pub async fn sign_up(
     pool: &deadpool_diesel::postgres::Pool,
     user: &NewUser,
     device: &DeviceInfo,
-) -> Result<Tokens, InternalError> {
+) -> Result<Tokens> {
     if have_classic_auth(pool, &user.email).await {
         error!("User already exists: {}", user.email);
         return Err(InternalError::AuthError(AuthError::UserAlreadyExists));
@@ -313,11 +305,7 @@ pub async fn sign_up(
     Ok(tokens)
 }
 
-pub async fn authorize(
-    state: &AppState,
-    code: &OAuthCode,
-    device: &DeviceInfo,
-) -> Result<Tokens, InternalError> {
+pub async fn authorize(state: &AppState, code: &OAuthCode, device: &DeviceInfo) -> Result<Tokens> {
     let oauth_user = oauth_providers_service::authorize_user(state, code).await?;
 
     let current_user = get_by_email(&state.pool, &oauth_user.email).await;
