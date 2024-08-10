@@ -10,7 +10,7 @@ use crate::{
     },
     enums::errors::external::Result,
     extractors::Json,
-    services::session_service,
+    services::session,
 };
 
 pub async fn get_history(
@@ -20,7 +20,7 @@ pub async fn get_history(
 ) -> Result<Response<Vec<SessionHistory>>> {
     info!("Getting session history");
 
-    let history = session_service::get_history(&pool, &claims.user_id, &payload).await?;
+    let history = session::get_history(&pool, &claims.user_id, &payload).await?;
 
     Ok(Response::new(StatusCode::OK, "Successfully got session history").with_data(history))
 }

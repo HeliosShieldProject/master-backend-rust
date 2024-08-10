@@ -9,7 +9,7 @@ use crate::{
     },
     enums::errors::external::Result,
     extractors::Json,
-    services::user_service,
+    services::user,
     state::AppState,
 };
 
@@ -17,7 +17,7 @@ pub async fn authorize(
     State(state): State<AppState>,
     Json(payload): Json<AuthorizeRequest>,
 ) -> Result<Response<Tokens>> {
-    let tokens = user_service::authorize(
+    let tokens = user::authorize(
         &state,
         &OAuthCode {
             code: payload.code.clone(),

@@ -5,14 +5,14 @@ use tracing::info;
 use crate::{
     dto::{auth::internal::AccessToken, device::response::Device, response::success::Response},
     enums::errors::external::Result,
-    services::device_service,
+    services::device,
 };
 
 pub async fn get_devices(
     claims: AccessToken,
     State(pool): State<Pool>,
 ) -> Result<Response<Vec<Device>>> {
-    let devices: Vec<Device> = device_service::get_devices(&pool, &claims.user_id)
+    let devices: Vec<Device> = device::get_many(&pool, &claims.user_id)
         .await?
         .into_iter()
         .map(Device::from)

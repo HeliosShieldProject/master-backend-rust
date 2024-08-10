@@ -14,7 +14,7 @@ use crate::{
     config::ENV,
     dto::auth::internal::RefreshToken,
     enums::errors::external::{Auth, Error},
-    services::device_service::check_logged_in_device,
+    services::device::check_logged_in_device,
     state::AppState,
 };
 

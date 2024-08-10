@@ -10,7 +10,7 @@ use crate::{
     enums::errors::internal::Result,
 };
 
-pub async fn get_config_by_country(
+pub async fn get_by_country(
     pool: &deadpool_diesel::postgres::Pool,
     country: &Country,
 ) -> Result<(Config, Server)> {

@@ -10,13 +10,13 @@ use crate::{
         device::internal::{DeviceInfo, NewDevice},
     },
     enums::errors::internal::Result,
-    services::{device_service, oauth_providers_service},
+    services::{device, oauth_providers},
     state::AppState,
     utils::token::generate_tokens,
 };
 
 pub async fn authorize(state: &AppState, code: &OAuthCode, device: &DeviceInfo) -> Result<Tokens> {
-    let oauth_user = oauth_providers_service::authorize_user(state, code).await?;
+    let oauth_user = oauth_providers::authorize_user(state, code).await?;
 
     let current_user = get_by_email(&state.pool, &oauth_user.email).await;
     let user: FullUser;
@@ -40,7 +40,7 @@ pub async fn authorize(state: &AppState, code: &OAuthCode, device: &DeviceInfo) 
         user_id: user.user.id,
     };
 
-    let device = device_service::add_device(&state.pool, &device).await?;
+    let device = device::add(&state.pool, &device).await?;
 
     let tokens = generate_tokens(&user.user.id.to_string(), &device.id.to_string()).await?;
 

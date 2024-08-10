@@ -7,7 +7,7 @@ use crate::{
     enums::errors::internal::Result,
 };
 
-pub async fn get_devices(
+pub async fn get_many(
     pool: &deadpool_diesel::postgres::Pool,
     user_id: &Uuid,
 ) -> Result<Vec<Device>> {

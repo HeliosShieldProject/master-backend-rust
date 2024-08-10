@@ -9,7 +9,7 @@ use crate::{
     },
     enums::errors::external::Result,
     extractors::Json,
-    services::user_service,
+    services::user,
 };
 
 pub async fn change_password(
@@ -17,7 +17,7 @@ pub async fn change_password(
     State(pool): State<Pool>,
     Json(payload): Json<ChangePasswordRequest>,
 ) -> Result<Response<String>> {
-    user_service::change_password(&pool, &claims.user_id, &payload.password).await?;
+    user::change_password(&pool, &claims.user_id, &payload.password).await?;
 
     info!("Password changed successfully for user: {}", claims.user_id);
 

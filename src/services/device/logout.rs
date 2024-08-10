@@ -7,7 +7,7 @@ use crate::{
     enums::errors::internal::Result,
 };
 
-pub async fn logout_device(pool: &deadpool_diesel::postgres::Pool, device_id: &Uuid) -> Result<()> {
+pub async fn logout(pool: &deadpool_diesel::postgres::Pool, device_id: &Uuid) -> Result<()> {
     let conn = pool.get().await?;
     let device_id = *device_id;
 

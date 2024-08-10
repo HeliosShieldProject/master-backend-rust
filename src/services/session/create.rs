@@ -2,7 +2,7 @@ use diesel::prelude::*;
 use tracing::info;
 use uuid::Uuid;
 
-use super::close_session_by_id;
+use super::close_by_id;
 use crate::{
     data::{
         enums::{ConfigStatus, Country, SessionStatus},
@@ -16,10 +16,10 @@ use crate::{
         response,
     },
     enums::errors::internal::Result,
-    services::config_service::get_config_by_country,
+    services::config::get_by_country,
 };
 
-pub async fn create_session(
+pub async fn create(
     pool: &deadpool_diesel::postgres::Pool,
     device_id: &Uuid,
     country: &Country,
@@ -40,10 +40,10 @@ pub async fn create_session(
     }
 
     if let Ok((session, _, _, _)) = get_session(pool, ActiveSessionAndDevice { device_id }).await {
-        let _ = close_session_by_id(pool, &session.id).await?;
+        let _ = close_by_id(pool, &session.id).await?;
     }
 
-    let (config, server) = get_config_by_country(pool, &country).await?;
+    let (config, server) = get_by_country(pool, &country).await?;
     let new_session = NewSession {
         status: SessionStatus::Active,
         device_id,

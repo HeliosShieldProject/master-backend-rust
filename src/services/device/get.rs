@@ -7,10 +7,7 @@ use crate::{
     enums::errors::internal::Result,
 };
 
-pub async fn get_device(
-    pool: &deadpool_diesel::postgres::Pool,
-    device: &NewDevice,
-) -> Result<Device> {
+pub async fn get(pool: &deadpool_diesel::postgres::Pool, device: &NewDevice) -> Result<Device> {
     let conn = pool.get().await?;
     let device = device.clone();
 

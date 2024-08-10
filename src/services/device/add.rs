@@ -1,21 +1,18 @@
 use diesel::prelude::*;
 use tracing::info;
 
-use super::get_device;
+use super::get;
 use crate::{
     data::{enums::DeviceStatus, models::Device, schema},
     dto::device::internal::NewDevice,
     enums::errors::internal::Result,
 };
 
-pub async fn add_device(
-    pool: &deadpool_diesel::postgres::Pool,
-    new_device: &NewDevice,
-) -> Result<Device> {
+pub async fn add(pool: &deadpool_diesel::postgres::Pool, new_device: &NewDevice) -> Result<Device> {
     let conn = pool.get().await?;
     let new_device = new_device.clone();
 
-    if let Ok(device) = get_device(pool, &new_device).await {
+    if let Ok(device) = get(pool, &new_device).await {
         conn.interact(move |conn| {
             diesel::update(schema::device::table)
                 .filter(schema::device::name.eq(new_device.name))

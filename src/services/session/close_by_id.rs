@@ -12,7 +12,7 @@ use crate::{
     enums::errors::internal::{self, Error, Result},
 };
 
-pub async fn close_session_by_id(
+pub async fn close_by_id(
     pool: &deadpool_diesel::postgres::Pool,
     session_id: &Uuid,
 ) -> Result<Uuid> {

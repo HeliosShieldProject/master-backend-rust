@@ -10,7 +10,7 @@ use crate::{
     },
     enums::errors::external::Result,
     extractors::Json,
-    services::session_service,
+    services::session,
 };
 
 pub async fn create_session(
@@ -18,8 +18,7 @@ pub async fn create_session(
     State(pool): State<Pool>,
     Json(payload): Json<CreateSession>,
 ) -> Result<Response<Session>> {
-    let session =
-        session_service::create_session(&pool, &claims.device_id, &payload.country).await?;
+    let session = session::create(&pool, &claims.device_id, &payload.country).await?;
 
     info!("Session created successfully: {}", session.session_id);
 

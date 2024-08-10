@@ -10,14 +10,14 @@ use crate::{
     },
     enums::errors::external::Result,
     extractors::Json,
-    services::user_service,
+    services::user,
 };
 
 pub async fn sign_in(
     State(pool): State<Pool>,
     Json(payload): Json<SignInRequest>,
 ) -> Result<Response<Tokens>> {
-    let tokens = user_service::sign_in(
+    let tokens = user::sign_in(
         &pool,
         &NewUser {
             email: payload.email.clone(),

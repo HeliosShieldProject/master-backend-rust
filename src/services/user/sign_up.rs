@@ -1,5 +1,6 @@
 use tracing::{error, info};
 
+use super::{add_classic_auth, add_user, get_by_email, have_classic_auth, have_oauth};
 use crate::{
     dto::{
         auth::{
@@ -9,11 +10,9 @@ use crate::{
         device::internal::{DeviceInfo, NewDevice},
     },
     enums::errors::internal::{Auth, Error, Result},
-    services::device_service,
+    services::device,
     utils::token::generate_tokens,
 };
-
-use super::{add_classic_auth, add_user, get_by_email, have_classic_auth, have_oauth};
 
 pub async fn sign_up(
     pool: &deadpool_diesel::postgres::Pool,
@@ -39,7 +38,7 @@ pub async fn sign_up(
         user_id: current_user.user.id,
     };
 
-    let device = device_service::add_device(pool, &device).await?;
+    let device = device::add(pool, &device).await?;
 
     let tokens = generate_tokens(&current_user.user.id.to_string(), &device.id.to_string()).await?;
 
