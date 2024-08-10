@@ -33,13 +33,15 @@ pub async fn change_password(
     let new_password_hash = hash::hash_password(new_password).await?;
     let user_id = *user_id;
 
-    conn.interact(move |_| {
-        let _ = diesel::update(schema::user::table.find(user_id))
-            .set(schema::user::updated_at.eq(diesel::dsl::now));
-        let _ = diesel::update(
-            schema::classic_auth::table.filter(schema::classic_auth::user_id.eq(user_id)),
-        )
-        .set(schema::classic_auth::password_hash.eq(new_password_hash));
+    conn.interact(move |conn| {
+        let _ = diesel::update(schema::user::table)
+            .filter(schema::user::id.eq(user_id))
+            .set(schema::user::updated_at.eq(diesel::dsl::now))
+            .execute(conn);
+        let _ = diesel::update(schema::classic_auth::table)
+            .filter(schema::classic_auth::user_id.eq(user_id))
+            .set(schema::classic_auth::password_hash.eq(new_password_hash))
+            .execute(conn);
     })
     .await?;
 

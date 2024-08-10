@@ -1,3 +1,4 @@
+mod change_password;
 mod logout;
 mod refresh_tokens;
 mod sign_in;
