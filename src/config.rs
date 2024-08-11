@@ -4,15 +4,10 @@ use once_cell::sync::Lazy;
 
 #[derive(Debug, Clone)]
 pub struct Config {
-    /// The port the master backend listens on.
     pub master_backend_url: String,
-    /// The URL of the database.
     pub database_url: String,
-    /// The URL of the metrics server.
     pub master_metrics_url: String,
-    /// The secret used to sign access tokens.
     pub jwt_access_secret: String,
-    /// The secret used to sign refresh tokens.
     pub jwt_refresh_secret: String,
     pub discord_client_secret: String,
     pub discord_client_id: String,
@@ -31,15 +26,12 @@ pub static ENV: Lazy<Config> = Lazy::new(|| {
         master_metrics_url: env::var("MASTER_METRICS_URL").expect("MASTER_METRICS_URL must be set"),
         jwt_access_secret: env::var("JWT_ACCESS_SECRET").expect("JWT_ACCESS_SECRET must be set"),
         jwt_refresh_secret: env::var("JWT_REFRESH_SECRET").expect("JWT_REFRESH_SECRET must be set"),
-        discord_client_secret: env::var("DISCORD_CLIENT_SECRET")
-            .expect("DISCORD_CLIENT_SECRET must be set"),
-        discord_client_id: env::var("DISCORD_CLIENT_ID").expect("DISCORD_CLIENT_ID must be set"),
-        github_client_secret: env::var("GITHUB_CLIENT_SECRET")
-            .expect("GITHUB_CLIENT_SECRET must be set"),
-        github_client_id: env::var("GITHUB_CLIENT_ID").expect("GITHUB_CLIENT_ID must be set"),
-        google_client_secret: env::var("GOOGLE_CLIENT_SECRET")
-            .expect("GOOGLE_CLIENT_SECRET must be set"),
-        google_client_id: env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID must be set"),
+        discord_client_secret: env::var("OAUTH_DISCORD_CLIENT_SECRET").expect("DISCORD_CLIENT_SECRET must be set"),
+        discord_client_id: env::var("OAUTH_DISCORD_CLIENT_ID").expect("DISCORD_CLIENT_ID must be set"),
+        github_client_secret: env::var("OAUTH_GITHUB_CLIENT_SECRET").expect("GITHUB_CLIENT_SECRET must be set"),
+        github_client_id: env::var("OAUTH_GITHUB_CLIENT_ID").expect("GITHUB_CLIENT_ID must be set"),
+        google_client_secret: env::var("OAUTH_GOOGLE_CLIENT_SECRET").expect("GOOGLE_CLIENT_SECRET must be set"),
+        google_client_id: env::var("OAUTH_GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID must be set"),
         resend_api_key: env::var("RESEND_API_KEY").expect("RESEND_API_KEY must be set"),
     }
 });

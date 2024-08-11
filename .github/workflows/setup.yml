@@ -31,12 +31,19 @@ jobs:
           echo "DATABASE_URL=\"${{ secrets.DATABASE_URL }}\"" >> .env
           echo "JWT_ACCESS_SECRET=\"${{ secrets.JWT_ACCESS_SECRET }}\"" >> .env
           echo "JWT_REFRESH_SECRET=\"${{ secrets.JWT_REFRESH_SECRET }}\"" >> .env
-          echo "RUST_ENV=\"${{ secrets.RUST_ENV }}\"" >> .env
+          echo "RUST_LOG=\"${{ secrets.RUST_LOG }}\"" >> .env
           echo "HELIOS_DOMAIN=\"${{ secrets.HELIOS_DOMAIN }}\"" >> .env
           echo "DO_AUTH_TOKEN=\"${{ secrets.DO_AUTH_TOKEN }}\"" >> .env
           echo "TRAEFIK_AUTH=\"${{ secrets.TRAEFIK_AUTH }}\"" >> .env
           echo "GRAFANA_USER=\"${{ secrets.GRAFANA_USER }}\"" >> .env
           echo "GRAFANA_PASSWORD=\"${{ secrets.GRAFANA_PASSWORD }}\"" >> .env
+          echo "DISCORD_CLIENT_SECRET=\"${{ secrets.DISCORD_CLIENT_SECRET }}\"" >> .env
+          echo "DISCORD_CLIENT_ID=\"${{ secrets.DISCORD_CLIENT_ID }}\"" >> .env
+          echo "GITHUB_CLIENT_SECRET=\"${{ secrets.GITHUB_CLIENT_SECRET }}\"" >> .env
+          echo "GITHUB_CLIENT_ID=\"${{ secrets.GITHUB_CLIENT_ID }}\"" >> .env
+          echo "GOOGLE_CLIENT_SECRET=\"${{ secrets.GOOGLE_CLIENT_SECRET }}\"" >> .env
+          echo "GOOGLE_CLIENT_ID=\"${{ secrets.GOOGLE_CLIENT_ID }}\"" >> .env
+          echo "RESEND_API_KEY=\"${{ secrets.RESEND_API_KEY }}\"" >> .env
 
       - name: Setup DigitalOcean droplet
         run: |

@@ -43,50 +43,57 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # deploy:
-  #   runs-on: ubuntu-latest
-  #   needs: build
-  #   steps:
-  #     - uses: actions/checkout@v4
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
 
-  #     - name: Add SSH key
-  #       run: |
-  #         mkdir -p ~/.ssh
-  #         echo "${{ secrets.HELIOS_SSH }}" > ~/.ssh/helios_ssh
-  #         chmod 600 ~/.ssh/helios_ssh
+      - name: Add SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.HELIOS_SSH }}" > ~/.ssh/helios_ssh
+          chmod 600 ~/.ssh/helios_ssh
 
-  #     - name: Form environment variables
-  #       run: |
-  #         echo "GHCR_PAT=\"${{ secrets.GHCR_PAT }}\"" >> .env
-  #         echo "MASTER_BACKEND_PORT=\"${{ secrets.MASTER_BACKEND_PORT }}\"" >> .env
-  #         echo "MASTER_BACKEND_URL=\"${{ secrets.MASTER_BACKEND_URL }}\"" >> .env
-  #         echo "MASTER_METRICS_PORT=\"${{ secrets.MASTER_METRICS_PORT }}\"" >> .env
-  #         echo "MASTER_METRICS_URL=\"${{ secrets.MASTER_METRICS_URL }}\"" >> .env
-  #         echo "DATABASE_PORT=\"${{ secrets.DATABASE_PORT }}\"" >> .env
-  #         echo "DATABASE_NAME=\"${{ secrets.DATABASE_NAME }}\"" >> .env
-  #         echo "DATABASE_USER=\"${{ secrets.DATABASE_USER }}\"" >> .env
-  #         echo "DATABASE_PASSWORD=\"${{ secrets.DATABASE_PASSWORD }}\"" >> .env
-  #         echo "DATABASE_HOST=\"${{ secrets.DATABASE_HOST }}\"" >> .env
-  #         echo "DATABASE_URL=\"${{ secrets.DATABASE_URL }}\"" >> .env
-  #         echo "JWT_ACCESS_SECRET=\"${{ secrets.JWT_ACCESS_SECRET }}\"" >> .env
-  #         echo "JWT_REFRESH_SECRET=\"${{ secrets.JWT_REFRESH_SECRET }}\"" >> .env
-  #         echo "RUST_ENV=\"${{ secrets.RUST_ENV }}\"" >> .env
-  #         echo "HELIOS_DOMAIN=\"${{ secrets.HELIOS_DOMAIN }}\"" >> .env
-  #         echo "DO_AUTH_TOKEN=\"${{ secrets.DO_AUTH_TOKEN }}\"" >> .env
-  #         echo "TRAEFIK_AUTH=\"${{ secrets.TRAEFIK_AUTH }}\"" >> .env
-  #         echo "GRAFANA_USER=\"${{ secrets.GRAFANA_USER }}\"" >> .env
-  #         echo "GRAFANA_PASSWORD=\"${{ secrets.GRAFANA_PASSWORD }}\"" >> .env
+      - name: Form environment variables
+        run: |
+          echo "GHCR_PAT=\"${{ secrets.GHCR_PAT }}\"" >> .env
+          echo "MASTER_BACKEND_PORT=\"${{ secrets.MASTER_BACKEND_PORT }}\"" >> .env
+          echo "MASTER_BACKEND_URL=\"${{ secrets.MASTER_BACKEND_URL }}\"" >> .env
+          echo "MASTER_METRICS_PORT=\"${{ secrets.MASTER_METRICS_PORT }}\"" >> .env
+          echo "MASTER_METRICS_URL=\"${{ secrets.MASTER_METRICS_URL }}\"" >> .env
+          echo "DATABASE_PORT=\"${{ secrets.DATABASE_PORT }}\"" >> .env
+          echo "DATABASE_NAME=\"${{ secrets.DATABASE_NAME }}\"" >> .env
+          echo "DATABASE_USER=\"${{ secrets.DATABASE_USER }}\"" >> .env
+          echo "DATABASE_PASSWORD=\"${{ secrets.DATABASE_PASSWORD }}\"" >> .env
+          echo "DATABASE_HOST=\"${{ secrets.DATABASE_HOST }}\"" >> .env
+          echo "DATABASE_URL=\"${{ secrets.DATABASE_URL }}\"" >> .env
+          echo "JWT_ACCESS_SECRET=\"${{ secrets.JWT_ACCESS_SECRET }}\"" >> .env
+          echo "JWT_REFRESH_SECRET=\"${{ secrets.JWT_REFRESH_SECRET }}\"" >> .env
+          echo "RUST_LOG=\"${{ secrets.RUST_LOG }}\"" >> .env
+          echo "HELIOS_DOMAIN=\"${{ secrets.HELIOS_DOMAIN }}\"" >> .env
+          echo "DO_AUTH_TOKEN=\"${{ secrets.DO_AUTH_TOKEN }}\"" >> .env
+          echo "TRAEFIK_AUTH=\"${{ secrets.TRAEFIK_AUTH }}\"" >> .env
+          echo "GRAFANA_USER=\"${{ secrets.GRAFANA_USER }}\"" >> .env
+          echo "GRAFANA_PASSWORD=\"${{ secrets.GRAFANA_PASSWORD }}\"" >> .env
+          echo "DISCORD_CLIENT_SECRET=\"${{ secrets.DISCORD_CLIENT_SECRET }}\"" >> .env
+          echo "DISCORD_CLIENT_ID=\"${{ secrets.DISCORD_CLIENT_ID }}\"" >> .env
+          echo "GITHUB_CLIENT_SECRET=\"${{ secrets.GITHUB_CLIENT_SECRET }}\"" >> .env
+          echo "GITHUB_CLIENT_ID=\"${{ secrets.GITHUB_CLIENT_ID }}\"" >> .env
+          echo "GOOGLE_CLIENT_SECRET=\"${{ secrets.GOOGLE_CLIENT_SECRET }}\"" >> .env
+          echo "GOOGLE_CLIENT_ID=\"${{ secrets.GOOGLE_CLIENT_ID }}\"" >> .env
+          echo "RESEND_API_KEY=\"${{ secrets.RESEND_API_KEY }}\"" >> .env
 
-  #     - name: Setup to DigitalOcean
-  #       run: |
-  #         ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin"
-  #         ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -rf docker-compose.yml .env  compose/"
-  #         scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/docker-compose.yml
-  #         scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} .env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/.env
-  #         scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} -r compose/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/compose/
+      - name: Setup to DigitalOcean
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo ${{ secrets.GHCR_PAT }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "rm -rf docker-compose.yml .env  compose/"
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} docker-compose.yml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/docker-compose.yml
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} .env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/.env
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -P ${{ secrets.SSH_PORT }} -r compose/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/compose/
 
-  #     - name: Deploy to DigitalOcean
-  #       run: |
-  #         ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose down"
-  #         ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose pull"
-  #         ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose up -d --build"
+      - name: Deploy to DigitalOcean
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose down"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose pull"
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/helios_ssh -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "docker compose up -d --build"
