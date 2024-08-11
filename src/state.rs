@@ -1,6 +1,7 @@
 use axum::extract::FromRef;
 use deadpool_diesel::postgres::{Manager, Pool};
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl};
+use resend_rs::Resend;
 
 use crate::{config::ENV, data::enums::OAuthProvider};
 
@@ -67,14 +68,17 @@ impl OAuthProviders {
 pub struct AppState {
     pub pool: Pool,
     pub oauth_providers: OAuthProviders,
+    pub resend: Resend,
 }
 
 impl AppState {
     pub fn default() -> Self {
         let manager = Manager::new(&ENV.database_url, deadpool_diesel::Runtime::Tokio1);
         let pool = Pool::builder(manager).build().unwrap();
+        let resend = Resend::new(&ENV.resend_api_key);
         Self {
             pool,
+            resend,
             oauth_providers: OAuthProviders::default(),
         }
     }
@@ -89,5 +93,11 @@ impl FromRef<AppState> for Pool {
 impl FromRef<AppState> for OAuthProviders {
     fn from_ref(state: &AppState) -> Self {
         state.oauth_providers.clone()
+    }
+}
+
+impl FromRef<AppState> for Resend {
+    fn from_ref(state: &AppState) -> Self {
+        state.resend.clone()
     }
 }

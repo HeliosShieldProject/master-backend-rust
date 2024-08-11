@@ -133,8 +133,21 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    use diesel::sql_types::*;
+
+    email_confirmation (id) {
+        id -> Uuid,
+        user_id -> Uuid,
+        created_at -> Timestamp,
+        confirmed -> Bool,
+        confirmed_at -> Nullable<Timestamp>,
+    }
+}
+
 diesel::joinable!(classic_auth -> user (user_id));
 diesel::joinable!(oauth -> user (user_id));
+diesel::joinable!(email_confirmation -> user (user_id));
 diesel::joinable!(config -> server (server_id));
 diesel::joinable!(device -> user (user_id));
 diesel::joinable!(session -> config (config_id));
@@ -148,4 +161,5 @@ diesel::allow_tables_to_appear_in_same_query!(
     user,
     classic_auth,
     oauth,
+    email_confirmation,
 );

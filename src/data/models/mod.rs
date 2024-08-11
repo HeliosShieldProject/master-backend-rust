@@ -1,20 +1,17 @@
-pub mod session;
-pub use session::Session;
+mod classic_auth;
+mod config;
+mod device;
+mod email_confirmation;
+mod oauth;
+mod server;
+mod session;
+mod user;
 
-pub mod device;
-pub use device::Device;
-
-pub mod config;
-pub use config::Config;
-
-pub mod server;
-pub use server::Server;
-
-pub mod user;
-pub use user::User;
-
-pub mod classic_auth;
 pub use classic_auth::ClassicAuth;
-
-pub mod oauth;
+pub use config::Config;
+pub use device::Device;
+pub use email_confirmation::EmailConfirmation;
 pub use oauth::OAuth;
+pub use server::Server;
+pub use session::Session;
+pub use user::User;

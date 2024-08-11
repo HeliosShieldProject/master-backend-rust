@@ -20,6 +20,7 @@ pub struct Config {
     pub github_client_id: String,
     pub google_client_secret: String,
     pub google_client_id: String,
+    pub resend_api_key: String,
 }
 
 pub static ENV: Lazy<Config> = Lazy::new(|| {
@@ -39,6 +40,7 @@ pub static ENV: Lazy<Config> = Lazy::new(|| {
         google_client_secret: env::var("GOOGLE_CLIENT_SECRET")
             .expect("GOOGLE_CLIENT_SECRET must be set"),
         google_client_id: env::var("GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID must be set"),
+        resend_api_key: env::var("RESEND_API_KEY").expect("RESEND_API_KEY must be set"),
     }
 });
 

@@ -1,5 +1,4 @@
 use axum::{extract::State, http::StatusCode};
-use deadpool_diesel::postgres::Pool;
 use tracing::info;
 
 use crate::{
@@ -11,14 +10,15 @@ use crate::{
     enums::errors::external::Result,
     extractors::Json,
     services::user,
+    state::AppState,
 };
 
 pub async fn sign_up(
-    State(pool): State<Pool>,
+    State(state): State<AppState>,
     Json(payload): Json<SignUpRequest>,
 ) -> Result<Response<Tokens>> {
     let tokens = user::sign_up(
-        &pool,
+        state,
         &NewUser {
             email: payload.email.clone(),
             password: payload.password,

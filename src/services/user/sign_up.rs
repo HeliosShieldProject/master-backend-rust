@@ -10,27 +10,24 @@ use crate::{
         device::internal::{DeviceInfo, NewDevice},
     },
     enums::errors::internal::{Auth, Error, Result},
-    services::device,
+    services::{device, email},
+    state::AppState,
     utils::token::generate_tokens,
 };
 
-pub async fn sign_up(
-    pool: &deadpool_diesel::postgres::Pool,
-    user: &NewUser,
-    device: &DeviceInfo,
-) -> Result<Tokens> {
-    if have_classic_auth(pool, &user.email).await {
+pub async fn sign_up(state: AppState, user: &NewUser, device: &DeviceInfo) -> Result<Tokens> {
+    if have_classic_auth(&state.pool, &user.email).await {
         error!("User already exists: {}", user.email);
         return Err(Error::Auth(Auth::UserAlreadyExists));
     }
 
-    let current_user: FullUser = if have_oauth(pool, &user.email).await {
-        get_by_email(pool, &user.email).await?
+    let current_user: FullUser = if have_oauth(&state.pool, &user.email).await {
+        get_by_email(&state.pool, &user.email).await?
     } else {
-        add_user(pool, &user.email).await?
+        add_user(&state.pool, &user.email).await?
     };
 
-    add_classic_auth(pool, &current_user.user.id, &user.password).await?;
+    add_classic_auth(&state.pool, &current_user.user.id, &user.password).await?;
 
     let device = NewDevice {
         name: device.name.clone(),
@@ -38,11 +35,13 @@ pub async fn sign_up(
         user_id: current_user.user.id,
     };
 
-    let device = device::add(pool, &device).await?;
+    let device = device::add(&state.pool, &device).await?;
 
     let tokens = generate_tokens(&current_user.user.id.to_string(), &device.id.to_string()).await?;
 
     info!("User signed up user: {}", current_user.user.id);
+
+    email::send_confirmation(state, current_user.user).await?;
 
     Ok(tokens)
 }

@@ -2,6 +2,7 @@ mod auth;
 mod database;
 mod hash;
 mod reqwest;
+mod resend;
 mod session;
 mod token;
 
@@ -9,6 +10,7 @@ pub use auth::Auth;
 pub use database::Database;
 pub use hash::Hash;
 pub use reqwest::Reqwest;
+pub use resend::Resend;
 pub use session::Session;
 pub use token::Token;
 
@@ -20,6 +22,7 @@ pub enum Error {
     Session(Session),
     Database(Database),
     Reqwest(Reqwest),
+    Resend(Resend),
 }
 
 impl std::fmt::Display for Error {
@@ -31,6 +34,7 @@ impl std::fmt::Display for Error {
             Error::Auth(e) => write!(f, "{}", e),
             Error::Session(e) => write!(f, "{}", e),
             Error::Reqwest(e) => write!(f, "{}", e),
+            Error::Resend(e) => write!(f, "{}", e),
         }
     }
 }
