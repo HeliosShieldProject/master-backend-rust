@@ -25,6 +25,8 @@ entrypoints:
           scheme: https
   websecure:
     address: :443
+  tcp:
+    address: :5432
 
 certificatesresolvers:
   myresolver:
