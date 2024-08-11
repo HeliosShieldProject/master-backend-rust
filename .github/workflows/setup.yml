@@ -37,12 +37,12 @@ jobs:
           echo "TRAEFIK_AUTH=\"${{ secrets.TRAEFIK_AUTH }}\"" >> .env
           echo "GRAFANA_USER=\"${{ secrets.GRAFANA_USER }}\"" >> .env
           echo "GRAFANA_PASSWORD=\"${{ secrets.GRAFANA_PASSWORD }}\"" >> .env
-          echo "DISCORD_CLIENT_SECRET=\"${{ secrets.DISCORD_CLIENT_SECRET }}\"" >> .env
-          echo "DISCORD_CLIENT_ID=\"${{ secrets.DISCORD_CLIENT_ID }}\"" >> .env
-          echo "GITHUB_CLIENT_SECRET=\"${{ secrets.GITHUB_CLIENT_SECRET }}\"" >> .env
-          echo "GITHUB_CLIENT_ID=\"${{ secrets.GITHUB_CLIENT_ID }}\"" >> .env
-          echo "GOOGLE_CLIENT_SECRET=\"${{ secrets.GOOGLE_CLIENT_SECRET }}\"" >> .env
-          echo "GOOGLE_CLIENT_ID=\"${{ secrets.GOOGLE_CLIENT_ID }}\"" >> .env
+          echo "OAUTH_DISCORD_CLIENT_SECRET=\"${{ secrets.OAUTH_DISCORD_CLIENT_SECRET }}\"" >> .env
+          echo "OAUTH_DISCORD_CLIENT_ID=\"${{ secrets.OAUTH_DISCORD_CLIENT_ID }}\"" >> .env
+          echo "OAUTH_GITHUB_CLIENT_SECRET=\"${{ secrets.OAUTH_GITHUB_CLIENT_SECRET }}\"" >> .env
+          echo "OAUTH_GITHUB_CLIENT_ID=\"${{ secrets.OAUTH_GITHUB_CLIENT_ID }}\"" >> .env
+          echo "OAUTH_GOOGLE_CLIENT_SECRET=\"${{ secrets.OAUTH_GOOGLE_CLIENT_SECRET }}\"" >> .env
+          echo "OAUTH_GOOGLE_CLIENT_ID=\"${{ secrets.OAUTH_GOOGLE_CLIENT_ID }}\"" >> .env
           echo "RESEND_API_KEY=\"${{ secrets.RESEND_API_KEY }}\"" >> .env
 
       - name: Setup DigitalOcean droplet
