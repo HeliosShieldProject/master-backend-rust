@@ -105,31 +105,45 @@ docker-compose up -d master-backend
 
 ## Environment variables
 
-| Variable | Description |
-|----------|-------------|
-| MASTER_BACKEND_PORT | Port for the backend |
-| MASTER_BACKEND_HOST | Host for the backend |
-| MASTER_BACKEND_URL | URL for the backend |
-| MASTER_METRICS_PORT | Port for the metrics |
-| MASTER_METRICS_HOST | Host for the metrics |
-| MASTER_METRICS_URL | URL for the metrics |
-| DATABASE_PORT | Port for the database |
-| DATABASE_NAME | Name of the database |
-| DATABASE_USER | User for the database |
-| DATABASE_PASSWORD | Password for the database |
-| DATABASE_HOST | Host for the database |
-| DATABASE_URL | URL for the database |
-| JWT_ACCESS_SECRET | Secret for the access token |
-| JWT_REFRESH_SECRET | Secret for the refresh token |
-| RUST_ENV | Environment for the backend |
-| HELIOS_DOMAIN | Domain for Helios |
-| DO_AUTH_TOKEN | Token for DigitalOcean |
-| TRAEFIK_AUTH | Auth for Traefik |
-| GRAFANA_USER | User for Grafana |
-| GRAFANA_PASSWORD | Password for Grafana |
-
-> github set secrets:
+```bash
+mv .env.example .env
+```
 
 ```bash
-gh secret set -f .env
+# backend
+MASTER_BACKEND_PORT=1010
+MASTER_BACKEND_HOST=localhost
+MASTER_BACKEND_URL=${MASTER_BACKEND_HOST}:${MASTER_BACKEND_PORT}
+
+# metrics
+MASTER_METRICS_PORT=1111
+MASTER_METRICS_HOST=localhost
+MASTER_METRICS_URL=${MASTER_METRICS_HOST}:${MASTER_METRICS_PORT}
+
+# database
+DATABASE_PORT=5432
+DATABASE_NAME=heliosdb
+DATABASE_USER=helios
+DATABASE_PASSWORD=very_strong_password
+DATABASE_HOST=localhost
+DATABASE_URL=postgresql://${DATABASE_USER}:${DATABASE_PASSWORD}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}
+
+# jwt
+JWT_ACCESS_SECRET=very_secret_access_token
+JWT_REFRESH_SECRET=very_secret_refresh_token
+
+# backend settings
+SERVER_MODE=development
+RUST_LOG=debug
+
+# oauth
+OAUTH_DISCORD_CLIENT_SECRET=secret_info
+OAUTH_DISCORD_CLIENT_ID=secret_info
+OAUTH_GITHUB_CLIENT_SECRET=secret_info
+OAUTH_GITHUB_CLIENT_ID=secret_info
+OAUTH_GOOGLE_CLIENT_SECRET=secret_info
+OAUTH_GOOGLE_CLIENT_ID=secret_info
+
+# resend.com - email service
+RESEND_API_KEY=secret_info
 ```
