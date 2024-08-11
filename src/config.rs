@@ -2,6 +2,24 @@ use std::env;
 
 use once_cell::sync::Lazy;
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum ServerMode {
+    Development,
+    Production,
+}
+
+impl std::str::FromStr for ServerMode {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "development" => Ok(ServerMode::Development),
+            "production" => Ok(ServerMode::Production),
+            _ => Err("Unknown server type".to_string()),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Config {
     pub master_backend_url: String,
@@ -16,6 +34,7 @@ pub struct Config {
     pub google_client_secret: String,
     pub google_client_id: String,
     pub resend_api_key: String,
+    pub server_mode: ServerMode,
 }
 
 pub static ENV: Lazy<Config> = Lazy::new(|| {
@@ -37,6 +56,10 @@ pub static ENV: Lazy<Config> = Lazy::new(|| {
             .expect("GOOGLE_CLIENT_SECRET must be set"),
         google_client_id: env::var("OAUTH_GOOGLE_CLIENT_ID").expect("GOOGLE_CLIENT_ID must be set"),
         resend_api_key: env::var("RESEND_API_KEY").expect("RESEND_API_KEY must be set"),
+        server_mode: env::var("SERVER_MODE")
+            .expect("SERVER_MODE must be set")
+            .parse()
+            .unwrap(),
     }
 });
 

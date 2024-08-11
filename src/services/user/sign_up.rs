@@ -2,6 +2,7 @@ use tracing::{error, info};
 
 use super::{add_classic_auth, add_user, get_by_email, have_classic_auth, have_oauth};
 use crate::{
+    config::{ServerMode, ENV},
     dto::{
         auth::{
             internal::{FullUser, NewUser},
@@ -41,7 +42,9 @@ pub async fn sign_up(state: AppState, user: &NewUser, device: &DeviceInfo) -> Re
 
     info!("User signed up user: {}", current_user.user.id);
 
-    email::send_confirmation(state, current_user.user).await?;
+    if ENV.server_mode == ServerMode::Production {
+        email::send_confirmation(state, current_user.user).await?;
+    }
 
     Ok(tokens)
 }
