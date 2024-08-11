@@ -1,4 +1,3 @@
-use chrono::Local;
 use diesel::prelude::*;
 use tracing::info;
 use uuid::Uuid;
@@ -24,7 +23,7 @@ pub async fn close_by_id(
             .filter(schema::session::id.eq(session_id))
             .set((
                 schema::session::status.eq(SessionStatus::Closed),
-                schema::session::closed_at.eq(Local::now().naive_local()),
+                schema::session::closed_at.eq(diesel::dsl::now),
             ))
             .get_result::<Session>(conn)
             .map_err(|_| Error::Session(internal::Session::SessionNotFound))
