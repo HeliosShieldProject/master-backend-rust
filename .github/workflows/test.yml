@@ -1,0 +1,69 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - production
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_DB: database
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: rustup toolchain install stable --profile minimal
+
+      - name: Install Diesel CLI
+        run: cargo install diesel_cli --no-default-features --features postgres
+
+      - name: Wait for Postgres to be ready
+        run: |
+          while ! pg_isready -h localhost -p 5432 -U postgres; do
+            sleep 1
+          done
+
+      - name: Set up database
+        run: |
+          diesel setup --database-url postgres://postgres:password@localhost:5432/database
+          diesel migration run --database-url postgres://postgres:password@localhost:5432/database
+          git checkout -- .
+        env:
+          DATABASE_URL: postgres://postgres:password@localhost:5432/mydatabase
+
+      - name: Seed database
+        run: |
+          psql postgres://postgres:password@localhost:5432/database -f src/tests/e2e/sql/seed.sql
+
+      - name: Run tests
+        run: cargo test
+        env:
+          MASTER_BACKEND_URL: localhost:1010
+          DATABASE_URL: postgres://postgres:password@localhost:5432/database
+          MASTER_METRICS_URL: localhost:1111
+          JWT_ACCESS_SECRET: some_secret
+          JWT_REFRESH_SECRET: some_secret
+          OAUTH_DISCORD_CLIENT_SECRET: not_used_in_tests
+          OAUTH_DISCORD_CLIENT_ID: not_used_in_tests
+          OAUTH_GITHUB_CLIENT_SECRET: not_used_in_tests
+          OAUTH_GITHUB_CLIENT_ID: not_used_in_tests
+          OAUTH_GOOGLE_CLIENT_SECRET: not_used_in_tests
+          OAUTH_GOOGLE_CLIENT_ID: not_used_in_tests
+          RESEND_API_KEY: not_used_in_tests
+          SERVER_MODE: development
