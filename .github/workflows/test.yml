@@ -30,22 +30,11 @@ jobs:
 
       - run: rustup toolchain install stable --profile minimal
 
-      - name: Install Diesel CLI
-        run: cargo install diesel_cli --no-default-features --features postgres
-
-      - name: Wait for Postgres to be ready
-        run: |
-          while ! pg_isready -h localhost -p 5432 -U postgres; do
-            sleep 1
-          done
-
       - name: Set up database
         run: |
-          diesel setup --database-url postgres://postgres:password@localhost:5432/database
-          diesel migration run --database-url postgres://postgres:password@localhost:5432/database
-          git checkout -- .
-        env:
-          DATABASE_URL: postgres://postgres:password@localhost:5432/mydatabase
+          find migrations -type f -name "up.sql" | while read file; do
+            psql postgres://postgres:password@localhost:5432/database -f $file
+          done
 
       - name: Seed database
         run: |
