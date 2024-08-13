@@ -26,13 +26,13 @@ pub async fn close_by_id(
                 schema::session::closed_at.eq(diesel::dsl::now),
             ))
             .get_result::<Session>(conn)
-            .map_err(|_| Error::Session(internal::Session::SessionNotFound))
+            .map_err(|_| Error::Session(internal::Session::NotFound))
         {
             Ok(session) => {
                 info!("Found session: {}", session.id);
                 session
             }
-            Err(_) => return Err(Error::Session(internal::Session::SessionNotFound)),
+            Err(_) => return Err(Error::Session(internal::Session::NotFound)),
         };
         let _ = diesel::update(schema::config::table)
             .filter(schema::config::id.eq(session.config_id))

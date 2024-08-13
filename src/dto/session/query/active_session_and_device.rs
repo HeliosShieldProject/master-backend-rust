@@ -43,7 +43,7 @@ impl SessionBy for ActiveSessionAndDevice {
         if result.len() != 1 {
             error!("Session not found for device_id: {}", device_id);
 
-            return Err(Error::Session(internal::Session::SessionNotFound));
+            return Err(Error::Session(internal::Session::NotFound));
         }
 
         info!(

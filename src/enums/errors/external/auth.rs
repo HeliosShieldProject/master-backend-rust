@@ -53,7 +53,7 @@ impl IntoResponse for Auth {
         Response {
             status,
             message: message.to_string(),
-            error: self,
+            error: self.to_string(),
         }
         .into_response()
     }

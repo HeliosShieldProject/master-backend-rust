@@ -274,6 +274,6 @@ mod test {
         let body = response.into_body().collect().await.unwrap().to_bytes();
         let body: Value = serde_json::from_slice(&body).unwrap();
 
-        assert_eq!(body["error"], Session::SessionNotFound.to_string());
+        assert_eq!(body["error"], Session::NotFound.to_string());
     }
 }

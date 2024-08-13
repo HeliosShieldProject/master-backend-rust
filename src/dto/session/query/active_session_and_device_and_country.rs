@@ -49,7 +49,7 @@ impl SessionBy for ActiveSessionAndDeviceAndCountry {
                 device_id, country
             );
 
-            return Err(Error::Session(internal::Session::SessionNotFound));
+            return Err(Error::Session(internal::Session::NotFound));
         }
 
         info!(
