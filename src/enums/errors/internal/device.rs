@@ -2,7 +2,7 @@
 pub enum Device {
     NotFound,
     SelfRevocation,
-    AlreadyRevoked
+    AlreadyRevoked,
 }
 
 impl std::fmt::Display for Device {

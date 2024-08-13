@@ -1,20 +1,20 @@
 mod auth;
 mod database;
+mod device;
 mod hash;
 mod reqwest;
 mod resend;
 mod session;
 mod token;
-mod device;
 
 pub use auth::Auth;
 pub use database::Database;
+pub use device::Device;
 pub use hash::Hash;
 pub use reqwest::Reqwest;
 pub use resend::Resend;
 pub use session::Session;
 pub use token::Token;
-pub use device::Device;
 
 #[derive(Debug, Clone)]
 pub enum Error {
@@ -25,7 +25,7 @@ pub enum Error {
     Database(Database),
     Reqwest(Reqwest),
     Resend(Resend),
-    Device(Device)
+    Device(Device),
 }
 
 impl std::fmt::Display for Error {
