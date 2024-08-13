@@ -57,7 +57,6 @@ diesel::table! {
         user_id -> Uuid,
         banned_at -> Nullable<Timestamp>,
         banned_till -> Nullable<Timestamp>,
-        revoked_at -> Nullable<Timestamp>,
         status -> DeviceStatus,
         created_at -> Timestamp,
         updated_at -> Timestamp,

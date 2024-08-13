@@ -5,6 +5,7 @@ mod reqwest;
 mod resend;
 mod session;
 mod token;
+mod device;
 
 pub use auth::Auth;
 pub use database::Database;
@@ -13,6 +14,7 @@ pub use reqwest::Reqwest;
 pub use resend::Resend;
 pub use session::Session;
 pub use token::Token;
+pub use device::Device;
 
 #[derive(Debug, Clone)]
 pub enum Error {
@@ -23,6 +25,7 @@ pub enum Error {
     Database(Database),
     Reqwest(Reqwest),
     Resend(Resend),
+    Device(Device)
 }
 
 impl std::fmt::Display for Error {
@@ -35,6 +38,7 @@ impl std::fmt::Display for Error {
             Error::Session(e) => write!(f, "{}", e),
             Error::Reqwest(e) => write!(f, "{}", e),
             Error::Resend(e) => write!(f, "{}", e),
+            Error::Device(e) => write!(f, "{}", e),
         }
     }
 }

@@ -85,7 +85,6 @@ CREATE TABLE
         "user_id" uuid NOT NULL,
         "banned_at" TIMESTAMP(3),
         "banned_till" TIMESTAMP(3),
-        "revoked_at" TIMESTAMP(3),
         "status" "DeviceStatus" NOT NULL DEFAULT 'LoggedIn',
         "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
