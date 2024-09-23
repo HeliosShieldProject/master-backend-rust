@@ -69,6 +69,7 @@ pub struct AppState {
     pub pool: Pool,
     pub oauth_providers: OAuthProviders,
     pub resend: Resend,
+    pub reqwest_client: reqwest::Client,
 }
 
 impl AppState {
@@ -76,10 +77,12 @@ impl AppState {
         let manager = Manager::new(&ENV.database_url, deadpool_diesel::Runtime::Tokio1);
         let pool = Pool::builder(manager).build().unwrap();
         let resend = Resend::new(&ENV.resend_api_key);
+        let reqwest_client = reqwest::Client::new();
         Self {
             pool,
             resend,
             oauth_providers: OAuthProviders::default(),
+            reqwest_client,
         }
     }
 }
@@ -99,5 +102,11 @@ impl FromRef<AppState> for OAuthProviders {
 impl FromRef<AppState> for Resend {
     fn from_ref(state: &AppState) -> Self {
         state.resend.clone()
+    }
+}
+
+impl FromRef<AppState> for reqwest::Client {
+    fn from_ref(state: &AppState) -> Self {
+        state.reqwest_client.clone()
     }
 }

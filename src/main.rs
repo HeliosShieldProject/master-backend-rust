@@ -15,6 +15,7 @@ extern crate openssl;
 #[macro_use]
 extern crate diesel;
 
+mod agent_api;
 mod config;
 mod data;
 mod dto;

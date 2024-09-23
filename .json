@@ -1,0 +1,16 @@
+{
+  "id": "inbound_id",
+  "settings": {
+    "clients": [
+      {
+        "id": "Uuid::new_v4()",
+        "flow": "",
+        "email": "a",
+        "limitIp": 0,
+        "totalGB": 0,
+        "expiryTime": 0,
+        "enable": true
+      }
+    ]
+  }
+}
