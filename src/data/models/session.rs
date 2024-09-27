@@ -10,7 +10,6 @@ use crate::data::{
 #[derive(Queryable, Selectable, Debug, Clone)]
 #[diesel(table_name = schema::session)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
-#[allow(dead_code)]
 pub struct Session {
     pub id: Uuid,
     pub device_id: Uuid,

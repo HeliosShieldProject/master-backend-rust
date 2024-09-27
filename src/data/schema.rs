@@ -32,8 +32,7 @@ pub mod sql_types {
 
 diesel::table! {
     use diesel::sql_types::*;
-    use super::sql_types::Os;
-    use super::sql_types::DeviceStatus;
+    use super::sql_types::{Os, DeviceStatus};
 
     device (id) {
         id -> Uuid,
@@ -59,8 +58,8 @@ diesel::table! {
         country -> Country,
         link -> Text,
         status -> SessionStatus,
-        up -> Nullable<Integer>,
-        down -> Nullable<Integer>,
+        up -> Nullable<Int4>,
+        down -> Nullable<Int4>,
         opened_at -> Timestamp,
         closed_at -> Nullable<Timestamp>,
     }

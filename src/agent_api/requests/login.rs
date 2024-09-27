@@ -8,7 +8,8 @@ use crate::{
     enums::errors::internal::{AgentAPI, Error, Result},
 };
 
-pub async fn login(agent_state: AgentState, country: &Country) -> Result<String> {
+pub async fn login(agent_state: &AgentState, country: &Country) -> Result<String> {
+    let agent_state = agent_state.clone();
     let client = agent_state.client;
     let agent = agent_state
         .agents

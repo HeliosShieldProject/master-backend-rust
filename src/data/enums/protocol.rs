@@ -8,11 +8,8 @@ use diesel::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(
-    Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy, Serialize, Deserialize, Hash,
-)]
+#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
 #[diesel(sql_type = crate::data::schema::sql_types::Protocol)]
-#[allow(clippy::upper_case_acronyms)]
 pub enum Protocol {
     Vless,
     Shadowsocks,

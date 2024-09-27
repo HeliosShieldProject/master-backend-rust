@@ -3,16 +3,14 @@ use tracing::info;
 use uuid::Uuid;
 
 use crate::{
-    data::{
-        enums::{ConfigStatus, SessionStatus},
-        models::Session,
-        schema,
-    },
+    agent_api,
+    data::{enums::SessionStatus, models::Session, schema},
     enums::errors::internal::{self, Error, Result},
 };
 
 pub async fn close_by_id(
     pool: &deadpool_diesel::postgres::Pool,
+    agent_state: &agent_api::AgentState,
     session_id: &Uuid,
 ) -> Result<Uuid> {
     let conn = pool.get().await?;

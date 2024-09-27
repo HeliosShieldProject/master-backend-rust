@@ -25,10 +25,11 @@ struct ClientStatsResponse {
 }
 
 pub async fn get_client_stats(
-    agent_state: AgentState,
-    country: Country,
+    agent_state: &AgentState,
+    country: &Country,
     device_id: &Uuid,
 ) -> Result<ClientStats> {
+    let agent_state = agent_state.clone();
     let cookie = agent_state.get_or_refresh_cookie(&country).await?;
     let agent = agent_state
         .agents

@@ -11,11 +11,12 @@ use crate::{
 };
 
 pub async fn create_client(
-    agent_state: AgentState,
-    country: Country,
-    protocol: Protocol,
+    agent_state: &AgentState,
+    country: &Country,
+    protocol: &Protocol,
     device_id: &Uuid,
 ) -> Result<Client> {
+    let agent_state = agent_state.clone();
     let cookie = agent_state.get_or_refresh_cookie(&country).await?;
     let agent = agent_state
         .agents

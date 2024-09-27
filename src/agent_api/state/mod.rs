@@ -30,7 +30,7 @@ impl AgentState {
         let cookie = agent.cookie.read().await;
 
         if cookie.expires_at < Instant::now() {
-            let new_cookie = login(self.clone(), country).await?;
+            let new_cookie = login(self, country).await?;
 
             let mut cookie = agent.cookie.write().await;
             cookie.cookie = new_cookie;
