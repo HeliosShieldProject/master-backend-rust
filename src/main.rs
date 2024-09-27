@@ -30,7 +30,7 @@ mod tests;
 mod utils;
 
 async fn start_main_server() {
-    let state = AppState::new();
+    let state = AppState::default();
     let app = app_router(state.clone()).with_state(state);
 
     let listener = TcpListener::bind(&ENV.master_backend_url).await.unwrap();

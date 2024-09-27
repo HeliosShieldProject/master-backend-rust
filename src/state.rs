@@ -1,9 +1,15 @@
+use std::collections::HashMap;
+
 use axum::extract::FromRef;
 use deadpool_diesel::postgres::{Manager, Pool};
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl};
 use resend_rs::Resend;
 
-use crate::{config::ENV, data::enums::OAuthProvider};
+use crate::{
+    agent_api::{state, AgentState},
+    config::ENV,
+    data::enums::{Country, OAuthProvider},
+};
 
 #[derive(Clone)]
 pub struct OAuthProviders {
@@ -13,7 +19,7 @@ pub struct OAuthProviders {
 }
 
 impl OAuthProviders {
-    pub fn new() -> Self {
+    pub fn default() -> Self {
         Self {
             discord: Self::client(
                 &ENV.discord_client_id,
@@ -70,19 +76,29 @@ pub struct AppState {
     pub oauth_providers: OAuthProviders,
     pub resend: Resend,
     pub reqwest_client: reqwest::Client,
+    pub agent_state: AgentState,
 }
 
 impl AppState {
-    pub fn new() -> Self {
+    pub fn default() -> Self {
         let manager = Manager::new(&ENV.database_url, deadpool_diesel::Runtime::Tokio1);
         let pool = Pool::builder(manager).build().unwrap();
         let resend = Resend::new(&ENV.resend_api_key);
         let reqwest_client = reqwest::Client::new();
+        let mut servers: HashMap<Country, state::Agent> = HashMap::new();
+        servers.insert(
+            Country::UK,
+            state::Agent::from(ENV.agent_config_uk.as_str()),
+        );
+
+        let agent_state = AgentState::new(servers);
+
         Self {
             pool,
             resend,
-            oauth_providers: OAuthProviders::new(),
+            oauth_providers: OAuthProviders::default(),
             reqwest_client,
+            agent_state,
         }
     }
 }

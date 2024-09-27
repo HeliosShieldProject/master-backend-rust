@@ -1,41 +1,15 @@
 use std::collections::HashMap;
-use std::sync::Arc;
-use std::time::{Duration, Instant};
+use tokio::time::{Duration, Instant};
 
-use tokio::sync::RwLock;
+pub use agent::Agent;
 
 use crate::{data::enums::Country, enums::errors::internal::Result};
 
 use super::requests::login;
 
-#[derive(Clone)]
-pub struct CookieInfo {
-    pub cookie: String,
-    pub expires_at: Instant,
-}
-
-#[derive(Clone)]
-pub struct ShadowsocksConfig {
-    pub port: u16,
-    pub method: String,
-    pub password: String,
-}
-
-#[derive(Clone)]
-pub struct VlessConfig {
-    pub port: u16,
-}
-
-#[derive(Clone)]
-pub struct Agent {
-    pub host: String,
-    pub secure_path: String,
-    pub username: String,
-    pub password: String,
-    pub shadowsocks_config: ShadowsocksConfig,
-    pub vless_config: VlessConfig,
-    pub cookie: Arc<RwLock<CookieInfo>>,
-}
+mod agent;
+mod configs;
+mod cookie;
 
 #[derive(Clone)]
 pub struct AgentState {

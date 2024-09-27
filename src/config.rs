@@ -35,6 +35,7 @@ pub struct Config {
     pub google_client_id: String,
     pub resend_api_key: String,
     pub server_mode: ServerMode,
+    pub agent_config_uk: String,
 }
 
 pub static ENV: Lazy<Config> = Lazy::new(|| {
@@ -60,6 +61,7 @@ pub static ENV: Lazy<Config> = Lazy::new(|| {
             .expect("SERVER_MODE must be set")
             .parse()
             .unwrap(),
+        agent_config_uk: env::var("AGENT_CONFIG_UK").expect("AGENT_CONFIG_UK must be set"),
     }
 });
 
