@@ -15,7 +15,7 @@ impl std::str::FromStr for ServerMode {
         match s {
             "development" => Ok(ServerMode::Development),
             "production" => Ok(ServerMode::Production),
-            _ => Err("Unknown server type".to_string()),
+            _ => Err("Unknown server mode".to_string()),
         }
     }
 }

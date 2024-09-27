@@ -1,27 +1,32 @@
 use reqwest::header::SET_COOKIE;
+use serde_json::Value;
 use tracing::error;
 
 use crate::{
-    agent_api::dto::AgentResponse,
+    agent_api::{dto::AgentResponse, AgentState},
+    data::enums::Country,
     enums::errors::internal::{AgentAPI, Error, Result},
 };
 
-pub async fn login(
-    client: &reqwest::Client,
-    url: &str,
-    username: &str,
-    password: &str,
-) -> Result<String> {
-    let params = [("username", username), ("password", password)];
+pub async fn login(agent_state: AgentState, country: &Country) -> Result<String> {
+    let client = agent_state.client;
+    let agent = agent_state
+        .agents
+        .get(&country)
+        .ok_or(Error::AgentAPI(AgentAPI::Internal))?;
+    let params = [("username", &agent.username), ("password", &agent.password)];
 
     let res = client
-        .post(format!("http://{url}/login"))
+        .post(format!(
+            "http://{}:{}/{}/login",
+            agent.host, agent.port, agent.secure_path
+        ))
         .form(&params)
         .send()
         .await?;
 
     let cookies = res.headers().get_all(SET_COOKIE).iter().last().cloned();
-    let body = res.json::<AgentResponse>().await?;
+    let body = res.json::<AgentResponse<Value>>().await?;
 
     if !body.success || cookies.is_none() {
         error!("Login failed: {}", body.msg);

@@ -1,9 +1,8 @@
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct AgentResponse {
+pub struct AgentResponse<T> {
     pub success: bool,
     pub msg: String,
-    pub obj: Option<Value>,
+    pub obj: Option<T>,
 }

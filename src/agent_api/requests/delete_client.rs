@@ -1,17 +1,16 @@
+use serde_json::Value;
 use uuid::Uuid;
 
 use crate::{
     agent_api::{dto::AgentResponse, AgentState},
-    data::enums::Country,
+    data::enums::{Country, Protocol},
     enums::errors::internal::{AgentAPI, Error, Result},
 };
 
 pub async fn delete_client(
     agent_state: AgentState,
     country: Country,
-    host: &str,
-    port: u16,
-    inbound_id: u32,
+    protocol: Protocol,
     device_id: &Uuid,
 ) -> Result<()> {
     let cookie = agent_state.get_or_refresh_cookie(&country).await?;
@@ -20,16 +19,20 @@ pub async fn delete_client(
         .get(&country)
         .ok_or(Error::AgentAPI(AgentAPI::Internal))?;
     let client = agent_state.client;
+    let inbound_id = match protocol {
+        Protocol::Vless => agent.vless_config.inbound_id,
+        Protocol::Shadowsocks => agent.shadowsocks_config.inbound_id,
+    };
 
     let res = client
         .post(format!(
             "http://{}:{}/{}/panel/api/inbounds/{}/delClient/{}",
-            host, port, agent.secure_path, inbound_id, device_id
+            agent.host, agent.port, agent.secure_path, inbound_id, device_id
         ))
         .header("Cookie", cookie)
         .send()
         .await?
-        .json::<AgentResponse>()
+        .json::<AgentResponse<Value>>()
         .await?;
 
     if !res.success {

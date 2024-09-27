@@ -1,23 +1,19 @@
-use serde_json::json;
+use serde_json::{json, Value};
 use uuid::Uuid;
 
 use crate::{
     agent_api::{
         dto::{AgentResponse, Client},
-        enums::Protocol,
         utils, AgentState,
     },
-    data::enums::Country,
+    data::enums::{Country, Protocol},
     enums::errors::internal::{AgentAPI, Error, Result},
 };
 
 pub async fn create_client(
     agent_state: AgentState,
     country: Country,
-    host: &str,
-    port: u16,
     protocol: Protocol,
-    inbound_id: u32,
     device_id: &Uuid,
 ) -> Result<Client> {
     let cookie = agent_state.get_or_refresh_cookie(&country).await?;
@@ -27,13 +23,14 @@ pub async fn create_client(
         .ok_or(Error::AgentAPI(AgentAPI::Internal))?;
     let client = agent_state.client;
 
-    let (client_body, link) = match protocol {
+    let (inbound_id, client_body, link) = match protocol {
         Protocol::Vless => {
             let client_id = Uuid::new_v4();
             let client_body = utils::client_json::vless(&client_id, device_id);
-            let link = utils::link::vless(&client_id, host, agent.vless_config.port, device_id);
-
-            (client_body, link)
+            let link =
+                utils::link::vless(&client_id, &agent.host, agent.vless_config.port, device_id);
+            let inbound_id = agent.vless_config.inbound_id;
+            (inbound_id, client_body, link)
         }
         Protocol::Shadowsocks => {
             let password = utils::password_generator::shadowsocks();
@@ -41,19 +38,20 @@ pub async fn create_client(
             let link = utils::link::shadowsocks(
                 &agent.password,
                 &password,
-                host,
+                &agent.host,
                 agent.shadowsocks_config.port,
                 device_id,
             );
+            let inbound_id = agent.shadowsocks_config.inbound_id;
 
-            (client_body, link)
+            (inbound_id, client_body, link)
         }
     };
 
     let res = client
         .post(format!(
             "http://{}:{}/{}/panel/api/inbounds/addClient",
-            host, port, agent.secure_path
+            agent.host, agent.port, agent.secure_path
         ))
         .header("Cookie", cookie)
         .json(&json!({
@@ -65,12 +63,12 @@ pub async fn create_client(
         ))
         .send()
         .await?
-        .json::<AgentResponse>()
+        .json::<AgentResponse<Value>>()
         .await?;
 
     if !res.success {
         return Err(Error::AgentAPI(AgentAPI::Internal));
     }
 
-    Ok(Client { inbound_id, link })
+    Ok(Client { link })
 }
