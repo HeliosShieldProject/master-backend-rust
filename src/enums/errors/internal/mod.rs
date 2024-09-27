@@ -1,3 +1,4 @@
+mod agent_api;
 mod auth;
 mod database;
 mod device;
@@ -7,6 +8,7 @@ mod resend;
 mod session;
 mod token;
 
+pub use agent_api::AgentAPI;
 pub use auth::Auth;
 pub use database::Database;
 pub use device::Device;
@@ -26,6 +28,7 @@ pub enum Error {
     Reqwest(Reqwest),
     Resend(Resend),
     Device(Device),
+    AgentAPI(AgentAPI),
 }
 
 impl std::fmt::Display for Error {
@@ -39,6 +42,7 @@ impl std::fmt::Display for Error {
             Error::Reqwest(e) => write!(f, "{}", e),
             Error::Resend(e) => write!(f, "{}", e),
             Error::Device(e) => write!(f, "{}", e),
+            Error::AgentAPI(e) => write!(f, "{}", e),
         }
     }
 }

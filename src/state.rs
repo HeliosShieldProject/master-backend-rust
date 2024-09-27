@@ -13,7 +13,7 @@ pub struct OAuthProviders {
 }
 
 impl OAuthProviders {
-    pub fn default() -> Self {
+    pub fn new() -> Self {
         Self {
             discord: Self::client(
                 &ENV.discord_client_id,
@@ -73,7 +73,7 @@ pub struct AppState {
 }
 
 impl AppState {
-    pub fn default() -> Self {
+    pub fn new() -> Self {
         let manager = Manager::new(&ENV.database_url, deadpool_diesel::Runtime::Tokio1);
         let pool = Pool::builder(manager).build().unwrap();
         let resend = Resend::new(&ENV.resend_api_key);
@@ -81,7 +81,7 @@ impl AppState {
         Self {
             pool,
             resend,
-            oauth_providers: OAuthProviders::default(),
+            oauth_providers: OAuthProviders::new(),
             reqwest_client,
         }
     }
