@@ -58,8 +58,8 @@ diesel::table! {
         country -> Country,
         link -> Text,
         status -> SessionStatus,
-        up -> Nullable<Int4>,
-        down -> Nullable<Int4>,
+        up -> Nullable<Integer>,
+        down -> Nullable<Integer>,
         opened_at -> Timestamp,
         closed_at -> Nullable<Timestamp>,
     }

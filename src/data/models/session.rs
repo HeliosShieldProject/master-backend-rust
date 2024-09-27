@@ -13,8 +13,8 @@ use crate::data::{
 pub struct Session {
     pub id: Uuid,
     pub device_id: Uuid,
-    pub country: Country,
     pub protocol: Protocol,
+    pub country: Country,
     pub link: String,
     pub status: SessionStatus,
     pub up: Option<i32>,

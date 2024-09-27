@@ -40,7 +40,7 @@ pub async fn create(
     .await
     {
         let (session, _device) = current_session;
-        let response = response::Session::from(session);
+        let response = response::Session::from(session.clone());
         info!(
             "Found active session with the same country and protocol: {}",
             session.id
