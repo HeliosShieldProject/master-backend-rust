@@ -30,10 +30,7 @@ impl SessionBy for ActiveSessionAndDevice {
                     .inner_join(schema::device::table)
                     .filter(schema::session::device_id.eq(device_id))
                     .filter(schema::session::status.eq(SessionStatus::Active))
-                    .select((
-                        Session::as_select(),
-                        Device::as_select()
-                    ))
+                    .select((Session::as_select(), Device::as_select()))
                     .load::<(Session, Device)>(conn)
             })
             .await??;
