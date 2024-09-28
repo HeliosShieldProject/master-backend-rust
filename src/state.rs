@@ -1,9 +1,15 @@
+use std::collections::HashMap;
+
 use axum::extract::FromRef;
 use deadpool_diesel::postgres::{Manager, Pool};
 use oauth2::{basic::BasicClient, AuthUrl, ClientId, ClientSecret, RedirectUrl, TokenUrl};
 use resend_rs::Resend;
 
-use crate::{config::ENV, data::enums::OAuthProvider};
+use crate::{
+    agent_api::{state, AgentState},
+    config::ENV,
+    data::enums::{Country, OAuthProvider},
+};
 
 #[derive(Clone)]
 pub struct OAuthProviders {
@@ -69,6 +75,8 @@ pub struct AppState {
     pub pool: Pool,
     pub oauth_providers: OAuthProviders,
     pub resend: Resend,
+    pub reqwest_client: reqwest::Client,
+    pub agent_state: AgentState,
 }
 
 impl AppState {
@@ -76,10 +84,21 @@ impl AppState {
         let manager = Manager::new(&ENV.database_url, deadpool_diesel::Runtime::Tokio1);
         let pool = Pool::builder(manager).build().unwrap();
         let resend = Resend::new(&ENV.resend_api_key);
+        let reqwest_client = reqwest::Client::new();
+        let mut servers: HashMap<Country, state::Agent> = HashMap::new();
+        servers.insert(
+            Country::UK,
+            state::Agent::from(ENV.agent_config_uk.as_str()),
+        );
+
+        let agent_state = AgentState::new(servers);
+
         Self {
             pool,
             resend,
             oauth_providers: OAuthProviders::default(),
+            reqwest_client,
+            agent_state,
         }
     }
 }
@@ -99,5 +118,11 @@ impl FromRef<AppState> for OAuthProviders {
 impl FromRef<AppState> for Resend {
     fn from_ref(state: &AppState) -> Self {
         state.resend.clone()
+    }
+}
+
+impl FromRef<AppState> for reqwest::Client {
+    fn from_ref(state: &AppState) -> Self {
+        state.reqwest_client.clone()
     }
 }

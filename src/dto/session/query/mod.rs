@@ -1,5 +1,5 @@
-pub mod active_session_and_device;
-pub use active_session_and_device::ActiveSessionAndDevice;
+mod active_session_and_device;
+mod active_session_and_device_and_country_and_protocol;
 
-pub mod active_session_and_device_and_country;
-pub use active_session_and_device_and_country::ActiveSessionAndDeviceAndCountry;
+pub use active_session_and_device::ActiveSessionAndDevice;
+pub use active_session_and_device_and_country_and_protocol::ActiveSessionAndDeviceAndCountryAndProtocol;

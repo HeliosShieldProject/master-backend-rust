@@ -4,67 +4,72 @@ use uuid::Uuid;
 
 use super::close_by_id;
 use crate::{
+    agent_api,
     data::{
-        enums::{ConfigStatus, Country, SessionStatus},
+        enums::{Country, Protocol, SessionStatus},
         models::Session,
         schema,
     },
     dto::session::{
         interface::get_session,
         internal::NewSession,
-        query::{ActiveSessionAndDevice, ActiveSessionAndDeviceAndCountry},
+        query::{ActiveSessionAndDevice, ActiveSessionAndDeviceAndCountryAndProtocol},
         response,
     },
     enums::errors::internal::Result,
-    services::config::get_by_country,
 };
 
 pub async fn create(
     pool: &deadpool_diesel::postgres::Pool,
-    device_id: &Uuid,
+    agent_state: &agent_api::AgentState,
     country: &Country,
+    protocol: &Protocol,
+    device_id: &Uuid,
 ) -> Result<response::Session> {
     let conn = pool.get().await?;
-    let (device_id, country) = (*device_id, *country);
+    let (device_id, country, protocol) = (*device_id, *country, *protocol);
 
     if let Ok(current_session) = get_session(
         pool,
-        ActiveSessionAndDeviceAndCountry { device_id, country },
+        ActiveSessionAndDeviceAndCountryAndProtocol {
+            device_id,
+            country,
+            protocol,
+        },
     )
     .await
     {
-        let (session, _device, config, server) = current_session;
-        let response = response::Session::new(session.clone(), server, config);
-        info!("Found active session with the same country: {}", session.id);
+        let (session, _device) = current_session;
+        let response = response::Session::from(session.clone());
+        info!(
+            "Found active session with the same country and protocol: {}",
+            session.id
+        );
         return Ok(response);
     }
 
-    if let Ok((session, _, _, _)) = get_session(pool, ActiveSessionAndDevice { device_id }).await {
-        let _ = close_by_id(pool, &session.id).await?;
+    if let Ok((session, _)) = get_session(pool, ActiveSessionAndDevice { device_id }).await {
+        let _ = close_by_id(pool, agent_state, &session.id).await?;
     }
 
-    let (config, server) = get_by_country(pool, &country).await?;
-    let new_session = NewSession {
+    let new_client =
+        agent_api::requests::create_client(agent_state, &country, &protocol, &device_id).await?;
+    let data = NewSession {
         status: SessionStatus::Active,
         device_id,
-        config_id: config.id,
+        country,
+        protocol,
+        link: new_client.link,
     };
-
-    let session: Session = conn
+    let new_session: Session = conn
         .interact(move |conn| {
-            let session = diesel::insert_into(schema::session::table)
-                .values(&new_session)
-                .get_result::<Session>(conn);
-            let _ = diesel::update(schema::config::table)
-                .filter(schema::config::id.eq(config.id))
-                .set(schema::config::status.eq(ConfigStatus::InUse))
-                .execute(conn);
-
-            session
+            diesel::insert_into(schema::session::table)
+                .values(&data)
+                .get_result(conn)
         })
         .await??;
 
-    info!("Created session: {}", session.id);
+    info!("Created session: {}", new_session.id);
 
-    Ok(response::Session::new(session, server, config))
+    Ok(response::Session::from(new_session))
 }

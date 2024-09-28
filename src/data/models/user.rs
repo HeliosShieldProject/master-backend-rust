@@ -11,8 +11,6 @@ use crate::data::{enums::UserStatus, schema};
 pub struct User {
     pub id: Uuid,
     pub email: String,
-    pub banned_at: Option<NaiveDateTime>,
-    pub banned_till: Option<NaiveDateTime>,
     pub status: UserStatus,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,

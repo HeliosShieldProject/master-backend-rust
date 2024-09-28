@@ -8,7 +8,9 @@ use diesel::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy, Serialize, Deserialize)]
+#[derive(
+    Debug, AsExpression, FromSqlRow, PartialEq, Eq, Clone, Copy, Serialize, Deserialize, Hash,
+)]
 #[diesel(sql_type = crate::data::schema::sql_types::Country)]
 #[allow(clippy::upper_case_acronyms)]
 pub enum Country {

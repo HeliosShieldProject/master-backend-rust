@@ -1,5 +1,4 @@
 use axum::{extract::State, http::StatusCode};
-use deadpool_diesel::postgres::Pool;
 use tracing::info;
 
 use crate::{
@@ -11,14 +10,22 @@ use crate::{
     enums::errors::external::Result,
     extractors::Json,
     services::session,
+    state::AppState,
 };
 
 pub async fn create_session(
     claims: AccessToken,
-    State(pool): State<Pool>,
+    State(state): State<AppState>,
     Json(payload): Json<CreateSession>,
 ) -> Result<Response<Session>> {
-    let session = session::create(&pool, &claims.device_id, &payload.country).await?;
+    let session = session::create(
+        &state.pool,
+        &state.agent_state,
+        &payload.country,
+        &payload.protocol,
+        &claims.device_id,
+    )
+    .await?;
 
     info!("Session created successfully: {}", session.session_id);
 

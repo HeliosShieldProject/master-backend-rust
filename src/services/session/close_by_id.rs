@@ -3,44 +3,35 @@ use tracing::info;
 use uuid::Uuid;
 
 use crate::{
-    data::{
-        enums::{ConfigStatus, SessionStatus},
-        models::Session,
-        schema,
-    },
+    agent_api,
+    data::{models::Session, schema},
     enums::errors::internal::{self, Error, Result},
 };
 
 pub async fn close_by_id(
     pool: &deadpool_diesel::postgres::Pool,
+    agent_state: &agent_api::AgentState,
     session_id: &Uuid,
 ) -> Result<Uuid> {
     let conn = pool.get().await?;
     let session_id = *session_id;
 
-    conn.interact(move |conn| {
-        let session = match diesel::update(schema::session::table)
-            .filter(schema::session::id.eq(session_id))
-            .set((
-                schema::session::status.eq(SessionStatus::Closed),
-                schema::session::closed_at.eq(diesel::dsl::now),
-            ))
-            .get_result::<Session>(conn)
-            .map_err(|_| Error::Session(internal::Session::NotFound))
-        {
-            Ok(session) => {
-                info!("Found session: {}", session.id);
-                session
-            }
-            Err(_) => return Err(Error::Session(internal::Session::NotFound)),
-        };
-        let _ = diesel::update(schema::config::table)
-            .filter(schema::config::id.eq(session.config_id))
-            .set(schema::config::status.eq(ConfigStatus::NotInUse))
-            .execute(conn);
-        Ok(())
-    })
-    .await??;
+    let session = conn
+        .interact(move |conn| {
+            schema::session::table
+                .filter(schema::session::id.eq(session_id))
+                .first::<Session>(conn)
+        })
+        .await?
+        .map_err(|_| Error::Session(internal::Session::NotFound))?;
+
+    agent_api::requests::delete_client(
+        agent_state,
+        &session.country,
+        &session.protocol,
+        &session.device_id,
+    )
+    .await?;
 
     info!("Closed session: {}", session_id);
 

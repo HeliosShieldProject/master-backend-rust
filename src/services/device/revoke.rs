@@ -3,6 +3,7 @@ use tracing::info;
 use uuid::Uuid;
 
 use crate::{
+    agent_api,
     data::{enums::DeviceStatus, schema},
     dto::{
         auth::internal::AccessToken,
@@ -14,6 +15,7 @@ use crate::{
 
 pub async fn revoke(
     pool: &deadpool_diesel::postgres::Pool,
+    agent_state: &agent_api::AgentState,
     author: AccessToken,
     device_id: &Uuid,
 ) -> Result<()> {
@@ -36,8 +38,8 @@ pub async fn revoke(
         return Err(Error::Device(Device::AlreadyRevoked));
     }
 
-    if let Ok((session, _, _, _)) = get_session(pool, ActiveSessionAndDevice { device_id }).await {
-        let _ = services::session::close_by_id(pool, &session.id).await?;
+    if let Ok((session, _)) = get_session(pool, ActiveSessionAndDevice { device_id }).await {
+        let _ = services::session::close_by_id(pool, agent_state, &session.id).await?;
     }
 
     conn.interact(move |conn| {
