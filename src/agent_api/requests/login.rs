@@ -13,7 +13,7 @@ pub async fn login(agent_state: &AgentState, country: &Country) -> Result<String
     let client = agent_state.client;
     let agent = agent_state
         .agents
-        .get(&country)
+        .get(country)
         .ok_or(Error::AgentAPI(AgentAPI::Internal))?;
     let params = [("username", &agent.username), ("password", &agent.password)];
 
@@ -24,7 +24,11 @@ pub async fn login(agent_state: &AgentState, country: &Country) -> Result<String
         ))
         .form(&params)
         .send()
-        .await?;
+        .await
+        .map_err(|e| {
+            error!("Login failed: {}", e);
+            Error::AgentAPI(AgentAPI::Internal)
+        })?;
 
     let cookies = res.headers().get_all(SET_COOKIE).iter().last().cloned();
     let body = res.json::<AgentResponse<Value>>().await?;
@@ -34,5 +38,8 @@ pub async fn login(agent_state: &AgentState, country: &Country) -> Result<String
         return Err(Error::AgentAPI(AgentAPI::Internal));
     }
 
-    Ok(cookies.unwrap().to_str().unwrap().to_string())
+    let cookies = cookies.unwrap().to_str().unwrap().to_string();
+    println!("Cookies: {:?}", cookies.clone());
+
+    Ok(cookies)
 }

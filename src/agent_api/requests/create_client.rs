@@ -17,10 +17,10 @@ pub async fn create_client(
     device_id: &Uuid,
 ) -> Result<Client> {
     let agent_state = agent_state.clone();
-    let cookie = agent_state.get_or_refresh_cookie(&country).await?;
+    let cookie = agent_state.get_or_refresh_cookie(country).await?;
     let agent = agent_state
         .agents
-        .get(&country)
+        .get(country)
         .ok_or(Error::AgentAPI(AgentAPI::Internal))?;
     let client = agent_state.client;
 

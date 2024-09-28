@@ -14,20 +14,20 @@ pub mod sql_types {
     pub struct Os;
 
     #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
-    #[diesel(postgres_type(name = "SessionStatus"))]
-    pub struct SessionStatus;
-
-    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
-    #[diesel(postgres_type(name = "UserStatus"))]
-    pub struct UserStatus;
-
-    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
     #[diesel(postgres_type(name = "OAuthProvider"))]
     pub struct OAuthProvider;
 
     #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
     #[diesel(postgres_type(name = "Protocol"))]
     pub struct Protocol;
+
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "SessionStatus"))]
+    pub struct SessionStatus;
+
+    #[derive(diesel::query_builder::QueryId, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "UserStatus"))]
+    pub struct UserStatus;
 }
 
 diesel::table! {
@@ -39,8 +39,6 @@ diesel::table! {
         name -> Text,
         os -> Os,
         user_id -> Uuid,
-        banned_at -> Nullable<Timestamp>,
-        banned_till -> Nullable<Timestamp>,
         status -> DeviceStatus,
         created_at -> Timestamp,
         updated_at -> Timestamp,
@@ -58,8 +56,8 @@ diesel::table! {
         country -> Country,
         link -> Text,
         status -> SessionStatus,
-        up -> Nullable<Integer>,
-        down -> Nullable<Integer>,
+        up -> Nullable<BigInt>,
+        down -> Nullable<BigInt>,
         opened_at -> Timestamp,
         closed_at -> Nullable<Timestamp>,
     }
@@ -72,8 +70,6 @@ diesel::table! {
     user (id) {
         id -> Uuid,
         email -> Text,
-        banned_at -> Nullable<Timestamp>,
-        banned_till -> Nullable<Timestamp>,
         status -> UserStatus,
         created_at -> Timestamp,
         updated_at -> Timestamp,

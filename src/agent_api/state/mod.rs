@@ -31,8 +31,8 @@ impl AgentState {
 
         if cookie.expires_at < Instant::now() {
             let new_cookie = login(self, country).await?;
-
             let mut cookie = agent.cookie.write().await;
+            println!("Refreshed cookie: {:?}", new_cookie);
             cookie.cookie = new_cookie;
             cookie.expires_at = Instant::now() + Duration::from_secs(60 * 59);
         }

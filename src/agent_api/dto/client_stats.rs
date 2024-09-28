@@ -1,4 +1,4 @@
 pub struct ClientStats {
-    pub up: i32,
-    pub down: i32,
+    pub up: i64,
+    pub down: i64,
 }

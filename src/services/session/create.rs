@@ -53,7 +53,7 @@ pub async fn create(
     }
 
     let new_client =
-        agent_api::requests::create_client(&agent_state, &country, &protocol, &device_id).await?;
+        agent_api::requests::create_client(agent_state, &country, &protocol, &device_id).await?;
     let data = NewSession {
         status: SessionStatus::Active,
         device_id,

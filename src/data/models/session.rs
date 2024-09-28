@@ -17,8 +17,8 @@ pub struct Session {
     pub country: Country,
     pub link: String,
     pub status: SessionStatus,
-    pub up: Option<i32>,
-    pub down: Option<i32>,
+    pub up: Option<i64>,
+    pub down: Option<i64>,
     pub opened_at: NaiveDateTime,
     pub closed_at: Option<NaiveDateTime>,
 }
