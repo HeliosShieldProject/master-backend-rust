@@ -10,7 +10,7 @@ use super::close_by_id;
 
 pub async fn close(
     pool: &deadpool_diesel::postgres::Pool,
-    agent_state: agent_api::AgentState,
+    agent_state: &agent_api::AgentState,
     device_id: &Uuid,
 ) -> Result<Uuid> {
     let (session, _) = get_session(
